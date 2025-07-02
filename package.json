@@ -1,6 +1,6 @@
 {
   "name": "worldwar2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Free online World War 2 simulation game",
   "license": "GPL-3.0-only",
   "author": "Gustav Lindberg",
@@ -9,7 +9,7 @@
     "test": "npx vitest --run --test-timeout=60000"
   },
   "dependencies": {
-    "@types/lodash": "4.17.16",
+    "@types/lodash": "4.17.x",
     "@types/progressbar.js": "1.1.x",
     "@types/tippy.js": "6.3.x",
     "@types/toastify-js": "1.12.x",
