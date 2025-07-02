@@ -450,9 +450,12 @@ export default class ComputerMovementPhase {
         if(unit.inPort && (country === null || (unit.hex().country === country && !unit.hex().isColony))){
             return null;
         }
+        const destinationCountries: ReadonlyArray<Country | null> = country === null
+            ? SupplyLines.supplySourcesUseableBy(unit.owner)
+            : [country];
         let passedHexes = SupplyLines.simplifiedPathBetweenHexes(
             unit.hex(),
-            destination => destination.country === (country ?? unit.owner)
+            destination => destinationCountries.includes(destination.country)
                 && destination.controller()?.partnership() === this.#partnership
                 && destination.isPort()
                 && (country !== null || unit.canEnterHexWithinStackingLimits(destination, true))

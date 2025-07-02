@@ -135,7 +135,7 @@ namespace SupplyLines {
      *
      * @returns The countries whoses supply sources the given country can use.
      */
-    function supplySourcesUseableBy(country: Country): Array<Country> {
+    export function supplySourcesUseableBy(country: Country): Array<Country> {
         if(country === null || country.hasBeenConquered()){
             return Countries.all().filter(it => it.partnership() === country.partnership());
         }
