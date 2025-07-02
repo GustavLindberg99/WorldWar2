@@ -1,0 +1,56 @@
+import CountryWithUnits from "../country-with-units.js";
+
+import { Countries, Country } from "../../countries.js";
+import { date, Month } from "../../date.js";
+import { Partnership } from "../../partnership.js";
+import { AirUnit, Destroyer, HeavyCruiser, Infantry, LightCruiser, TransportShip } from "../../units.js";
+
+export default class Australia extends CountryWithUnits {
+    constructor(){
+        super(Partnership.Allies);
+        this.availableUnits = new Set([
+            ...(new Array(15)).fill(null).map(() => new Infantry(1, 4, this)),
+            new Destroyer("V", 1, 2, 49, this),
+            new LightCruiser("Adelaide", 1, 1, 36, this),
+            new LightCruiser("Hobart", 1, 1, 46, this),
+            new LightCruiser("Perth", 1, 1, 46, this),
+            new LightCruiser("Sydney", 1, 1, 46, this),
+            new HeavyCruiser("Australia", 3, 3, 44, this),
+            new HeavyCruiser("Canberra", 3, 3, 44, this),
+            ...(new Array(2)).fill(null).map(() => new TransportShip(this))
+        ]);
+    }
+
+    override addNewAvailableUnits(): void {
+        if(this.conquered()){
+            return;
+        }
+        if(date.current === date(1940, Month.June)){
+            this.availableUnits.add(new Destroyer("N", 1, 1, 52, this));
+            this.availableUnits.add(new Destroyer("Tribal", 1, 1, 52, this));
+        }
+        else if(date.current === date(1942, Month.January) || date.current === date(1943, Month.June)){
+            this.availableUnits.add(new AirUnit("Spitfire", this));
+        }
+    }
+
+    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
+        return [Countries.unitedKingdom].filter(it => it.canBeInvadedBy(partnership));
+    }
+
+    override canSendMoneyWithoutConvoys(): Array<Country> {
+        return [Countries.unitedStates].filter(it => it.partnership() === this.partnership() && !it.conquered());
+    }
+
+    override name(): string {
+        return "Australia";
+    }
+
+    override railCapacity(): number {
+        return 1;
+    }
+
+    override color(): string {
+        return "#a8e864";
+    }
+}

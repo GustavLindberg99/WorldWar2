@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <meta name="author" content="Gustav Lindberg"/>
+    <meta name="description" content="Free online World War 2 simulation game"/>
+    <meta name="keywords" content="game,world war 2,free,simulation"/>
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <title>Free online World War 2 simulation game</title>
+
+    <!-- Xdialog (library for showing dialogs) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/xxjapp/xdialog@3.4/xdialog.min.js" async crossorigin></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xxjapp/xdialog@3.4/xdialog.min.css" media="none" onload="this.media='all'"/>
+
+    <!-- Tippy.js (library for showing bubbles). The CSS is Map Collector's own customization of the tippy bubble. -->
+    <script type="text/javascript" src="https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js" defer crossorigin></script>
+    <script type="text/javascript" src="https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js" defer crossorigin></script>
+    <link rel="stylesheet" type="text/css" href="css/tippy.css" media="none" onload="this.media='all'"/>
+
+    <!-- Toastify (library for showing toast messages) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js" async crossorigin></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" media="none" onload="this.media='all'"/>
+
+    <!-- ProgressBar.js -->
+    <script type="text/javascript" src="https://unpkg.com/progressbar.js@1.1.1/dist/progressbar.min.js"></script>
+
+    <!-- Svg-pan-zoom (library allowing to pan and zoom the mapsheet) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"></script>
+
+    <!-- Game -->
+    <script type="module" src="build/main.js" async></script>
+    <link rel="stylesheet" type="text/css" href="css/new-game.css"/>
+    <link rel="stylesheet" type="text/css" href="css/mapsheet.css"/>
+    <link rel="stylesheet" type="text/css" href="css/layout.css"/>
+    <link rel="stylesheet" type="text/css" href="css/info-bubble.css"/>
+    <link rel="stylesheet" type="text/css" href="css/unit-marker.css"/>
+    <link rel="stylesheet" type="text/css" href="css/human-money-exchange.css"/>
+    <link rel="stylesheet" type="text/css" href="css/country-list.css"/>
+
+    <!-- General -->
+    <link rel="stylesheet" type="text/css" href="css/general.css"/>
+    <link rel="stylesheet" type="text/css" href="css/defines.css"/>
+</head>
+<body>
+    <section role="application">
+        <div id="phases" style="display:none">
+            <div><img id="warDeclarationPhase" src="images/phases/war-declaration.svg" title="War Declaration Phase" alt="War Declaration Phase"/><div><div></div></div></div>
+            <div><img id="deploymentPhase" src="images/phases/deployment.svg" title="Deployment Phase" alt="Deployment Phase"/><div><div></div></div></div>
+            <div><img id="incomePhase" src="images/phases/income.svg" title="Income Phase" alt="Income Phase"/><div><div></div></div></div>
+            <div><img id="unitBuildPhase" src="images/phases/unit-build.svg" title="Unit Build Phase" alt="Unit Build Phase"/><div><div></div></div></div>
+            <div><img id="mainPhase" src="images/phases/main.svg" title="Main Phase" alt="Main Phase"/><div><div></div></div></div>
+            <div><img id="overrunPhase" src="images/phases/overrun.svg" title="Overrun Phase" alt="Overrun Phase" class="subphase"/><div><div></div></div></div>
+            <div><img id="firstMovementPhase" src="images/phases/first-movement.svg" title="First Movement Phase" alt="First Movement Phase" class="subphase"/><div><div></div></div></div>
+            <div><img id="interceptionPhase" src="images/phases/interception.svg" title="Interception Phase" alt="Interception Phase" class="subphase"/><div><div></div></div></div>
+            <div><img id="amphibiousParadropPhase" src="images/phases/amphibious-paradrop.svg" title="Amphibious and Paradrop Phase" alt="Amphibious and Paradrop Phase" class="subphase"/><div><div></div></div></div>
+            <div><img id="combatPhase" src="images/phases/combat.svg" title="Combat Phase" alt="Combat Phase" class="subphase"/><div><div></div></div></div>
+            <div><img id="secondMovementPhase" src="images/phases/second-movement.svg" title="Second Movement Phase" alt="Second Movement Phase" class="subphase"/><div><div></div></div></div>
+            <div><img id="supplyPhase" src="images/phases/supply.svg" title="Supply Phase" alt="Supply Phase"/><div><div></div></div></div>
+        </div>
+        <div id="leftPanel" style="display:none">
+            <div id="leftPanelContent">
+            </div>
+            <div id="nextButtonContainer">
+                <button id="cancelButton" style="display:none">
+                    <p>Cancel</p>
+                    <p></p>
+                </button>
+                <button id="nextButton">
+                    <p>Next</p>
+                    <p></p>
+                    <p class="arrow">&gt;</p>
+                    <div class="loading">
+                        <div class="sk-fading-circle">
+                            <div class="sk-circle sk-circle1"></div>
+                            <div class="sk-circle sk-circle2"></div>
+                            <div class="sk-circle sk-circle3"></div>
+                            <div class="sk-circle sk-circle4"></div>
+                            <div class="sk-circle sk-circle5"></div>
+                            <div class="sk-circle sk-circle6"></div>
+                            <div class="sk-circle sk-circle7"></div>
+                            <div class="sk-circle sk-circle8"></div>
+                            <div class="sk-circle sk-circle9"></div>
+                            <div class="sk-circle sk-circle10"></div>
+                            <div class="sk-circle sk-circle11"></div>
+                            <div class="sk-circle sk-circle12"></div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div id="mainArea" style="display:none">
+            <div class="gameInfoBox">
+                <p>
+                    <button title="Save Game" id="saveButton" disabled>
+                        <img src="images/save.svg" alt="Save Game" width="20" height="20"/>
+                    </button>
+                    <button title="List of Countries" id="countryButton">
+                        <img src="images/flag.svg" alt="New Game" width="20" height="20"/>
+                    </button>
+                </p>
+                <p>
+                    <img class="inline" src="images/calendar.svg" id="dateImage" alt="Current month"/>
+                    <span id="dateLabel"></span>
+                </p>
+            </div>
+            <svg id="mapsheet">
+                <defs>
+                    <filter id="shadow" x="0" y="0" width="200%" height="200%">
+                        <feDropShadow dx="0.3" dy="0.3" stdDeviation="0.1" flood-color="black" flood-opacity="1"/>
+                    </filter>
+                    <filter id="invert">
+                        <feComponentTransfer>
+                            <feFuncR type="table" tableValues="1 0"/>
+                            <feFuncG type="table" tableValues="1 0"/>
+                            <feFuncB type="table" tableValues="1 0"/>
+                        </feComponentTransfer>
+                    </filter>
+                </defs>
+                <g id="worldMap"></g>
+                <g id="selectedHexes"></g>
+                <g id="units">
+                    <g id="navalUnits"></g>
+                    <g id="landUnits"></g>
+                    <g id="airUnits"></g>
+                </g>
+                <g id="selectedUnits"></g>
+                <image id="explosion" xlink:href="images/explosion.svg" style="display:none"/>
+            </svg>
+        </div>
+        <div class="newGameView">
+            <h3>New game starting in 1937</h3>
+            <p>This game starts in June 1937 with the outbreak of the Sino-Japanese war. Japan controls Korea and Manchukuo and is ready to invade the rest of China. The first two years of this scenario covers only the war between Japan and China (unless Japan declares war on other countries), Germany will enter automatically in August 1939.</p>
+            <div id="startGameAllies1937" class="tile" role="button">
+                <div>
+                    <div class="holder">
+                        <img src="images/user.svg" alt="You"/>
+                        <img src="images/allies.svg" class="notification"/>
+                    </div>
+                    vs
+                    <div class="holder">
+                        <img src="images/bot.svg" alt="Computer"/>
+                        <img src="images/axis.svg" class="notification"/>
+                    </div>
+                </div>
+                <p>Play as Allies</p>
+            </div>
+            <div id="startGameAxis1937" class="tile" role="button">
+                <div>
+                    <div class="holder">
+                        <img src="images/user.svg" alt="You"/>
+                        <img src="images/axis.svg" class="notification"/>
+                    </div>
+                    vs
+                    <div class="holder">
+                        <img src="images/bot.svg" alt="Computer"/>
+                        <img src="images/allies.svg" class="notification"/>
+                    </div>
+                </div>
+                <p>Play as Axis</p>
+            </div>
+            <h3>New game starting in 1939</h3>
+            <p>This game starts in August 1939 right before the outbreak of the war in Europe. Japan has already gained control of a large portion of China, and Germany is ready to declare war on Poland, or some other European country of the Axis player's choice.</p>
+            <div id="startGameAllies1939" class="tile" role="button">
+                <div>
+                    <div class="holder">
+                        <img src="images/user.svg" alt="You"/>
+                        <img src="images/allies.svg" class="notification"/>
+                    </div>
+                    vs
+                    <div class="holder">
+                        <img src="images/bot.svg" alt="Computer"/>
+                        <img src="images/axis.svg" class="notification"/>
+                    </div>
+                </div>
+                <p>Play as Allies</p>
+            </div>
+            <div id="startGameAxis1939" class="tile" role="button">
+                <div>
+                    <div class="holder">
+                        <img src="images/user.svg" alt="You"/>
+                        <img src="images/axis.svg" class="notification"/>
+                    </div>
+                    vs
+                    <div class="holder">
+                        <img src="images/bot.svg" alt="Computer"/>
+                        <img src="images/allies.svg" class="notification"/>
+                    </div>
+                </div>
+                <p>Play as Axis</p>
+            </div>
+
+            <h3>Continue a previous game</h3>
+            <div class="tile" role="button" onclick="this.querySelector('input').click()">
+                <img src="images/folder.svg" alt=""/>
+                <p>Open a saved game from your computer</p>
+                <input id="openSavedGameButton" type="file" accept=".ww2" style="display:none"/>
+            </div>
+            <div class="tile" role="button" id="continueLastPlayedGameButton" style="display:none">
+                <img src="images/restore.svg" alt=""/>
+                <p>Continue last played game</p>
+            </div>
+
+            <h3>Help</h3>
+            <a class="tile" href="README.md" target="_blank">
+                <img src="images/help.svg" alt=""/>
+                <p>Read the rules</p>
+            </a>
+            <div class="tile" role="button" id="aboutButton">
+                <img src="images/info.svg" alt=""/>
+                <p>About this site</p>
+            </a>
+        </div>
+        <div id="loadingView">
+            <div class="sk-fading-circle">
+                <div class="sk-circle sk-circle1"></div>
+                <div class="sk-circle sk-circle2"></div>
+                <div class="sk-circle sk-circle3"></div>
+                <div class="sk-circle sk-circle4"></div>
+                <div class="sk-circle sk-circle5"></div>
+                <div class="sk-circle sk-circle6"></div>
+                <div class="sk-circle sk-circle7"></div>
+                <div class="sk-circle sk-circle8"></div>
+                <div class="sk-circle sk-circle9"></div>
+                <div class="sk-circle sk-circle10"></div>
+                <div class="sk-circle sk-circle11"></div>
+                <div class="sk-circle sk-circle12"></div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

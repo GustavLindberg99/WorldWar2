@@ -1,0 +1,1 @@
+var WeatherZone;!function(e){e.Polar="Polar",e.NorthTemperate="Northern Temperate",e.SouthTemperate="Southern Temperate",e.Industrialized="Industrialized",e.Fair="Fair",e.Tropical="Tropical"}(WeatherZone||(WeatherZone={}));export default WeatherZone;

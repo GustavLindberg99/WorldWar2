@@ -1,0 +1,131 @@
+:root{
+    --zoom: 3;    /*When changing this, also change it in compile_mapsheet.py*/
+}
+
+.sea, g.sea *{
+    fill: #33bbff;
+    fill-rule: evenodd;
+    stroke: none;
+}
+
+#lakes .sea, g#lakes.sea *{
+    stroke: #005581;
+    stroke-width: calc(var(--zoom) * 0.05px);
+}
+
+.land, g.land *{
+    fill: #f2f2f2;
+    fill-rule: evenodd;
+    stroke: #005581;
+    stroke-width: calc(var(--zoom) * 0.05px);
+}
+
+.mountain, g.mountain *{
+    fill: #9a742b;
+    fill-rule: evenodd;
+    stroke: none;
+}
+
+.tallMountain, g.tallMountain *{
+    fill: #684e1d;
+    fill-rule: evenodd;
+    stroke: none;
+}
+
+.forest, g.forest *{
+    fill: #167515;
+    fill-rule: evenodd;
+    stroke: none;
+}
+
+.desert, g.desert *{
+    fill: #dfb913;
+    fill-rule: evenodd;
+    stroke: none;
+}
+
+.railway, g.railway *{
+    fill: none;
+    stroke: black;
+    stroke-width: calc(var(--zoom) * 0.05px);
+    stroke-dasharray: 0.5;
+}
+
+g.canal > g > path{
+    fill: #33bbff;
+    stroke: none;
+}
+
+g.canal > g > path+path{
+    fill: none;
+    stroke: black;
+    stroke-width: calc(var(--zoom) * 0.05px);
+}
+
+.icecap, g.icecap *{
+    fill: #96ffff;
+    fill-opacity: 0.7;
+    stroke: none;
+}
+
+.border, g.border *{
+    fill: none;
+    stroke: #ec6622;
+    stroke-width: calc(var(--zoom) * 0.15px);
+    opacity: 0.9;
+}
+
+.border.temporary, g.border .temporary, g.border.temporary *{
+    stroke-dasharray: 0.5;
+}
+
+#hexGrid path{
+    fill: none;
+    stroke: black;
+    stroke-opacity: 0.5;
+    stroke-width: 0.5px;
+}
+
+.weather, g.weather *{
+    fill: none;
+    stroke-width: calc(var(--zoom) * 0.1px);
+    opacity: 0.8;
+}
+
+.weather.polar, g.weather .polar, g.weather.polar *{
+    stroke: #1c25f2;
+}
+
+.weather.temperate, g.weather .temperate, g.weather.temperate *{
+    stroke: #41de1c;
+}
+
+.weather.industrialized, g.weather .industrialized, g.weather.industrialized *{
+    stroke: #6e7776;
+}
+
+.weather.fair, g.weather .fair, g.weather.fair *{
+    stroke: #e4de1c;
+}
+
+.weather.tropical, g.weather .tropical, g.weather.tropical *{
+    stroke: #e10c2d;
+}
+
+svg a{
+    fill: #008;
+}
+
+g.countryNames text{
+    font-weight: bold;
+    font-style: italic;
+}
+
+svg text{
+    cursor: default;
+    user-select: none;
+}
+
+.hexGrid {
+    pointer-events: none;
+}

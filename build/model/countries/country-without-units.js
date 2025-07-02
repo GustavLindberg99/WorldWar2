@@ -1,0 +1,1 @@
+import Country from"./country.js";import{Partnership}from"../partnership.js";export default class CountryWithoutUnits extends Country{#r;constructor(r,t=Partnership.Neutral){super(t),this.#r=r}units(){return[].values()}name(){return this.#r}}

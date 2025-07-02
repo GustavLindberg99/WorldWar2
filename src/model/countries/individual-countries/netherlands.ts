@@ -1,0 +1,48 @@
+import CountryWithUnits from "../country-with-units.js";
+
+import { date, Month } from "../../date.js";
+import { Partnership } from "../../partnership.js";
+import { Countries, Country } from "../../countries.js";
+import { AirUnit, Destroyer, HeavyCruiser, Infantry, LightCruiser, Submarine, TransportShip } from "../../units.js";
+
+export default class Netherlands extends CountryWithUnits {
+    constructor(){
+        super(Partnership.Neutral);
+        this.availableUnits = new Set([
+            ...(new Array(33)).fill(null).map(() => new Infantry(1, 3, this)),
+            new AirUnit("D.XXI", this),
+            new Destroyer("Admiralen", 1, 1, 52, this),
+            new HeavyCruiser("De Ruyter", 3, 2, 46, this),
+            new LightCruiser("Java", 1, 1, 44, this),
+            new LightCruiser("Sumatra", 1, 1, 44, this),
+            new LightCruiser("Jacob van Heemskerk", 1, 1, 46, this),
+            new LightCruiser("Tromp", 1, 1, 46, this),
+            new Submarine("K", 3, 2, 19, this),
+            ...(new Array(2)).fill(null).map(() => new TransportShip(this))
+        ]);
+    }
+
+    override addNewAvailableUnits(): void {
+        if(this.conquered()){
+            return;
+        }
+        if(date.current === date(1940, Month.January)){
+            this.availableUnits.add(new Submarine("O", 3, 2, 28, this));
+        }
+        if(date.current === date(1941, Month.January)){
+            this.availableUnits.add(new AirUnit("B-25 Mitchell", this));
+        }
+    }
+
+    override canSendMoneyWithoutConvoys(): Array<Country> {
+        return [Countries.germany, Countries.unitedKingdom].filter(it => it.partnership() === this.partnership() && !it.conquered());
+    }
+
+    override name(): string {
+        return "Netherlands";
+    }
+
+    override color(): string {
+        return "#f2aa13";
+    }
+}

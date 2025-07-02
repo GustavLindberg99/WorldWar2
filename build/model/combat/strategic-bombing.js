@@ -1,0 +1,1 @@
+import Bombing from"./bombing.js";export default class StrategicBombing extends Bombing{damageOnSuccess(){this.combatHex.resourceHexDestroyed=!0}}

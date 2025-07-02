@@ -1,0 +1,25 @@
+.unit rect.markerBackground {
+    width: 3px;
+    height: 3px;
+    stroke: black;
+    stroke-width: 0.2px;
+}
+
+.unit.selected rect.markerBackground {
+    stroke: orange;
+}
+
+.unit text {
+    font-size: 1px;
+    font-weight: bold;
+}
+
+.unit .unitMarkerImage {
+    transform: translate(1.5px, 1px);
+}
+
+.unit g.unitMarkerImage :not(image) {
+    stroke: black;
+    fill: none;
+    stroke-width: 0.1px;
+}

@@ -1,0 +1,1 @@
+import NavalUnit from"../naval-unit.js";export default class DestroyerEscort extends NavalUnit{constructor(r,t,e,a,n){super(r,0,t,e,a,n)}type(){return"Naval unit (Destroyer Escort)"}price(){return 400}delay(){return 3}}

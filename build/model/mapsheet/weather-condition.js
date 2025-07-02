@@ -1,0 +1,1 @@
+var WeatherCondition;!function(e){e.None="None",e.SevereWinter="Severe Winter",e.MildWinter="Mild Winter",e.Spring="Spring",e.Monsoon="Monsoon"}(WeatherCondition||(WeatherCondition={}));export default WeatherCondition;

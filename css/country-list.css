@@ -1,0 +1,16 @@
+#CountryList\.countryList {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#CountryList\.countryList th {
+    text-align: left;
+}
+
+#CountryList\.countryList tbody tr {
+    cursor: pointer;
+}
+
+#CountryList\.countryList tbody tr:hover {
+    background-color: var(--background-color-light);
+}
