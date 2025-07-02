@@ -1,0 +1,1 @@
+import NavalUnit from"../naval-unit.js";export default class Carrier extends NavalUnit{constructor(r,e,a,t,i){super(r,0,0,e,a,t),null!==i&&(i.embarkOnto(this),i.based=!0)}die(){for(let r of this.embarkedUnits())r.owner.availableUnits.add(r);super.die()}type(){return"Naval unit (Carrier)"}price(){return 1400}delay(){return 12}}

@@ -1,0 +1,1 @@
+import Bombing from"./bombing.js";export default class InstallationBombing extends Bombing{damageOnSuccess(){this.combatHex.destroyInstallations()}}

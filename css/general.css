@@ -1,0 +1,79 @@
+body {
+    margin: 0px;
+    overflow-x: hidden;
+    font-family: sans-serif;
+    font-size: 0.8em;
+    min-height: 100vh;
+}
+
+a {
+    color: #00e;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #009;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    font-size: 1.7em;
+}
+
+h2 {
+    font-size: 1.4em;
+}
+
+h3 {
+    font-size: 1.1em;
+}
+
+pre {
+    white-space: pre-wrap;
+    word-break: keep-all;
+}
+
+img.inline, svg.inline {
+    height: 1.2em;
+    vertical-align: middle;
+}
+
+svg.inline {
+    width: 1.2em;
+}
+
+button, input, textarea {
+    border-radius: 0.2em;
+    border: solid 1px #ccc;
+    outline: none;
+}
+
+button, input[type=button], input[type=submit], input[type=reset] {
+    background-color: var(--background-color);
+    color: var(--color1);
+}
+
+button:hover, input[type=button]:hover, input[type=submit]:hover, input[type=reset]:hover {
+    background-color: var(--background-color-dark);
+}
+
+button:active{
+    background-color: var(--background-color-dark);
+}
+
+button:disabled, button:hover:disabled, button:active:disabled {
+    background-color: var(--background-color-dark);
+    filter: grayscale(100%);
+    opacity: 0.6;
+}
+
+/*Phones*/
+@media(max-device-width:480px) {
+    * {
+        touch-action: manipulation;    /*So that double-clicking doesn't zoom in*/
+        -webkit-overflow-scrolling: touch;    /*So scrolling works better on iPhones*/
+    }
+}

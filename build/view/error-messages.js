@@ -1,0 +1,1 @@
+var ErrorMessages;!function(o){o.showNotEnoughMoneyError=function(o,e){Toastify({text:`${o.name()} does not have enough money to do this, $${e.toLocaleString()}B required, only $${o.money.toLocaleString()}B available.`}).showToast()}}(ErrorMessages||(ErrorMessages={}));export default ErrorMessages;

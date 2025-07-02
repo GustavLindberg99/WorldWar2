@@ -1,0 +1,1 @@
+import NavalUnit from"../naval-unit.js";export default class Kaibokan extends NavalUnit{constructor(a,t,r,n,e){super(a,Math.floor(t/2),t,r,n,e)}type(){return"Naval unit (Kaibokan)"}price(){return 150}delay(){return 3}}

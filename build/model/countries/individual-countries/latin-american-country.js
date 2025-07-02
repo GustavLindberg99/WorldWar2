@@ -1,0 +1,1 @@
+import CountryWithoutUnits from"../country-without-units.js";import{Countries}from"../../countries.js";export default class LatinAmericanCountry extends CountryWithoutUnits{canSendMoneyWithoutConvoys(){return this.money>0?[Countries.unitedStates].filter((t=>t.partnership()===this.partnership()&&!t.conquered())):[]}}

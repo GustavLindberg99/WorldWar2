@@ -1,0 +1,1 @@
+import NavalUnit from"../naval-unit.js";export default class LightCruiser extends NavalUnit{constructor(r,t,e,a,i){super(r,t,Math.floor(t/2),e,a,i)}type(){return"Naval unit (Light Cruiser)"}price(){return 200}delay(){return 6}}
