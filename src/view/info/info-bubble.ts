@@ -207,7 +207,7 @@ namespace InfoBubble {
             }
         }
 
-        for(let [arrivalDate, delayedUnits] of country.delayedUnits.entries()){
+        for(let [arrivalDate, delayedUnits] of [...country.delayedUnits.entries()].sort()){
             const groupedDelayedUnits: ReadonlyMap<Unit, number> = Unit.groupByType(
                 arrivalDate === date.current
                 ? [...delayedUnits, ...country.units()]

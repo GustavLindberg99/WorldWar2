@@ -155,6 +155,11 @@ export default class HumanCombatPhase {
         this.#combat = null;
         if(defender instanceof LandUnit && !this.#attackers.some(it => it instanceof LandUnit)){
             Toastify({text: "Naval and air units can't attack enemy land units alone, though they may support friendly land units attacking the enemy land units."}).showToast();
+            return;
+        }
+        else if(defender instanceof NavalUnit && defender.inPort && defender.hex().isMajorPort() && this.#attackers.some(it => it instanceof NavalUnit)){
+            Toastify({text: "Naval units can't attack units that are in a major port."}).showToast();
+            return;
         }
         else if(this.#attackers.every(it => it.canAttackInHex(defender))){
             if(defender instanceof LandUnit){

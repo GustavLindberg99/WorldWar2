@@ -83,6 +83,9 @@ export default class HumanUnitBuildPhase {
      * Updates which units are visible in the left panel.
      */
     #updateUnits(): void {
+        const leftPanelContent = document.getElementById("leftPanelContent")!!;
+        const scrollTop = leftPanelContent.scrollTop;
+
         this.#availableUnitsContainer.replaceChildren();
         if(this.#availableUnits.size === 0){
             this.#availableUnitsContainer.textContent = "There aren't any units available for you to buy. Click Next to continue to the next phase.";
@@ -100,6 +103,8 @@ export default class HumanUnitBuildPhase {
             const row = this.#createUnitRow(unit, amount, "Undo buy", (unit) => this.#undoBuyUnit(unit));
             this.#boughtUnitsContainer.appendChild(row);
         }
+
+        leftPanelContent.scrollTop = scrollTop;
     }
 
     /**
@@ -111,7 +116,7 @@ export default class HumanUnitBuildPhase {
      * @param callback      The callback to buy or undo buying the unit.
      */
     #createUnitRow(unit: Unit, amount: number, buttonText: "Buy" | "Undo buy", callback: (unit: Unit, showErrorMessages: boolean) => boolean): HTMLElement {
-    const row = document.createElement("p");
+        const row = document.createElement("p");
         const copyImage = UnitMarker.get(unit).createCopyImage(true);
         row.appendChild(copyImage);
         const buyButton = document.createElement("button");

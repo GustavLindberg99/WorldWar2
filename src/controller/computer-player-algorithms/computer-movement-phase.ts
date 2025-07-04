@@ -312,7 +312,9 @@ export default class ComputerMovementPhase {
                     )
                 )
                 && !destination.isDesert() && !destination.isTallMountain(),
-            unit.hex().canUseRail && unit.canUseRail() ? it => it.canUseRail && it.controller()?.partnership() === this.#partnership : () => true
+            unit.hex().canUseRail && unit.canUseRail()
+                ? it => it.canUseRail && it.controller()?.partnership() === this.#partnership
+                : it => !it.isDesert() && !it.isTallMountain()
         );
         if(passedHexes === null){
             return null;
@@ -450,18 +452,14 @@ export default class ComputerMovementPhase {
         if(unit.inPort && (country === null || (unit.hex().country === country && !unit.hex().isColony))){
             return null;
         }
-        const destinationCountries: ReadonlyArray<Country | null> = country === null
-            ? SupplyLines.supplySourcesUseableBy(unit.owner)
-            : [country];
         let passedHexes = SupplyLines.simplifiedPathBetweenHexes(
             unit.hex(),
-            destination => destinationCountries.includes(destination.country)
+            destination => (country === null || destination.country === country)
                 && destination.controller()?.partnership() === this.#partnership
                 && destination.isPort()
                 && (country !== null || unit.canEnterHexWithinStackingLimits(destination, true))
                 && (country === null || !destination.isColony)
-                && (country !== Countries.sovietUnion || destination.city === "Murmansk")
-                && destination.city !== "Vladivostok",
+                && SupplyLines.canTraceSupplyLine(destination, unit.owner),
             passedHex => !passedHex.isInNavalControlZone(this.#partnership.opponent(), unit instanceof Submarine),
             true,
             false
