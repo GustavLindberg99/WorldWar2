@@ -117,6 +117,7 @@ test("Embarking and disembarking units", () => {
 test("Destroying land units", () => {
     Countries.germany.joinPartnership(Partnership.Axis);
     const germanInfantry = new Infantry(5, 3, Countries.germany);
+    const germanSupplyUnit = new SupplyUnit(3, Countries.germany);
     const initialAvailableStrengthPoints = Countries.germany.availableUnits.values().filter(it => it instanceof LandUnit).reduce((a, b) => a + b.strength, 0);
 
     germanInfantry.setHex(hamburg);
@@ -124,13 +125,21 @@ test("Destroying land units", () => {
 
     germanInfantry.die();
     expect(germanInfantry.isAlive()).toBe(false);
-    expect(bremerhaven.units()).not.toContain(germanInfantry);
+    expect(hamburg.units()).not.toContain(germanInfantry);
     expect(Countries.germany.availableUnits.values().filter(it => it instanceof LandUnit).reduce((a, b) => a + b.strength, 0)).toBe(initialAvailableStrengthPoints + 5);
     for(let unit of Countries.germany.availableUnits){
         if(unit instanceof LandUnit){
             expect(unit.strength).toBeLessThanOrEqual(1);
         }
     }
+
+    germanSupplyUnit.setHex(hamburg);
+    expect(germanSupplyUnit.isAlive()).toBe(true);
+
+    germanSupplyUnit.die();
+    expect(germanSupplyUnit.isAlive()).toBe(false);
+    expect(hamburg.units()).not.toContain(germanSupplyUnit);
+    expect(Countries.germany.availableUnits).toContain(germanSupplyUnit);
 });
 
 test("Destroying transport ships", () => {

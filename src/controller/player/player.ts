@@ -145,6 +145,9 @@ export default abstract class Player {
             if(unit.updateSupply()){
                 UnitMarker.get(unit).update();
             }
+            if(unit instanceof AirUnit){
+                unit.usedMovementPoints = 0;
+            }
         }
 
         LeftPanel.releaseNextButtonLock(checkingSupplyText);

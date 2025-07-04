@@ -1,4 +1,3 @@
-import lodash from "https://cdn.jsdelivr.net/npm/lodash@4.17.21/+esm";
 import { joinIterables, sortNumber, xdialogConfirm } from "../../utils.js";
 
 import { Hex } from "../../model/mapsheet.js";
@@ -242,6 +241,21 @@ export default class HumanMovementPhase {
     }
 
     /**
+     * Removes loops from a given array of passed hexes so that a unit doesn't pass the same hex twice.
+     *
+     * @param passedHexes   The array to remove the loops from.
+     *
+     * @returns A reference to the mutated array.
+     */
+    #removeLoopsFromPassedHexes(passedHexes: Array<Hex>): Array<Hex> {
+        const lastIndex = passedHexes.findIndex((it, i) => it === passedHexes.at(-1) || passedHexes.lastIndexOf(it) !== i);
+        if(lastIndex !== -1){
+            passedHexes.length = lastIndex + 1;
+        }
+        return passedHexes;
+    }
+
+    /**
      * Checks if a unit can move during this phase, and shows an error message if it can't.
      *
      * @param unit  The unit to be dragged.
@@ -287,11 +301,17 @@ export default class HumanMovementPhase {
             Toastify({text: "Units that have attacked can't move."}).showToast();
             return false;
         }
-        else if(passedHexes !== undefined && unit.embarkedUnits().values().some(it => (this.passedHexes.get(it)?.at(-1) ?? passedHexes[0]) !== passedHexes[0])){
+        else if(passedHexes !== undefined && unit.embarkedUnits().values().some(it =>
+            !this.#initiallyEmbarkedUnits.get(unit)?.has(it)
+            && (this.passedHexes.get(it)?.at(-1) ?? passedHexes[0]) !== passedHexes[0]
+        )){
             Toastify({text: "This unit can't move any more this turn since a unit embarked onto it after it has started moving."}).showToast();
             return false;
         }
-        else if(passedHexes !== undefined && this.#initiallyEmbarkedUnits.get(unit)?.values().some(it => (this.passedHexes.get(it)?.[0] ?? passedHexes[0]) !== passedHexes[0])){
+        else if(passedHexes !== undefined && this.#initiallyEmbarkedUnits.get(unit)?.values().some(it =>
+            it.embarkedOn() !== unit
+            && (this.passedHexes.get(it)?.[0] ?? this.passedHexes.get(it.embarkedOn())?.[0] ?? it.hex()) !== passedHexes[0]
+        )){
             Toastify({text: "This unit can't move any more this turn since a unit disembarked from it after it has started moving."}).showToast();
             return false;
         }
@@ -353,7 +373,7 @@ export default class HumanMovementPhase {
         this.clearPassedHexesColors(units);
 
         //Check if rail movement is needed and add the current hex
-        if(units.every(it => it.validateMovement([...this.passedHexes.get(it)!!, hex], false))){
+        if(units.every(it => it.validateMovement(this.#removeLoopsFromPassedHexes([...this.passedHexes.get(it)!!, hex]), false))){
             for(let unit of units){
                 this.passedHexes.get(unit)!!.push(hex);
                 if(unit instanceof LandUnit){
@@ -361,7 +381,7 @@ export default class HumanMovementPhase {
                 }
             }
         }
-        else if(units.every(it => it instanceof LandUnit) && units.every(it => it instanceof LandUnit) && units.every(it => it.canUseRail(units) && it.validateMovement([...this.passedHexes.get(it)!!, hex], true))){
+        else if(units.every(it => it instanceof LandUnit) && units.every(it => it instanceof LandUnit) && units.every(it => it.canUseRail(units) && it.validateMovement(this.#removeLoopsFromPassedHexes([...this.passedHexes.get(it)!!, hex]), true))){
             for(let unit of units){
                 this.passedHexes.get(unit)!!.push(hex);
                 unit.movingByRail = true;
@@ -370,11 +390,7 @@ export default class HumanMovementPhase {
 
         //Remove loops
         for(let unit of units){
-            const passedHexes = this.passedHexes.get(unit)!!;
-            const lastIndex = passedHexes.findIndex((it, i) => it === hex || passedHexes.lastIndexOf(it) !== i);
-            if(lastIndex !== -1){
-                passedHexes.length = lastIndex + 1;
-            }
+            this.#removeLoopsFromPassedHexes(this.passedHexes.get(unit)!!);
         }
 
         //Color hexes
@@ -421,9 +437,8 @@ export default class HumanMovementPhase {
      * @param units The units being dropped.
      */
     async #onUnitDrop(units: ReadonlyArray<AliveUnit & Unit>): Promise<void> {
-        const passedHexes = this.passedHexes.get(units[0]);
-        const hex = passedHexes?.at(-1);
-        if((passedHexes === undefined || hex === undefined) && this.#unitToBeEmbarkedOn === null){
+        const hex = this.passedHexes.get(units[0])?.at(-1);
+        if(hex === undefined && this.#unitToBeEmbarkedOn === null){
             return;
         }
 
@@ -455,6 +470,7 @@ export default class HumanMovementPhase {
 
         //Set hex
         for(let unit of units){
+            const passedHexes = this.passedHexes.get(unit);
             const oldEmbarkedOn = unit.embarkedOn();
             if(hex !== undefined){
                 unit.setHex(hex);
@@ -472,8 +488,12 @@ export default class HumanMovementPhase {
             //Update unit markers
             if(this.#unitToBeEmbarkedOn !== null){
                 unit.embarkOnto(this.#unitToBeEmbarkedOn);
-                if(hex !== this.#unitToBeEmbarkedOn.hex()){
-                    passedHexes?.push(this.#unitToBeEmbarkedOn.hex());
+                if(hex !== this.#unitToBeEmbarkedOn.hex() && passedHexes !== undefined){
+                    passedHexes.push(this.#unitToBeEmbarkedOn.hex());
+                    this.#removeLoopsFromPassedHexes(passedHexes);
+                    if(passedHexes.length === 1 && this.#initiallyEmbarkedUnits.get(this.#unitToBeEmbarkedOn)?.has(unit)){
+                        this.passedHexes.delete(unit);
+                    }
                 }
                 UnitMarker.get(this.#unitToBeEmbarkedOn).update();
             }

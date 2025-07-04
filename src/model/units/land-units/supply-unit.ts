@@ -23,6 +23,11 @@ export default class SupplyUnit extends LandUnit {
         return 1;
     }
 
+    override die(): void {
+        this.delete();
+        this.owner.availableUnits.add(this);
+    }
+
     override outOfSupply(): boolean {
         return this.#outOfSupply;
     }
