@@ -125,7 +125,7 @@ export default abstract class Player {
                 return 1;
             }
             return 0;
-        });
+        }).filter(it => it.embarkedOn() === null);
 
         //Initialize progress bar
         let progress = 0;

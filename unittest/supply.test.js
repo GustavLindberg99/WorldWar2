@@ -147,24 +147,38 @@ test("Embarked land units supply", () => {
     reykjavik.setController(Countries.germany);
 
     //Air transport
-    const germanAirUnit = new AirUnit("JU-52", Countries.germany);
+    const germanAirUnit1 = new AirUnit("JU-52", Countries.germany);
     const germanParatrooper = new Paratrooper(1, 3, Countries.germany);
-    germanParatrooper.embarkOnto(germanAirUnit);
-    germanAirUnit.setHex(stettin);
-    germanAirUnit.based = true;
+    const germanAirUnit2 = new AirUnit("JU-52", Countries.germany);
+    const germanSupplyUnit = new SupplyUnit(3, Countries.germany);
+    germanParatrooper.embarkOnto(germanAirUnit1);
+    germanAirUnit1.setHex(stettin);
+    germanAirUnit1.based = true;
+    germanSupplyUnit.embarkOnto(germanAirUnit2);
+    germanAirUnit2.setHex(stettin);
+    germanAirUnit2.based = true;
 
-    expect(germanAirUnit.outOfSupply()).toBe(false);
+    expect(germanAirUnit1.outOfSupply()).toBe(false);
     expect(germanParatrooper.outOfSupply()).toBe(false);
+    expect(germanAirUnit2.outOfSupply()).toBe(false);
+    expect(germanSupplyUnit.outOfSupply()).toBe(false);
 
-    germanAirUnit.setHex(reykjavik);
+    germanAirUnit1.setHex(reykjavik);
+    germanAirUnit2.setHex(reykjavik);
 
-    expect(germanAirUnit.outOfSupply()).toBe(false);
+    expect(germanAirUnit1.outOfSupply()).toBe(false);
     expect(germanParatrooper.outOfSupply()).toBe(false);
+    expect(germanAirUnit2.outOfSupply()).toBe(false);
+    expect(germanSupplyUnit.outOfSupply()).toBe(false);
 
-    germanAirUnit.updateSupply();
+    germanAirUnit1.updateSupply();
+    germanAirUnit2.updateSupply();
 
-    expect(germanAirUnit.outOfSupply()).toBe(true);
+    expect(germanAirUnit1.outOfSupply()).toBe(true);
     expect(germanParatrooper.isAlive()).toBe(false);
+    expect(germanAirUnit2.outOfSupply()).toBe(true);
+    expect(germanSupplyUnit.outOfSupply()).toBe(true);
+    expect(germanSupplyUnit.isAlive()).toBe(true);
 
     //Naval transport
     const germanTransportShip = new TransportShip(Countries.germany);
