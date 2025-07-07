@@ -44,29 +44,30 @@ export namespace SavedGames {
             console.warn("Invalid saved game: invalid type.");
             return false;
         }
-        else if(!("date" in json) || typeof(json.date) !== "number" || json.date < date(1937, Month.June)){
+        if(!("date" in json) || typeof(json.date) !== "number" || json.date < date(1937, Month.June)){
             console.warn("Invalid saved game: invalid date.");
             return false;
         }
-        else if(!("phase" in json) || typeof(json.phase) !== "number" || json.phase < Phase.Deployment || json.phase > Phase.WarDeclaration){
+        if(!("phase" in json) || typeof(json.phase) !== "number" || json.phase < Phase.Deployment || json.phase > Phase.WarDeclaration){
             console.warn("Invalid saved game: invalid phase.");
             return false;
         }
-        else if(!("hexes" in json) || !(json.hexes instanceof Array) || !json.hexes.every(it => Hex.validateJson(it))){
+        if(!("hexes" in json) || !(json.hexes instanceof Array) || !json.hexes.every(it => Hex.validateJson(it))){
             console.warn("Invalid saved game: invalid hexes.");
             return false;
         }
-        else if(!("countries" in json) || !(json.countries instanceof Array) || !json.countries.every(it => Country.validateJson(it))){
+        const oldDate = date.current;
+        date.current = json.date;    //Needed so that max unit strengths that depend on dates work correctly
+        if(!("countries" in json) || !(json.countries instanceof Array) || !json.countries.every(it => Country.validateJson(it))){
             console.warn("Invalid saved game: invalid countries.");
             return false;
         }
-        else if("groundedAirUnits" in json && (!(json.groundedAirUnits instanceof Array) || !json.groundedAirUnits.every(it => typeof(it) === "string" && Object.keys(WeatherZone).includes(it)))){
+        date.current = oldDate;
+        if("groundedAirUnits" in json && (!(json.groundedAirUnits instanceof Array) || !json.groundedAirUnits.every(it => typeof(it) === "string" && Object.keys(WeatherZone).includes(it)))){
             console.warn("Invalid saved game: invalid air units.");
             return false;
         }
-        else{
-            return true;
-        }
+        return true;
     }
 
     /**

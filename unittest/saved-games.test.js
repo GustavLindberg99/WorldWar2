@@ -141,6 +141,13 @@ test("Load saved game", () => {
         movementAllowance: 4,
         strength: 6
     };
+    const britishArmorJson = {
+        type: "Armor",
+        owner: "United Kingdom",
+        movementAllowance: 4,
+        movementAllowance: 5,
+        strength: 10
+    };
     const britishTransportShipJson = {
         type: "TransportShip",
         owner: "United Kingdom",
@@ -152,7 +159,7 @@ test("Load saved game", () => {
     };
 
     const savedGame = {
-        date: date(1940, Month.May),
+        date: date(1943, Month.May),
         phase: Phase.AlliedFirstMovement,
         humanPartnership: Partnership.Axis,
         groundedAirUnits: ["Polar"],
@@ -210,7 +217,8 @@ test("Load saved game", () => {
                 preferredPartnership: "Allies",
                 availableUnits: [{...britishInfantryJson, strength: 1}],
                 units: [
-                    {...britishTransportShipJson, hex: {x: leHavre.x, y: leHavre.y}, inPort: true}
+                    {...britishTransportShipJson, hex: {x: leHavre.x, y: leHavre.y}, inPort: true},
+                    {...britishArmorJson, hex: {x: malta.x, y: malta.y}}
                 ],
                 gotMoneyFromConvoys: true,
                 enteredWar: date(1939, Month.September)
@@ -221,7 +229,7 @@ test("Load saved game", () => {
     expect(SavedGames.validateJson(savedGame)).toBe(true);
     SavedGames.loadGameFromJson(savedGame);
 
-    expect(date.current).toBe(date(1940, Month.May));
+    expect(date.current).toBe(date(1943, Month.May));
     expect(Phase.current).toBe(Phase.AlliedFirstMovement);
     expect(narvik.airUnitsGrounded()).toBe(true);
     expect(strasbourg.airUnitsGrounded()).toBe(false);
@@ -290,7 +298,7 @@ test("Load saved game", () => {
         expect(germanUnit.strength).toBe(10);
     }
 
-    expect([...Countries.unitedKingdom.units()].length).toBe(2);
+    expect([...Countries.unitedKingdom.units()].length).toBe(3);
     expect([...leHavre.units()].length).toBe(1);
     const britishUnit = [...leHavre.units()][0];
     expect(britishUnit).toBeInstanceOf(TransportShip);

@@ -261,7 +261,7 @@ export default abstract class LandUnit extends Unit {
                 return Armor.validateArmorJson(json);
             }
             else{
-                console.warn("Invalid armor: invalid strength.");
+                console.warn("Invalid armor: invalid strength: " + json.strength);
                 return false;
             }
         case "Infantry":
@@ -270,7 +270,7 @@ export default abstract class LandUnit extends Unit {
                 return true;
             }
             else{
-                console.warn("Invalid land unit: invalid strength.");
+                console.warn("Invalid land unit: invalid strength: " + json.strength);
                 return false;
             }
         case "Paratrooper":
@@ -278,7 +278,7 @@ export default abstract class LandUnit extends Unit {
                 return true;
             }
             else{
-                console.warn("Invalid paratrooper: invalid strength.");
+                console.warn("Invalid paratrooper: invalid strength: " + json.strength);
                 return false;
             }
         case "SupplyUnit":
@@ -286,7 +286,7 @@ export default abstract class LandUnit extends Unit {
                 return true;
             }
             else{
-                console.warn("Invalid supply unit: invalid strength.");
+                console.warn("Invalid supply unit: invalid strength: " + json.strength);
                 return false;
             }
         default:
