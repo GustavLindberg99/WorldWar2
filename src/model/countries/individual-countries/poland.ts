@@ -36,10 +36,6 @@ export default class Poland extends CountryWithUnits {
         return super.shouldBeLiberated() && this.cities.some(it => it.controller() !== Countries.sovietUnion && it.controller()!!.partnership() === this.partnership());
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.unitedKingdom].filter(it => it.canBeInvadedBy(partnership));
-    }
-
     override name(): string {
         return "Poland";
     }

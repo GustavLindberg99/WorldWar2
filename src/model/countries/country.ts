@@ -207,14 +207,22 @@ abstract class Country extends UnitContainer {
     }
 
     /**
+     * Gets the cities that still need to be taken by this country's enemy before this country is conquered.
+     *
+     * @returns The cities that still need to be taken by this country's enemy before this country is conquered.
+     */
+    remainingCitiesBeforeConqured(): Array<Hex> {
+        const countriesConqueredWithoutColonies: ReadonlyArray<Country> = [Countries.belgium, Countries.denmark, Countries.italy];
+        return this.cities.filter(it => it.controller()!!.partnership() === this.partnership() && (!it.isColony || !countriesConqueredWithoutColonies.includes(this)));
+    }
+
+    /**
      * Checks if the country fulfills the requirements to be conquered.
      *
      * @returns True if it should be conquered, false if it shouldn't.
      */
     protected shouldBeConquered(): boolean {
-        const countriesConqueredWithoutColonies: ReadonlyArray<Country> = [Countries.belgium, Countries.denmark, Countries.italy];
-        return this.surrenderedFromAtomicBomb !== null
-            || this.cities.every(it => it.controller()!!.partnership() !== this.partnership() || (it.isColony && countriesConqueredWithoutColonies.includes(this)));
+        return this.surrenderedFromAtomicBomb !== null || this.remainingCitiesBeforeConqured().length === 0;
     }
 
     /**
@@ -239,6 +247,8 @@ abstract class Country extends UnitContainer {
         return this.partnership() === Partnership.Neutral &&
             //Don't invade friendly countries
             this.#preferredPartnership !== partnership &&
+            //Baltic countries can't be invaded when they're already conquered
+            this.cities.some(it => it.controller() === this) &&
             //China may not declare war on just anyone
             (
                 partnership === Partnership.Axis
@@ -254,9 +264,19 @@ abstract class Country extends UnitContainer {
      *
      * @returns An array of countries.
      */
-    additionalInvadedCountries(_partnership: Partnership): Array<Country> {
-        //Override in subclasses for countries that can't be invaded without invading other countries
-        return [];
+    additionalInvadedCountries(partnership: Partnership): Array<Country> {
+        let alliedCountries: Array<Country> = [Countries.unitedKingdom, Countries.canada, Countries.australia, Countries.newZealand];
+        if(Countries.france.enteredWar === null){
+            alliedCountries.push(Countries.france);
+        }
+        const countriesProtectedByAllies: ReadonlyArray<Country> = [Countries.belgium, Countries.denmark, Countries.estonia, Countries.greece, Countries.latvia, Countries.lithuania, Countries.norway, Countries.poland, Countries.romania, Countries.sweden, Countries.yugoslavia];
+        if(alliedCountries.includes(this) || countriesProtectedByAllies.includes(this)){
+            return alliedCountries.filter(it => it !== this && it.canBeInvadedBy(partnership));
+        }
+        else{
+            //Override in subclasses for countries that can't be invaded without invading other countries
+            return [];
+        }
     }
 
     /**

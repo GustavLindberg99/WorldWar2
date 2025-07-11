@@ -10,10 +10,6 @@ export default class Colombia extends CountryWithUnits {
         this.availableUnits = new Set([new Destroyer("Guadiana", 1, 1, 29, this)]);
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.unitedStates].filter(it => it.canBeInvadedBy(partnership));
-    }
-
     override canSendMoneyWithoutConvoys(): Array<Country> {
         return [Countries.unitedStates].filter(it => it.partnership() === this.partnership() && !it.conquered());
     }

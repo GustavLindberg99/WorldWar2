@@ -30,10 +30,6 @@ export default class Submarine extends NavalUnit {
         return 6;
     }
 
-    override sameBasicType(other: Unit): boolean {
-        return other instanceof Submarine && other.owner.partnership() === this.owner.partnership();
-    }
-
     override canAttack(unit?: Unit | null): boolean {
         return !(unit instanceof LandUnit) && super.canAttack(unit);
     }

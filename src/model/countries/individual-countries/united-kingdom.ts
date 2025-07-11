@@ -340,10 +340,6 @@ export default class UnitedKingdom extends CountryWithUnits {
         }
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.france, Countries.canada, Countries.australia, Countries.newZealand].filter(it => it.canBeInvadedBy(partnership));;
-    }
-
     override hasAtomicBomb(): boolean {
         return date.current >= date(1952, Month.November);
     }

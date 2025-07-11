@@ -1,7 +1,7 @@
 import NavalUnit from "../naval-unit.js";
 
 import { CountryWithUnits } from "../../countries.js";
-import { AirUnit } from "../../units.js";
+import { AirUnit, Unit } from "../../units.js";
 
 export default class Carrier extends NavalUnit {
     /**
@@ -39,5 +39,9 @@ export default class Carrier extends NavalUnit {
 
     override delay(): number {
         return 12;
+    }
+
+    override sameBasicType(other: Unit): boolean {
+        return other instanceof Carrier && other.owner.partnership() === this.owner.partnership();
     }
 }

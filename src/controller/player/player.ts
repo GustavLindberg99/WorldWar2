@@ -5,6 +5,7 @@ import { Partnership } from "../../model/partnership.js";
 import { Countries } from "../../model/countries.js";
 import { AirUnit, NavalUnit, SupplyUnit, Unit } from "../../model/units.js";
 
+import HexMarker from "../../view/markers/hex-marker.js";
 import LeftPanel from "../../view/left-panel.js";
 import UnitMarker from "../../view/markers/unit-marker.js";
 
@@ -133,7 +134,11 @@ export default abstract class Player {
 
         //Build fortifications
         for(let hex of Hex.allHexes){
+            const update = hex.fortUnderConstruction() || hex.airfieldUnderConstruction();
             hex.continueBuilding();
+            if(update){
+                HexMarker.updateMarkers(hex);
+            }
             await refreshUI(1000);
         }
 

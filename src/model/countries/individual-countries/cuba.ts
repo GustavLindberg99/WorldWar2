@@ -10,10 +10,6 @@ export default class Cuba extends CountryWithUnits {
         this.availableUnits = new Set([new LightCruiser("Cuba", 1, 1, 35, this)]);
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.unitedStates].filter(it => it.canBeInvadedBy(partnership));
-    }
-
     override canSendMoneyWithoutConvoys(): Array<Country> {
         return [Countries.unitedStates].filter(it => it.partnership() === this.partnership() && !it.conquered());
     }

@@ -13,10 +13,6 @@ export default class Peru extends CountryWithUnits {
         ]);
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.unitedStates].filter(it => it.canBeInvadedBy(partnership));
-    }
-
     override canSendMoneyWithoutConvoys(): Array<Country> {
         return [Countries.unitedStates].filter(it => it.partnership() === this.partnership() && !it.conquered());
     }

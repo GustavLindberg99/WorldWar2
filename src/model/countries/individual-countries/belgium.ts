@@ -10,10 +10,6 @@ export default class Belgium extends CountryWithUnits {
         this.availableUnits = new Set(new Array(20).fill(null).map(() => new Infantry(1, 3, this)));
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.unitedKingdom].filter(it => it.canBeInvadedBy(partnership));
-    }
-
     override canSendMoneyWithoutConvoys(): Array<Country> {
         return [Countries.germany, Countries.unitedKingdom].filter(it => it.partnership() === this.partnership() && !it.conquered());
     }

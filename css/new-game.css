@@ -16,6 +16,10 @@
     border-bottom:solid gray 1px;
 }
 
+.newGameView > p {
+    width: 100%;
+}
+
 .tile, .tile:hover, .tile:visited {
     display:flex;
     flex-direction:column;

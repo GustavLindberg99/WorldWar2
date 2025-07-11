@@ -6,12 +6,6 @@ import { Countries } from "../build/model/countries.js";
 import { date } from "../build/model/date.js";
 
 test("Vichy France attacked by Axis", () => {
-    Countries.germany.joinPartnership(Partnership.Axis);
-    Countries.japan.joinPartnership(Partnership.Axis);
-    Countries.france.joinPartnership(Partnership.Allies);
-    Countries.unitedKingdom.joinPartnership(Partnership.Allies);
-    Countries.china.joinPartnership(Partnership.Allies);
-
     const paris = Hex.allCityHexes.find(it => it.city === "Paris");
     const lille = Hex.allCityHexes.find(it => it.city === "Lille");
     const leHavre = Hex.allCityHexes.find(it => it.city === "Le Havre");
@@ -20,6 +14,15 @@ test("Vichy France attacked by Axis", () => {
     const brest = Hex.allCityHexes.find(it => it.city === "Brest");
     const vichy = Hex.allCityHexes.find(it => it.city === "Vichy");
 
+    //Invading other European countries should also invade non-Vichy France
+    expect(Countries.belgium.additionalInvadedCountries(Partnership.Axis).map(it => it.name()).join(",")).toContain("France");
+
+    Countries.germany.joinPartnership(Partnership.Axis);
+    Countries.japan.joinPartnership(Partnership.Axis);
+    Countries.france.joinPartnership(Partnership.Allies);
+    Countries.unitedKingdom.joinPartnership(Partnership.Allies);
+    Countries.china.joinPartnership(Partnership.Allies);
+
     //Create Vichy France
     paris.setController(Countries.germany);
     Countries.france.createVichy();
@@ -27,6 +30,9 @@ test("Vichy France attacked by Axis", () => {
     //France should be considered conquered
     expect(Countries.france.conquered()).toBe(true);
     expect(Countries.france.hasBeenConquered()).toBe(true);
+
+    //Invading other European countries should not invade Vichy France
+    expect(Countries.belgium.additionalInvadedCountries(Partnership.Axis).map(it => it.name()).join(",")).not.toContain("France");
 
     //Gaining control of one city isn't enough to liberate Vichy France
     expect(Countries.france.canBeInvadedBy(Partnership.Axis)).toBe(true);

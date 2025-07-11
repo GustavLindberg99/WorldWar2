@@ -60,13 +60,13 @@ namespace InfoBubble {
                 installations.push("Fortification");
             }
             else if(hex.fortUnderConstruction()){
-                installations.push(`Fortification (under construction, finished in ${3 - hex.monthsUntilFortFinished()} months)`);
+                installations.push(`Fortification (under construction, finished in ${hex.monthsUntilFortFinished()} months)`);
             }
             if(hex.hasAirfield()){
                 installations.push("Airfield");
             }
             else if(hex.airfieldUnderConstruction()){
-                installations.push(`Airfield (under construction, finished in ${3 - hex.monthsUntilAirfieldFinished()} months)`);
+                installations.push(`Airfield (under construction, finished in ${hex.monthsUntilAirfieldFinished()} months)`);
             }
         }
 
@@ -161,7 +161,7 @@ namespace InfoBubble {
                     <div class="box">
                         <h3>Status</h3>
                         <p>Partnership: ${country.partnership()?.name ?? "Neutral"}</p>
-                        <p>Conquered: ${country.conquered() ? "Yes" : "No"}</p>
+                        <p>Conquered: ${country.conquered() ? "Yes" : "No, cities remaining: <span id=\"Country.remainingCities\"></span>"}</p>
                         <p>Entered war: ${country.enteredWar === null ? "Never" : dateToString(country.enteredWar)}</p>
                     </div>
                     <div class="box">
@@ -182,6 +182,28 @@ namespace InfoBubble {
             buttons: null,
             style: "width: 400px"
         });
+
+        const remainingCitiesSpan = document.getElementById("Country.remainingCities");
+        if(remainingCitiesSpan !== null){
+            const remainingCities: ReadonlyArray<string> = country.remainingCitiesBeforeConqured().map(it => it.city!!).sort();
+            if(remainingCities.length > 5 && remainingCities.length === country.cities.length){
+                remainingCitiesSpan.textContent = "All";
+            }
+            else{
+                remainingCitiesSpan.textContent = remainingCities.slice(0, 5).join(", ");
+                if(remainingCities.length > 5){
+                    const showAllLink = document.createElement("a");
+                    showAllLink.href = "javascript:void(0)";
+                    showAllLink.role = "button";
+                    showAllLink.textContent = "...";
+                    showAllLink.onclick = () => {
+                        remainingCitiesSpan.textContent = remainingCities.join(", ");
+                    };
+                    remainingCitiesSpan.textContent += ", ";
+                    remainingCitiesSpan.appendChild(showAllLink);
+                }
+            }
+        }
 
         const unitsOnMapContainer = document.getElementById("Country.unitsOnMap")!!;
         const unitsOnMap: ReadonlyMap<Unit, number> = Unit.groupByType(country.units());

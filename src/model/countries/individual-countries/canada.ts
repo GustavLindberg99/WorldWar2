@@ -44,10 +44,6 @@ export default class Canada extends CountryWithUnits {
         }
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.unitedKingdom].filter(it => it.canBeInvadedBy(partnership));
-    }
-
     override income(): number {
         //Canada gets $500B extra per month as long as the US is neutral, this represents lend lease to the UK (Canada gets this to force it to be transported by convoys)
         return super.income() + (Countries.unitedStates.partnership() === Partnership.Neutral ? 500 : 0);

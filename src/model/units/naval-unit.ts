@@ -138,7 +138,7 @@ export default abstract class NavalUnit extends Unit {
     }
 
     override sameBasicType(other: Unit): boolean {
-        return other instanceof NavalUnit && !(other instanceof Submarine) && other.owner.partnership() === this.owner.partnership();
+        return other instanceof NavalUnit && !(other instanceof Carrier) && !(other instanceof TransportShip) && other.owner.partnership() === this.owner.partnership();
     }
 
     /**

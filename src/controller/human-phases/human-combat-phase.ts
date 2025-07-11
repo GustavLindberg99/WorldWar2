@@ -317,6 +317,12 @@ export default class HumanCombatPhase {
             Toastify({text: "You must select which units should participate in the combat."}).showToast();
         }
         else{
+            //Reset click events for all units
+            for(let unit of Unit.allAliveUnits()){
+                UnitMarker.get(unit).onclick = null;
+            }
+
+            //Run combat
             const nextButtonLockReason = "Attack is ongoing...";
             LeftPanel.addNextButtonLock(nextButtonLockReason);
             LeftPanel.hideCancelButton();
@@ -328,36 +334,61 @@ export default class HumanCombatPhase {
 
             LeftPanel.releaseNextButtonLock(nextButtonLockReason);
 
+            //Deselect units participating in combat
             for(let unit of [...this.#attackers, ...this.#defenders].filter(it => it.isAlive())){
                 UnitMarker.get(unit).deselect();
             }
 
+            //Make clicking on units start a new combat with those units (this will be overridden in #advanceAfterCombat for units that can advance after combat)
+            //Use Promise.race instead of Promise.any because if one of the promises throws, Promise.race throws whereas Promise.any does nothing (none of the promises are supposed to throw, but if they do, it's easier to debug with Promise.race)
+            const unitClicked = new Promise<void>(resolvePromise => {
+                for(let unit of Unit.allAliveUnits()){
+                    const unitMarker = UnitMarker.get(unit);
+                    unitMarker.onclick = async () => {
+                        //Deselect any units that were selected for advancing after combat
+                        for(let otherUnit of Unit.allAliveUnits()){
+                            UnitMarker.get(otherUnit).deselect();
+                        }
+
+                        //Resolve the promise
+                        resolvePromise();
+                        await unitClicked;    //Otherwise the code below will run before the promise is actually resolved and cause infinite recursion, see https://stackoverflow.com/a/51485326/4284627
+
+                        //Execute the unit's new onclick callback
+                        unitMarker.onclick?.();
+                    };
+                }
+            });
+
+            //Advance after combat if possible
             const defendersRemainingInHex: ReadonlyArray<Unit> = [...this.#combat instanceof LandCombat ? this.#combat.combatHex.landUnits().filter(it => it.owner.partnership() !== this.#partnership) : this.#combat.combatHex.navalUnits()];
             if(this.#attackers.every(it => it instanceof AirUnit)){
                 advanceText.textContent = "Click Next to continue.";
-                await LeftPanel.waitForNextButtonPressed("Continue combat phase");
+                await Promise.race([unitClicked, LeftPanel.waitForNextButtonPressed("Continue combat phase")]);
             }
             else if(defendersRemainingInHex.length > 0){
                 advanceText.textContent = "You can't advance after combat since there are still defenders in the combat hex. Click Next to continue.";
-                await LeftPanel.waitForNextButtonPressed("Continue combat phase");
+                await Promise.race([unitClicked, LeftPanel.waitForNextButtonPressed("Continue combat phase")]);
             }
             else if(this.#combat instanceof LandCombat && this.#combat.isAmphibious){
                 advanceText.textContent = "In an amphibious or paradrop combat, the assaulting units automatically advance after combat.";
-                await LeftPanel.waitForNextButtonPressed("Continue combat phase");
+                await Promise.race([unitClicked, LeftPanel.waitForNextButtonPressed("Continue combat phase")]);
             }
             else{
                 advanceText.textContent = "Click on the units you want to advance after combat with, then click Next. If you don't want to advance after combat, click Next.";
                 const attackersBox = document.createElement("div");
                 combatResults.appendChild(attackersBox);
-                await this.#advanceAfterCombat(this.#combat.combatHex, attackersBox);
+                await Promise.race([unitClicked, this.#advanceAfterCombat(this.#combat.combatHex, attackersBox)]);
             }
 
+            //Uncolor hexes
             for(let hex of [this.#combat.combatHex, ...this.#defenders.map(it => it.hex())]){
                 if(hex !== null){
                     HexMarker.uncolorHex(hex);
                 }
             }
 
+            //Reset everything so that it's ready for a new combat
             this.#attackers = [];
             this.#defenders = [];
             this.#combat = null;
@@ -376,22 +407,6 @@ export default class HumanCombatPhase {
     async #advanceAfterCombat(combatHex: Hex, attackersBox: HTMLElement): Promise<void> {
         const attackers = this.#attackers.filter(it => it.isAlive() && it.hex() !== combatHex);    //Check that the hex isn't the combat hex to exclude naval and air units in case of land combat, and air units in case of naval combat
         let unitsToAdvanceAfterCombat = new Set<Unit>;
-        for(let unit of Unit.allAliveUnits()){
-            UnitMarker.get(unit).onclick = () => {
-                if(unit.owner.partnership() !== this.#partnership){
-                    Toastify({text: "You can only advance after combat with your own units."}).showToast();
-                }
-                else if(!this.#attackers.includes(unit)){
-                    Toastify({text: "This unit can't advance after combat because it didn't attack."}).showToast();
-                }
-                else if(unit instanceof AirUnit){
-                    Toastify({text: "Air units can't advance after combat."}).showToast();
-                }
-                else{
-                    Toastify({text: "Naval units can't advance after land combat."}).showToast();
-                }
-            };
-        }
         for(let unit of attackers){
             const unitMarker = UnitMarker.get(unit);
             const copyImage = unitMarker.createCopyImage(true);

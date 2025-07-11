@@ -13,10 +13,6 @@ export default class Norway extends CountryWithUnits {
         ]);
     }
 
-    override additionalInvadedCountries(partnership: Partnership): Array<Country> {
-        return [Countries.unitedKingdom].filter(it => it.canBeInvadedBy(partnership));
-    }
-
     override canSendMoneyWithoutConvoys(): Array<Country> {
         return [Countries.germany, Countries.unitedKingdom].filter(it => it.partnership() === this.partnership() && !it.conquered());
     }
