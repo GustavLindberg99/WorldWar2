@@ -108,9 +108,6 @@ export default class China extends CountryWithUnits {
             if(enemyUnit === undefined){
                 hex.setController(this);
             }
-            else{
-                hex.setController(enemyUnit.owner, false);
-            }
         }
     }
 }

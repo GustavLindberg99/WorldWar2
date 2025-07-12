@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { Hex } from "../build/model/mapsheet.js";
 import { Partnership } from "../build/model/partnership.js";
 import { Countries } from "../build/model/countries.js";
-import { AirUnit, Infantry, TransportShip } from "../build/model/units.js";
+import { AirUnit, Infantry, Marine, TransportShip } from "../build/model/units.js";
 import { date } from "../build/model/date.js";
 
 test("Countries that can be invaded", () => {
@@ -254,10 +254,12 @@ test("Chinese controlled hexes", () => {
 
     const beijing = Hex.allCityHexes.find(it => it.city === "Beijing");
     const tianjin = Hex.allCityHexes.find(it => it.city === "Tianjin");
+    const haikou = Hex.allCityHexes.find(it => it.city === "Haikou");
     const japaneseUnit = new Infantry(1, 4, Countries.japan);
 
     //If a Japanese unit enters a Chinese hex, Japan should gain control of it
     japaneseUnit.setHex(beijing);
+    beijing.setController(Countries.japan);
     Countries.china.updateController();
     Countries.china.conquerOrLiberate();
     expect(beijing.controller().name()).toBe("Japan");
@@ -267,6 +269,7 @@ test("Chinese controlled hexes", () => {
 
     //If a Japanese unit moves within China, Japan should lose control of the old hex and gain control of the new hex.
     japaneseUnit.setHex(tianjin);
+    tianjin.setController(Countries.japan);
     Countries.china.updateController();
     Countries.china.conquerOrLiberate();
     expect(beijing.controller().name()).toBe("China");
@@ -283,10 +286,25 @@ test("Chinese controlled hexes", () => {
     expect(Countries.china.conquered()).toBe(false);
     expect(Countries.china.hasBeenConquered()).toBe(false);
 
+    //Amphibious assault onto Chinese land units
+    const chineseInfantry = new Infantry(3, 3, Countries.china);
+    const japaneseMarine = new Marine(5, 3, Countries.japan);
+    chineseInfantry.setHex(haikou);
+    japaneseMarine.setHex(haikou);
+    Countries.china.updateController();
+    expect(haikou.controller().name()).toBe("China");
+
+    //Amphibious assault onto Japanese land units in China
+    haikou.setController(Countries.japan);
+    Countries.china.updateController();
+    expect(haikou.controller().name()).toBe("Japan");
+
     //Conquering China
+    chineseInfantry.die();
     for(let hex of Countries.china.cities){
         const unit = new Infantry(1, 4, Countries.japan);
         unit.setHex(hex);
+        hex.setController(Countries.japan);
     }
     Countries.china.updateController();
     Countries.china.conquerOrLiberate();
@@ -298,7 +316,7 @@ test("Chinese controlled hexes", () => {
     expect(hangzhou.controller().name()).toBe("China");    //Special rule for China: it can still control its own hexes even though it's conquered
 
     //If a Japanese unit leaves a Chinese city empty, China is liberated
-    const [japaneseConqueringUnit] = Countries.japan.landUnits();
+    const [japaneseConqueringUnit] = beijing.landUnits();
     japaneseConqueringUnit.die();
     Countries.china.updateController();
     Countries.china.conquerOrLiberate();
@@ -307,7 +325,7 @@ test("Chinese controlled hexes", () => {
     expect(Countries.china.income()).toBeGreaterThan(0);
 
     //Chinese liberated forces (should always be 5 no matter how many extra Chinese units were created in the unit tests because China has more than 5 strength points in the real game anyway)
-    expect(Countries.china.delayedUnits.get(date.current).size).toBeGreaterThan(5);
+    expect(Countries.china.delayedUnits.get(date.current).size + Countries.china.availableUnits.size).toBeGreaterThan(5);
 });
 
 test("Italian surrender", () => {

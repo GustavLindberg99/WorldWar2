@@ -44,7 +44,16 @@ export default abstract class CountryWithUnits extends Country {
         super.liberate();
 
         if(this.#liberatedForces !== null){
-            this.delayedUnits.set(date.current, this.#liberatedForces);
+            //Use an iterator so that it continues to iterate where it stopped
+            const liberatedForces = this.#liberatedForces.values();
+
+            //Get 5 strength points for free
+            this.delayedUnits.set(date.current, new Set(liberatedForces.take(5)));
+
+            //Make the rest available to buy (for any country other than China this will be empty)
+            this.availableUnits = new Set(liberatedForces);
+
+            //Reset the liberated forces
             this.#liberatedForces = new Set();
         }
     }

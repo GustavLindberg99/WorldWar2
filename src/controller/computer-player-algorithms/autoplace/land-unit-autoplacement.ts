@@ -115,6 +115,7 @@ class LandAutoplacer {
                     hex = this.#findAvailableHex(hexes, newUnit);
                 }
                 hexesByCountry.set(newUnit.owner, hexes);
+                await refreshUI();
             } while(hex !== undefined && !SupplyLines.canTraceSupplyLine(hex, newUnit.owner));
             if(hex !== undefined){
                 const existingUnit = this.#increaseableUnit(hex, newUnit);

@@ -51,13 +51,7 @@ namespace SupplyLines {
         let hex = origin;
 
         //An array containing all the destinations. Saved as a separate array to be able to sort it, see below.
-        let destinations = Hex.allHexes.filter(isDestination);
-        if(!allowLandHexsides && Countries.turkey.partnership() === Partnership.Neutral){
-            destinations = destinations.filter(it => it.isBlackSea() === origin.isBlackSea());
-        }
-        if(destinations.length === 0){
-            return null;
-        }
+        let destinations: Array<Hex>;
 
         //Maps a hex to its adjacent hexes that we're allowed to go through.
         let adjacentHexesByHex = new Map<Hex, ReadonlyArray<Hex>>();
@@ -117,7 +111,17 @@ namespace SupplyLines {
                 hex = passedHexes.at(-1)!!;
             }
             else{
-                destinations.sort((a, b) => a.distanceFromHex(hex) - b.distanceFromHex(hex));    //Sort this seperately instead of using movement.destination.closestHex for performance reasons. Sorting an array that's already mostly sorted is faster than sorting a completely random array.
+                //Initialize this here for performance reasons so that it doesn't have to be initialized if the cache is used
+                destinations ??= Hex.allHexes.filter(isDestination);
+                if(!allowLandHexsides && Countries.turkey.partnership() === Partnership.Neutral){
+                    destinations = destinations.filter(it => it.isBlackSea() === origin.isBlackSea());
+                }
+                if(destinations.length === 0){
+                    return null;
+                }
+
+                //Sort this seperately instead of using movement.destination.closestHex for performance reasons. Sorting an array that's already mostly sorted is faster than sorting a completely random array.
+                destinations.sort((a, b) => a.distanceFromHex(hex) - b.distanceFromHex(hex));
                 hex = destinations[0].closestHex(allowedAdjacentHexes);
                 passedHexes.push(hex);
             }
