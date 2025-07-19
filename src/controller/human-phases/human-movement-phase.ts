@@ -3,7 +3,7 @@ import { joinIterables, sortNumber, xdialogConfirm } from "../../utils.js";
 import { Hex } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries } from "../../model/countries.js";
-import { AirUnit, AliveUnit, Armor, LandUnit, NavalUnit, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Armor, Carrier, LandUnit, NavalUnit, Unit } from "../../model/units.js";
 import { Phase } from "../../model/phase.js";
 
 import HexMarker from "../../view/markers/hex-marker.js";
@@ -525,7 +525,30 @@ export default class HumanMovementPhase {
      *
      * @param units The units that are moving.
      */
-    protected colorHexes(units: ReadonlyArray<Unit>): void {
+    protected colorHexes(units: ReadonlyArray<AliveUnit & Unit>): void {
+        //Color available airbases purple
+        const secondMovement = Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement;
+        if(secondMovement && units.every(it => it instanceof AirUnit)){
+            for(let hex of this.#possibleAirbases()){
+                if(units.some(it => hex.distanceFromHex(it.hex()) > it.movementAllowance - it.usedMovementPoints)){
+                    continue;
+                }
+                if(
+                    (
+                        hex.controller()?.partnership() === this.partnership
+                        && units.every(it => it.canEnterHexWithinStackingLimits(hex, true, joinIterables(hex.units(), units)))
+                    )
+                    || units.every(airUnit =>
+                        [...hex.navalUnits().filter(
+                            navalUnit => airUnit.canEmbarkOnto(navalUnit) && navalUnit.embarkedUnits().size === 0
+                        )].length >= units.length
+                    )
+                ){
+                    HexMarker.colorHex(hex, "purple");
+                }
+            }
+        }
+
         //Color passed hexes yellow
         for(let hex of units.flatMap(it => this.passedHexes.get(it)!!)){
             HexMarker.colorHex(hex, "yellow");
@@ -535,7 +558,7 @@ export default class HumanMovementPhase {
         const slowestAirUnit: AirUnit | undefined = units
             .filter(it => it instanceof AirUnit)
             .sort((a, b) => sortNumber(a, b, it => it.movementAllowance))[0];
-        if(slowestAirUnit !== undefined && Phase.current !== Phase.AxisSecondMovement && Phase.current !== Phase.AlliedSecondMovement){
+        if(slowestAirUnit !== undefined && !secondMovement){
             const halfwayHex = this.passedHexes.get(slowestAirUnit)!![Math.floor(slowestAirUnit.movementAllowance / 2)];
             if(halfwayHex !== undefined){
                 HexMarker.colorHex(halfwayHex, "orange");
@@ -579,5 +602,21 @@ export default class HumanMovementPhase {
                 HexMarker.uncolorHex(hex);
             }
         }
+        for(let hex of this.#possibleAirbases()){
+            HexMarker.uncolorHex(hex);
+        }
+    }
+
+    /**
+     * Gets all hexes that could be used as airbases by this partnership.
+     *
+     * @returns All hexes that could be used as airbases by this partnership. Not all hexes are guaranteed to be useable airbases, but all hexes not returned are guaranteed not to be useable airbases.
+     */
+    #possibleAirbases(): Generator<Hex> {
+        return joinIterables(
+            Hex.allCityHexes,
+            Hex.allResourceHexes,
+            this.partnership.navalUnits().filter(it => it instanceof Carrier).map(it => it.hex())
+        );
     }
 }

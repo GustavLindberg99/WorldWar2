@@ -134,7 +134,7 @@ export default class HumanInterceptionPhase extends HumanMovementPhase {
         }
     }
 
-    protected override colorHexes(units: ReadonlyArray<Unit>): void {
+    protected override colorHexes(units: ReadonlyArray<AliveUnit & Unit>): void {
         super.colorHexes(units);
         const lastHex = this.passedHexes.get(units[0])!!.at(-1)!!;
         if(this.#passedHexesOpenForInterception(this.#interceptedUnit!!)?.includes(lastHex)){
