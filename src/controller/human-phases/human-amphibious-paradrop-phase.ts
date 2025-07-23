@@ -187,6 +187,10 @@ export default class HumanAmphibiousParadropPhase {
             Toastify({text: "At least one non-supply unit must participate in the assault."}).showToast();
             return;
         }
+        else if(joinIterables(this.#selectedAmphibiousUnits, this.#selectedParadropUnits).some(it => it.outOfSupply())){
+            Toastify({text: "Units that are out of supply can't do amphibious assaults or paradrops."}).showToast();
+            return;
+        }
 
         LeftPanel.clear();
         LeftPanel.hideCancelButton();

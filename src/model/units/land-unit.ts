@@ -55,12 +55,16 @@ export default abstract class LandUnit extends Unit {
         if(hex === null){
             return false;
         }
+        const embarkedOn = this.embarkedOn();
+        if(embarkedOn !== null){
+            return embarkedOn.outOfSupply();
+        }
         const controller = hex.controller();
         if(controller !== null && controller.partnership() !== this.owner.partnership()){
             //Units that are doing an amphibious assault aren't out of supply
             return false;
         }
-        return this.embarkedOn()?.outOfSupply() ?? !SupplyLines.canTraceSupplyLine(hex, this.owner, !(this instanceof SupplyUnit));
+        return !SupplyLines.canTraceSupplyLine(hex, this.owner, !(this instanceof SupplyUnit));
     }
 
     override updateSupply(): boolean {

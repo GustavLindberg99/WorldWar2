@@ -154,19 +154,22 @@ export default class HumanMovementPhase {
      */
     #initializeMoveUnitListener(unit: AliveUnit & Unit, listener: MoveUnitListener): void {
         listener.ondragstart = (event: Event) => {
-            const canMove = this.unitCanMove(unit);
-            if(canMove){
+            const reasonNotBeingAbleToMove = this.unitCanMove(unit);
+            if(reasonNotBeingAbleToMove === null){
                 this.#selectedUnits.push(unit);
                 if(event instanceof MouseEvent && event.ctrlKey){
                     let offset = 0;
-                    for(let otherUnit of unit.hex().units().filter(it => it !== unit && it.sameBasicType(unit) && this.unitCanMove(unit)).take(4)){
+                    for(let otherUnit of unit.hex().units().filter(it => it !== unit && it.sameBasicType(unit) && this.unitCanMove(it) === null).take(4)){
                         offset += 5;
                         this.#selectedUnits.push(otherUnit);
                         this.#moveUnitListeners.get(UnitMarker.get(otherUnit))!!.simulateDragStart(event, offset);
                     }
                 }
             }
-            return canMove;
+            else{
+                Toastify({text: reasonNotBeingAbleToMove}).showToast();
+            }
+            return reasonNotBeingAbleToMove === null;
         };
         listener.ondragmove = (hex) => {
             if(!this.bubbleHoveredOver && this.#unitToBeEmbarkedOn === null){
@@ -260,63 +263,52 @@ export default class HumanMovementPhase {
      *
      * @param unit  The unit to be dragged.
      *
-     * @returns True if the unit can be moved, false otherwise.
+     * @returns Null if the unit can be moved, otherwise a human readable string explaining why not.
      */
-    protected unitCanMove(unit: AliveUnit & Unit): boolean {
+    protected unitCanMove(unit: AliveUnit & Unit): string | null {
         const embarkedOn = unit.embarkedOn();
         const passedHexes = this.passedHexes.get(unit);
         if(unit.owner.partnership() !== this.partnership){
-            Toastify({text: "You can only move your own units."}).showToast();
-            return false;
+            return "You can only move your own units.";
         }
         else if(this.#opponentTurn && (!(unit instanceof AirUnit) || unit.based)){
-            Toastify({text: "You can only return unbased air units to their bases during this phase."}).showToast()
-            return false;
+            return "You can only return unbased air units to their bases during this phase.";
         }
         else if(unit instanceof AirUnit && unit.hex().airUnitsGrounded()){
-            Toastify({text: "Air units in this weather zone are grounded."}).showToast()
-            return false;
+            return "Air units in this weather zone are grounded.";
         }
         else if(unit instanceof LandUnit && unit.hasMoved && (Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement)){
-            Toastify({text: "You can't move land units that have moved during the first movement phase."}).showToast()
-            return false;
+            return "You can't move land units that have moved during the first movement phase.";
         }
         else if(embarkedOn instanceof AirUnit && !embarkedOn.based){
-            Toastify({text: "You can only disembark units from air units if the air unit is based."}).showToast();
-            return false;
+            return "You can only disembark units from air units if the air unit is based.";
         }
         else if(embarkedOn !== null && unit instanceof LandUnit && !embarkedOn.hex().isLand()){
-            Toastify({text: "You can't disembark land units in all sea hexes."}).showToast();
-            return false;
+            return "You can't disembark land units in all sea hexes.";
         }
         else if(embarkedOn !== null && unit instanceof LandUnit && embarkedOn.hex().controller()?.partnership() !== this.partnership){
-            Toastify({text: "To disembark land units into enemy controlled hexes, you must do an amphibious assault during the amphibious and paradrop phase."}).showToast();
-            return false;
+            return "To disembark land units into enemy controlled hexes, you must do an amphibious assault during the amphibious and paradrop phase.";
         }
         else if(Phase.current !== Phase.AxisInterception && Phase.current !== Phase.AlliedInterception && embarkedOn !== null && passedHexes !== undefined && passedHexes.length > 1 && passedHexes.at(-1) !== embarkedOn.hex()){
-            Toastify({text: "You can't embark and disembark the same unit during the same phase."}).showToast();
-            return false;
+            return "You can't embark and disembark the same unit during the same phase.";
         }
         else if(unit.hasAttacked && unit instanceof LandUnit && !(unit instanceof Armor)){
-            Toastify({text: "Units that have attacked can't move."}).showToast();
-            return false;
+            return "Units that have attacked can't move.";
         }
         else if(passedHexes !== undefined && unit.embarkedUnits().values().some(it =>
             !this.#initiallyEmbarkedUnits.get(unit)?.has(it)
             && (this.passedHexes.get(it)?.at(-1) ?? passedHexes[0]) !== passedHexes[0]
         )){
-            Toastify({text: "This unit can't move any more this turn since a unit embarked onto it after it has started moving."}).showToast();
-            return false;
+            return "This unit can't move any more this turn since a unit embarked onto it after it has started moving.";
         }
         else if(passedHexes !== undefined && this.#initiallyEmbarkedUnits.get(unit)?.values().some(it =>
             it.embarkedOn() !== unit
             && (this.passedHexes.get(it)?.[0] ?? this.passedHexes.get(it.embarkedOn())?.[0] ?? it.hex()) !== passedHexes[0]
         )){
-            Toastify({text: "This unit can't move any more this turn since a unit disembarked from it after it has started moving."}).showToast();
-            return false;
+            return "This unit can't move any more this turn since a unit disembarked from it after it has started moving.";
         }
         else{
-            return true;
+            return null;
         }
     }
 

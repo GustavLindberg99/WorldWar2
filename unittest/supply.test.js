@@ -144,6 +144,7 @@ test("Embarked land units supply", () => {
 
     const stettin = Hex.allCityHexes.find(it => it.city === "Stettin");
     const reykjavik = Hex.allCityHexes.find(it => it.city === "Reykjavik");
+    const copenhagen = Hex.allCityHexes.find(it => it.city === "Copenhagen");
     reykjavik.setController(Countries.germany);
 
     //Air transport
@@ -190,7 +191,7 @@ test("Embarked land units supply", () => {
     expect(germanTransportShip.outOfSupply()).toBe(false);
     expect(germanInfantry.outOfSupply()).toBe(false);
 
-    germanTransportShip.setHex(reykjavik);
+    germanTransportShip.setHex(copenhagen);
 
     expect(germanTransportShip.outOfSupply()).toBe(false);
     expect(germanInfantry.outOfSupply()).toBe(false);
@@ -386,4 +387,21 @@ test("Chinese supply", () => {
     chineseAirUnit.updateSupply();
     expect(chineseInfantry.outOfSupply()).toBe(false);
     expect(chineseAirUnit.outOfSupply()).toBe(false);
+});
+
+test("Supply in fortifications", () => {
+    Countries.unitedKingdom.joinPartnership(Partnership.Allies);
+
+    const malta = Hex.allCityHexes.find(it => it.city === "Malta");
+
+    const britishInfantry = new Infantry(6, 3, Countries.unitedKingdom);
+    britishInfantry.setHex(malta);
+
+    expect(britishInfantry.outOfSupply()).toBe(true);
+
+    malta.startBuildingFortification();
+    malta.continueBuilding();
+    malta.continueBuilding();
+
+    expect(britishInfantry.outOfSupply()).toBe(false);
 });

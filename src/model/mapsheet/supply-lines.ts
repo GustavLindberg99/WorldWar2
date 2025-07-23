@@ -194,6 +194,9 @@ namespace SupplyLines {
         if(partnership === Partnership.Neutral || country?.partnership() === Partnership.Neutral){
             return false;
         }
+        if(hex.fortified()){
+            return true;
+        }
 
         return pathBetweenHexes(hex, isSupplySource.get(allowSupplyUnits)!!.get(country)!!, supplyLinesAllowedToPass.get(partnership)!!) !== null;
     }

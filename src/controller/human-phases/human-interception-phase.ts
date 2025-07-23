@@ -51,31 +51,26 @@ export default class HumanInterceptionPhase extends HumanMovementPhase {
         }
     }
 
-    protected override unitCanMove(unit: AliveUnit & Unit): boolean {
+    protected override unitCanMove(unit: AliveUnit & Unit): string | null {
         if(!(unit instanceof AirUnit)){
-            Toastify({text: "Only air units can intercept other units."}).showToast();
-            return false;
+            return "Only air units can intercept other units.";
         }
         else if(this.#previousPassedHexes.has(unit)){
-            Toastify({text: "This unit is already performing another mission."}).showToast();
-            return false;
+            return "This unit is already performing another mission.";
         }
         else if(this.#interceptedUnit === null && unit.based){
-            Toastify({text: "You must select an enemy unit to intercept."}).showToast();
-            return false;
+            return "You must select an enemy unit to intercept.";
         }
         else if(unit.outOfSupply()){
-            Toastify({text: "Units that are out of supply can't attack."}).showToast();
-            return false;
+            return "Units that are out of supply can't attack.";
         }
         else if(!unit.canAttack(this.#interceptedUnit)){
             if(this.#interceptedUnit instanceof AirUnit){
-                Toastify({text: "Only fighters can intercept air units."}).showToast();
+                return "Only fighters can intercept air units.";
             }
             else{
-                Toastify({text: "Only bombers can intercept naval units."}).showToast();
+                return "Only bombers can intercept naval units.";
             }
-            return false;
         }
         else{
             return super.unitCanMove(unit);
