@@ -24,6 +24,7 @@ The human player decides whether to play as the Axis or the Allies, and a comput
         - [Naval Units](#naval-units)
         - [Air Units](#air-units)
     - [Buying Units](#buying-units)
+    - [Placing Units](#placing-units)
     - [Strength Points](#strength-points)
     - [Buying Back Eliminated Units](#buying-back-eliminated-units)
     - [New Available Units](#new-available-units)
@@ -288,6 +289,18 @@ The maximum number of strength points that can be combined into the same unit de
 | United Kingdom | 6 (<1943), 8 (&geq;1943) | 8 (<1943), 10 (&geq;1943)  | 1           | 0           |
 | United States  | 8                        | 12                         | 1           | 0           |
 | Other          | 5                        | 8                          | 1           | 0           |
+
+### Placing Units
+When a country has bought a unit and the delay has passed, the country must place those units. Units are also placed the first deployment phase after their owner enters the war, and liberated forces are placed the first deployment phase after their owner is liberated.
+
+New units must generally be placed in their home country in hexes that are in supply, with the following exceptions:
+- Polish naval units may also be placed in the United Kingdom (not its colonies).
+- American air units may also be placed in any port hex controlled by the United States or the United Kingdom that is not in an enemy naval control zone.
+- During the first turn in the 1939 scenario, Japanese units may be placed in Japanese controlled hexes in China.
+- During the first turn after the Soviet Union enters the war, Soviet units may also be placed in the Baltic states, in Poland or Romania east of the temporary border, and in Finland east of the southern temporary border if the Soviet Union controls these hexes.
+- During the first turn after a country enters the war, supply units belonging to that country may be placed in hexes that are out of supply. Once a supply unit has been placed there, hexes that can trace supply lines to them are no longer out of supply, allowing to place other units there as well.
+
+In addition, naval units must begin in ports and air units must begin on airfields. Armor units may not be placed in desert or icecap hexes since they may not enter those hexes anyway.
 
 ### Buying Back Eliminated Units
 When a land unit is eliminated or loses strength points, those strength points can always be bought back in a subsequent unit build phase.

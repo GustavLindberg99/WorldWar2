@@ -3,6 +3,7 @@ import lodash from "https://cdn.jsdelivr.net/npm/lodash@4.17.21/+esm";
 import { Hex, SupplyLines } from "../model/mapsheet.js";
 import { Partnership } from "../model/partnership.js";
 import { Armor, LandUnit, SupplyUnit } from "../model/units.js";
+import { date } from "../model/date.js";
 
 import ErrorMessages from "./error-messages.js";
 import HexMarker from "./markers/hex-marker.js";
@@ -353,8 +354,13 @@ export default class PlaceLandUnitsBubble {
             Toastify({text: "Armor units can't be placed in desert or icecap hexes."}).showToast();
             return;
         }
-        else if(!SupplyLines.canTraceSupplyLine(this.#hex, unit.owner, !(unit instanceof SupplyUnit))){
-            Toastify({text: "New units can't be placed in hexes that are out of supply."}).showToast();
+        else if(!SupplyLines.canTraceSupplyLine(this.#hex, unit.owner, !(unit instanceof SupplyUnit)) && (!(unit instanceof SupplyUnit) || date.current !== unit.owner.enteredWar)){
+            if(date.current === unit.owner.enteredWar){
+                Toastify({text: "New non-supply units can't be placed in hexes that are out of supply. To place a unit here, you must first place a supply unit in a hex that can trace a supply line to this hex."}).showToast();
+            }
+            else{
+                Toastify({text: "New units can't be placed in hexes that are out of supply."}).showToast();
+            }
             return;
         }
 
