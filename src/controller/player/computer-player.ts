@@ -1,12 +1,12 @@
 import lodash from "https://cdn.jsdelivr.net/npm/lodash@4.17.21/+esm";
-import { addToMapOfSets, joinIterables } from "../../utils.js";
+import { addToMapOfSets, joinIterables, sortNumber } from "../../utils.js";
 
 import Player from "./player.js";
 
 import { Hex, SupplyLines } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries, Country } from "../../model/countries.js";
-import { AirUnit, AliveUnit, Convoy, Infantry, LandUnit, NavalUnit, Paratrooper, Submarine, SupplyUnit, TransportShip, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Armor, Convoy, Infantry, LandUnit, NavalUnit, Paratrooper, Submarine, SupplyUnit, TransportShip, Unit } from "../../model/units.js";
 import { date, Month } from "../../model/date.js";
 import { Phase } from "../../model/phase.js";
 import { UnitCombat } from "../../model/combat.js";
@@ -168,11 +168,12 @@ export default class ComputerPlayer extends Player {
                 UnitMarker.get(unit).update();
             }
         }
+        const ownerIsInvaded = (unitToBuy: Unit) => unitToBuy.owner.cities.some(it => !it.isColony && it.controller()!!.partnership() !== it.country!!.partnership());
         const orderedAvailableUnits =   //The available units ordered so that the ones he wants most are first
             lodash.shuffle([...this.partnership.availableUnits()])
             .sort((a, b) =>
-                Number(b.owner === Countries.sovietUnion && b instanceof Infantry)
-                - Number(a.owner === Countries.sovietUnion && a instanceof Infantry)
+                sortNumber(b, a, unitToBuy => unitToBuy instanceof Infantry && ownerIsInvaded(unitToBuy))
+                || sortNumber(b, a, unitToBuy => unitToBuy instanceof Armor && ownerIsInvaded(unitToBuy))
             );
         for(let unit of orderedAvailableUnits){
             if(unit.owner.money < unit.price()){

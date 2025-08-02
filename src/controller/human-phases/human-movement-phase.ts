@@ -21,6 +21,7 @@ export default class HumanMovementPhase {
     readonly #initiallyBasedUnits: ReadonlySet<Unit>;
     readonly #unbasedAirUnitBox = document.createElement("div");
     readonly #initiallyEmbarkedUnits: ReadonlyMap<AliveUnit & Unit, ReadonlySet<AliveUnit & Unit>>;
+    readonly #possibleAirbases: ReadonlyArray<Hex>;
 
     protected bubbleHoveredOver: boolean = false;
 
@@ -43,6 +44,10 @@ export default class HumanMovementPhase {
             this.partnership.units()
             .filter(it => it.embarkedUnits().size > 0)
             .map(it => [it, new Set(it.embarkedUnits())])
+        );
+        this.#possibleAirbases = Hex.allHexes.filter(hex =>
+            hex.airbaseCapacity() > 0
+            || hex.navalUnits().some(it => it.owner.partnership() === this.partnership && it instanceof Carrier)
         );
     }
 
@@ -521,7 +526,7 @@ export default class HumanMovementPhase {
         //Color available airbases purple
         const secondMovement = Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement;
         if(secondMovement && units.every(it => it instanceof AirUnit)){
-            for(let hex of this.#possibleAirbases()){
+            for(let hex of this.#possibleAirbases){
                 if(units.some(it => hex.distanceFromHex(it.hex()) > it.movementAllowance - it.usedMovementPoints)){
                     continue;
                 }
@@ -594,21 +599,8 @@ export default class HumanMovementPhase {
                 HexMarker.uncolorHex(hex);
             }
         }
-        for(let hex of this.#possibleAirbases()){
+        for(let hex of this.#possibleAirbases){
             HexMarker.uncolorHex(hex);
         }
-    }
-
-    /**
-     * Gets all hexes that could be used as airbases by this partnership.
-     *
-     * @returns All hexes that could be used as airbases by this partnership. Not all hexes are guaranteed to be useable airbases, but all hexes not returned are guaranteed not to be useable airbases.
-     */
-    #possibleAirbases(): Generator<Hex> {
-        return joinIterables(
-            Hex.allCityHexes,
-            Hex.allResourceHexes,
-            this.partnership.navalUnits().filter(it => it instanceof Carrier).map(it => it.hex())
-        );
     }
 }

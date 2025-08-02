@@ -1,5 +1,5 @@
 import lodash from "https://cdn.jsdelivr.net/npm/lodash@4.17.21/+esm";
-import { xdialogConfirm } from "../../utils.js";
+import { joinIterables, xdialogConfirm } from "../../utils.js";
 
 import { Hex } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
@@ -252,7 +252,10 @@ export default class HumanCombatPhase {
 
         if(this.#attackers.length === 0 && this.#defenders.length === 0){
             LeftPanel.waitForNextButtonPressed("To movement phase", () =>
-                !this.#partnership.units().some(it => it.canAttack() && (!this.#overrun || it.canDoOverrun()))
+                !this.#partnership.units().some(friendlyUnit =>
+                    joinIterables(friendlyUnit.hex().adjacentHexes(), [friendlyUnit.hex()]).flatMap(it => it.units()).some(enemyUnit => enemyUnit.owner.partnership() !== this.#partnership && friendlyUnit.canAttackInHex(enemyUnit))
+                    && (!this.#overrun || friendlyUnit.canDoOverrun())
+                )
                 || xdialogConfirm("End combat phase?", "Do you really want to end the combat phase?")
             ).then(() => this.#endCombatPhase());
             LeftPanel.hideCancelButton();

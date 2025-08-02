@@ -327,7 +327,7 @@ export default class PlaceLandUnitsBubble {
                 clone.strength = 1;
                 if(clone.canEnterHexWithinStackingLimits(this.#hex)){
                     this.#decreaseUnitStrength(unit, true, false);
-                    this.#placeLandUnit(clone);
+                    this.#placeLandUnit(clone, false);
                 }
                 else{
                     Toastify({text: "This unit can't be split up because of stacking limits."}).showToast();
@@ -342,10 +342,10 @@ export default class PlaceLandUnitsBubble {
     /**
      * Places a new land unit in the given hex if there is room, otherwise shows an error message. The hex is assumed to be in a country where the unit can be placed.
      *
-     * @param unit  The unit to place.
-     * @param hex   The hex to place it in.
+     * @param unit          The unit to place.
+     * @param checkSupply   If false, allows placing units in hexes that are out of supply. Used when splitting up existing units.
      */
-    #placeLandUnit(unit: LandUnit): void {
+    #placeLandUnit(unit: LandUnit, checkSupply: boolean = true): void {
         if(!unit.canEnterHexWithinStackingLimits(this.#hex)){
             Toastify({text: "This unit can't be placed here because of stacking limits. If possible, try increasing the strength of an existing unit in this hex, otherwise place this unit somewhere else."}).showToast();
             return;
@@ -354,7 +354,7 @@ export default class PlaceLandUnitsBubble {
             Toastify({text: "Armor units can't be placed in desert or icecap hexes."}).showToast();
             return;
         }
-        else if(!SupplyLines.canTraceSupplyLine(this.#hex, unit.owner, !(unit instanceof SupplyUnit)) && (!(unit instanceof SupplyUnit) || date.current !== unit.owner.enteredWar)){
+        else if(checkSupply && !SupplyLines.canTraceSupplyLine(this.#hex, unit.owner, !(unit instanceof SupplyUnit)) && (!(unit instanceof SupplyUnit) || date.current !== unit.owner.enteredWar)){
             if(date.current === unit.owner.enteredWar){
                 Toastify({text: "New non-supply units can't be placed in hexes that are out of supply. To place a unit here, you must first place a supply unit in a hex that can trace a supply line to this hex."}).showToast();
             }
