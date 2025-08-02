@@ -15,6 +15,6 @@ export default class Thailand extends CountryWithoutUnits {
     }
 
     override canSendMoneyWithoutConvoys(): Array<Country> {
-        return [Countries.japan];
+        return [Countries.japan].filter(it => it.partnership() === this.partnership() && !it.conquered());
     }
 }

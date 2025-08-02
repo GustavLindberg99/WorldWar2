@@ -1,11 +1,12 @@
 {
   "name": "worldwar2",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Free online World War 2 simulation game",
   "license": "GPL-3.0-only",
   "author": "Gustav Lindberg",
   "scripts": {
     "build": "npx tsc -p src && npx uglifyjs-folder build -o build -x .js -e",
+    "build-complete": "python mapsheet/compile_mapsheet.py && npm run build",
     "test": "npx vitest --run --test-timeout=60000"
   },
   "dependencies": {

@@ -45,6 +45,9 @@ export default class Canada extends CountryWithUnits {
     }
 
     override income(): number {
+        if(this.conquered()){
+            return 0;
+        }
         //Canada gets $500B extra per month as long as the US is neutral, this represents lend lease to the UK (Canada gets this to force it to be transported by convoys)
         return super.income() + (Countries.unitedStates.partnership() === Partnership.Neutral ? 500 : 0);
     }

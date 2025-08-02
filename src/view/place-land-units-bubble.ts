@@ -178,6 +178,12 @@ export default class PlaceLandUnitsBubble {
      * @returns True if the unit's strength was increased, false if it's not possible.
      */
     #increaseUnitStrength(unit: LandUnit, showErrors: boolean = true, changeAvailableLandUnits: boolean = true): boolean {
+        if(!this.#hex.unitCanBePlacedHere(unit)){
+            if(showErrors){
+                Toastify({text: "You can only place new land units in their home country."}).showToast();
+            }
+            return false;
+        }
         if(unit.strength >= unit.maxStrength()){
             if(showErrors){
                 Toastify({text: `This type of unit can't be stronger than ${unit.maxStrength()} strength points.`}).showToast();

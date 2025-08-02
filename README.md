@@ -275,6 +275,15 @@ Units can be bought during the unit build phase, and arrive during a subsequent 
 | Transport ship                            | $400B  | 2 months  |
 | Battlecruiser, battleship, heavy cruiser  | $1400B | 12 months |
 
+You can also build fortifications and airfields as well as repair damaged installations or units. Building and repairing installations is done during the deployment phase, repairing units is done during the unit build phase. Naval units must be in ports to be repaired.
+
+| Action                                    | Cost   | Delay     |
+|-------------------------------------------|--------|-----------|
+| Build fortification                       | $500B  | 3 months  |
+| Build airfield                            | $400B  | 3 months  |
+| Repair destroyed installation             | $200B  | Immediate |
+| Repair damaged naval or air unit          | $200B  | Immediate |
+
 ### Strength Points
 Each land unit consists of a certain number of strength points. Land units are bought one strength point at a time. When deploying the land units, several strength points can be combined into one unit. During combat, the number of strength points in a given unit can be reduced due to combat losses. During the deployment phase, it's also possible to combine several small units into one large unit (as long as they're in the same hex and have the same type and nationality), or to split up a large unit into two smaller units.
 

@@ -116,7 +116,7 @@ export default class HumanDeploymentPhase {
             LeftPanel.appendParagraph("These are your available units.");
             LeftPanel.appendParagraph(this.#placementText + [...this.#exceptionTexts.values()].join(""));
             LeftPanel.appendParagraph("Your opponent is placing their units at the same time as you are, but neither player may see the other's units until both are done placing theirs.");
-            LeftPanel.appendParagraph("You can also click on a hex to repair a damaged naval or air unit in it, to repair a damaged installation, or to build a new installation.");
+            LeftPanel.appendParagraph("You can also click on a hex to repair a damaged installation, or to build a new installation.");
             LeftPanel.appendParagraph("The autoplace buttons are mainly intended for cases where you have a lot of units (for example at the beginning of the game) and you would like to just place them along the front line quickly where the exact placement doesn't matter.");
             LeftPanel.appendParagraph("If you would like to place some units manually and some units automatically, place the ones you want to place manually first, then click on the autoplace button.");
 

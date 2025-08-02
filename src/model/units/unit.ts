@@ -152,6 +152,9 @@ abstract class Unit {
         if(this.#hex !== null){
             Unit.#allUnitsByHex.get(this.#hex)?.delete(this);
         }
+        if(this.#embarkedOn !== null){
+            this.#embarkedOn.#embarkedUnits.delete(this);
+        }
         unit.#embarkedUnits.add(this);
         this.#hex = null;
         this.#embarkedOn = unit;

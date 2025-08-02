@@ -169,12 +169,13 @@ export default class ComputerPlayer extends Player {
             }
         }
         const ownerIsInvaded = (unitToBuy: Unit) => unitToBuy.owner.cities.some(it => !it.isColony && it.controller()!!.partnership() !== it.country!!.partnership());
+        const canUseConvoys = this.partnership.countries().some(a => !a.conquered() && this.partnership.countries().some(b => !b.conquered() && a.canSendMoneyWithConvoys().includes(b)));
         const orderedAvailableUnits =   //The available units ordered so that the ones he wants most are first
             lodash.shuffle([...this.partnership.availableUnits()])
             .sort((a, b) =>
                 sortNumber(b, a, unitToBuy => unitToBuy instanceof Infantry && ownerIsInvaded(unitToBuy))
                 || sortNumber(b, a, unitToBuy => unitToBuy instanceof Armor && ownerIsInvaded(unitToBuy))
-            );
+            ).filter(it => canUseConvoys || !(it instanceof Convoy));
         for(let unit of orderedAvailableUnits){
             if(unit.owner.money < unit.price()){
                 continue;
