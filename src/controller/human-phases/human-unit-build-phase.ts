@@ -41,9 +41,9 @@ export default class HumanUnitBuildPhase {
         this.#updateUnits();
 
         //Damaged units
-        if(this.#partnership.airUnits().some(it => it.damaged()) || this.#partnership.navalUnits().some(it => it.damaged() && it.inPort)){
+        if(this.#partnership.airUnits().some(it => it.damaged()) || this.#partnership.navalUnits().some(it => it.damaged() && it.inPort())){
             const unitContainer = document.createElement("p");
-            for(let unit of joinIterables<AliveUnit & (AirUnit | NavalUnit)>(this.#partnership.airUnits(), this.#partnership.navalUnits().filter(it => it.inPort))){
+            for(let unit of joinIterables<AliveUnit & (AirUnit | NavalUnit)>(this.#partnership.airUnits(), this.#partnership.navalUnits().filter(it => it.inPort()))){
                 if(unit.damaged()){
                     const image = UnitMarker.get(unit).createCopyImage(true);
                     image.style.verticalAlign = "middle";
@@ -58,7 +58,7 @@ export default class HumanUnitBuildPhase {
                         unit.repair();
                         UnitMarker.get(unit).update();
                         unitContainer.removeChild(image);
-                        if(!this.#partnership.airUnits().some(it => it.damaged()) && !this.#partnership.navalUnits().some(it => it.inPort && it.damaged())){
+                        if(!this.#partnership.airUnits().some(it => it.damaged()) && !this.#partnership.navalUnits().some(it => it.inPort() && it.damaged())){
                             unitContainer.textContent = "All damaged units have been repaired.";
                         }
                     };

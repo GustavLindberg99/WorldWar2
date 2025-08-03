@@ -157,7 +157,7 @@ export default class HumanCombatPhase {
             Toastify({text: "Naval and air units can't attack enemy land units alone, though they may support friendly land units attacking the enemy land units."}).showToast();
             return;
         }
-        else if(defender instanceof NavalUnit && defender.inPort && defender.hex().isMajorPort() && this.#attackers.some(it => it instanceof NavalUnit)){
+        else if(defender instanceof NavalUnit && defender.inPort() && defender.hex().isMajorPort() && this.#attackers.some(it => it instanceof NavalUnit)){
             Toastify({text: "Naval units can't attack units that are in a major port."}).showToast();
             return;
         }
@@ -434,7 +434,7 @@ export default class HumanCombatPhase {
 
         await LeftPanel.waitForNextButtonPressed("Don't advance after combat", () => {
             for(let unit of unitsToAdvanceAfterCombat){
-                if(!unit.canEnterHexWithinStackingLimits(combatHex, false, unitsToAdvanceAfterCombat.values().filter(it => it !== unit))){
+                if(!unit.canEnterHexWithinStackingLimits(combatHex, unitsToAdvanceAfterCombat.values().filter(it => it !== unit))){
                     Toastify({text: "Not all these units can advance after combat due to stacking limits. Deselect one or more units by clicking on them."}).showToast();
                     return false;
                 }

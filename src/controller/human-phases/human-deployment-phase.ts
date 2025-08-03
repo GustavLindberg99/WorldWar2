@@ -250,7 +250,7 @@ export default class HumanDeploymentPhase {
             Toastify({text: this.#placementText + (this.#exceptionTexts.get(unit.owner) ?? "")}).showToast();
             return;
         }
-        else if(!unit.canEnterHexWithinStackingLimits(hex, true)){
+        else if(!unit.canEnterHexWithinStackingLimits(hex)){
             if(unit instanceof AirUnit && hex.airbaseCapacity() === 0){
                 Toastify({text: "Air units must be placed on airbases (this includes cities, resource hexes, and airbase installations)."}).showToast();
             }
@@ -274,7 +274,6 @@ export default class HumanDeploymentPhase {
         }
         else{
             lodash.pull(this.availableNavalUnits, unit);
-            unit.inPort = true;
         }
         UnitMarker.get(unit).update();
         this.updateUnitsInLeftPanel();

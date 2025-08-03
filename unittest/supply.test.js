@@ -186,7 +186,6 @@ test("Embarked land units supply", () => {
     const germanInfantry = new Infantry(2, 3, Countries.germany);
     germanInfantry.embarkOnto(germanTransportShip);
     germanTransportShip.setHex(stettin);
-    germanTransportShip.inPort = true;
 
     expect(germanTransportShip.outOfSupply()).toBe(false);
     expect(germanInfantry.outOfSupply()).toBe(false);
@@ -247,20 +246,14 @@ test("Naval unit and carrier supply", () => {
     Countries.japan.joinPartnership(Partnership.Axis);
 
     const pearlHarbor = Hex.allCityHexes.find(it => it.city === "Pearl Harbor");
-    const anchorage = Hex.allCityHexes.find(it => it.city === "Anchorage");
+    const cebu = Hex.allCityHexes.find(it => it.city === "Cebu");
     const ocean = Hex.fromCoordinates(213, 90);
-
-    //Make sure Anchorage is out of supply
-    for(let hex of anchorage.adjacentLandHexes()){
-        hex.setController(Countries.japan);
-    }
 
     const americanAirUnit = new AirUnit("F4F Wildcat", Countries.unitedStates);
     const americanCarrier = new Carrier("Lexington", 3, 47, Countries.unitedStates, americanAirUnit);
 
     //If it's in a supplied port, it's in supply
     americanCarrier.setHex(pearlHarbor);
-    americanCarrier.inPort = true;
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
 
@@ -273,7 +266,6 @@ test("Naval unit and carrier supply", () => {
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
     americanCarrier.setHex(pearlHarbor);
-    americanCarrier.inPort = true;
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
     americanCarrier.setHex(ocean);
@@ -293,28 +285,22 @@ test("Naval unit and carrier supply", () => {
     expect(americanAirUnit.outOfSupply()).toBe(true);
 
     //Going into a port that's out of supply doesn't help
-    americanCarrier.setHex(anchorage);
-    americanCarrier.inPort = true;
+    americanCarrier.setHex(cebu);
     expect(americanCarrier.outOfSupply()).toBe(true);
     expect(americanAirUnit.outOfSupply()).toBe(true);
 
     //Going into a port that's in supply does help, but only if it actually enters the port
     americanCarrier.setHex(pearlHarbor);
-    expect(americanCarrier.outOfSupply()).toBe(true);
-    expect(americanAirUnit.outOfSupply()).toBe(true);
-    americanCarrier.inPort = true;
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
 
     //Entering a port that's out of supply is fine for 3 months
-    americanCarrier.setHex(anchorage);
-    americanCarrier.inPort = true;
+    americanCarrier.setHex(cebu);
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
 
     //Naval air units and supply from land bases vs carriers
-    americanAirUnit.setHex(anchorage);
-    americanAirUnit.based = true;
+    americanAirUnit.setHex(cebu);
     expect(americanAirUnit.outOfSupply()).toBe(false);
     americanCarrier.updateSupply();
     americanAirUnit.updateSupply();
@@ -334,7 +320,7 @@ test("Naval unit and carrier supply", () => {
     expect(americanAirUnit.outOfSupply()).toBe(true);
 
     //For naval air units, out of supply carriers should count as out of supply bases
-    americanCarrier.setHex(pearlHarbor);
+    americanCarrier.setHex(ocean);
     americanAirUnit.setHex(pearlHarbor);
     americanAirUnit.based = true;
     expect(americanCarrier.outOfSupply()).toBe(true);
@@ -346,7 +332,7 @@ test("Naval unit and carrier supply", () => {
     americanAirUnit.updateSupply();
     expect(americanCarrier.outOfSupply()).toBe(true);
     expect(americanAirUnit.outOfSupply()).toBe(true);
-    americanCarrier.inPort = true;
+    americanCarrier.setHex(pearlHarbor);
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
 });

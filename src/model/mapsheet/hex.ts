@@ -238,9 +238,6 @@ class Hex extends UnitContainer {
                 for(let unit of this.airUnits()){
                     unit.based = false;
                 }
-                for(let unit of this.navalUnits()){
-                    unit.inPort = false;
-                }
             }
         }
         SupplyLines.clearCache();
@@ -540,9 +537,6 @@ class Hex extends UnitContainer {
         //Handle based air units and naval units in port
         for(let unit of this.basedAirUnits()){
             unit.based = false;
-        }
-        for(let unit of this.navalUnits()){
-            unit.inPort = false;
         }
     }
 

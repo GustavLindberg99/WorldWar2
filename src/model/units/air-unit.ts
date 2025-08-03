@@ -647,9 +647,9 @@ class AirUnit extends Unit {
         return this.bomberStrength / (this.damaged() ? 2 : 1);
     }
 
-    override canEnterHexWithinStackingLimits(hex: Hex, willBeBased: boolean = false, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
+    override canEnterHexWithinStackingLimits(hex: Hex, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
         const otherUnitsArray: ReadonlyArray<Unit> = [...otherUnits];
-        return !willBeBased || otherUnitsArray.filter(it =>
+        return otherUnitsArray.filter(it =>
             it !== this
             && it instanceof AirUnit
             && (it.based || (otherUnitsArray.includes(it) && it.hex() !== hex) || !it.isAlive())

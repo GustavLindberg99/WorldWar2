@@ -161,7 +161,7 @@ export default class ComputerPlayer extends Player {
     }
 
     override async unitBuildPhase(): Promise<void> {    //This function does not contain any await, but is async so that it can override the async function in the parent class
-        for(let unit of joinIterables<AliveUnit & (AirUnit | NavalUnit)>(this.partnership.airUnits(), this.partnership.navalUnits().filter(it => it.inPort))){
+        for(let unit of joinIterables<AliveUnit & (AirUnit | NavalUnit)>(this.partnership.airUnits(), this.partnership.navalUnits().filter(it => it.inPort()))){
             if(unit.damaged() && unit.owner.money >= 200){
                 unit.owner.money -= 200;
                 unit.repair();
@@ -280,13 +280,13 @@ export default class ComputerPlayer extends Player {
             }
             for(let unit of eligibleAmphibiousUnits){
                 //Then put in as many amphibious units as there's room for, prioritizing the strongest ones
-                if(unit.canEnterHexWithinStackingLimits(hex, false, joinIterables(amphibiousUnits, paradropUnits))){
+                if(unit.canEnterHexWithinStackingLimits(hex, joinIterables(amphibiousUnits, paradropUnits))){
                     amphibiousUnits.add(unit);
                 }
             }
             for(let unit of eligibleParadropUnits.slice(1)){
                 //Then put in more paratroopers if there's room
-                if(unit.canEnterHexWithinStackingLimits(hex, false, joinIterables(amphibiousUnits, paradropUnits))){
+                if(unit.canEnterHexWithinStackingLimits(hex, joinIterables(amphibiousUnits, paradropUnits))){
                     amphibiousUnits.add(unit);
                 }
             }

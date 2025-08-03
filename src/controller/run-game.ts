@@ -70,7 +70,7 @@ function clearHasAttacked(): void {
  */
 function debarkConvoyMoney(): void {
     for(let convoy of Unit.allAliveUnits().filter(it => it instanceof Convoy)){
-        if(convoy.inPort && convoy.destination !== null && convoy.hex().country === convoy.destination && !convoy.hex().isColony){
+        if(convoy.inPort() && convoy.destination !== null && convoy.hex().country === convoy.destination && !convoy.hex().isColony){
             convoy.destination.money += convoy.money;
             convoy.destination.gotMoneyFromConvoys = true;
             convoy.money = 0;

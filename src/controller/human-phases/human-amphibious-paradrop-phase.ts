@@ -123,7 +123,7 @@ export default class HumanAmphibiousParadropPhase {
                     selectedUnits.delete(unit);
                     copyImage.classList.remove("selected");
                 }
-                else if(!unit.canEnterHexWithinStackingLimits(this.#selectedHex!!, false, this.#selectedUnits())){
+                else if(!unit.canEnterHexWithinStackingLimits(this.#selectedHex!!, this.#selectedUnits())){
                     Toastify({text: "This unit can't do an amphibious assault or paradrop in this hex due to stacking limits. If you want to select this unit, deselect another unit first."}).showToast();
                 }
                 else{

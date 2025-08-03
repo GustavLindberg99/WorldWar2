@@ -74,6 +74,6 @@ export default class AtomicBombing extends Bombing {
      * @returns The units to eliminate.
      */
     #unitsToEliminate(): Set<Unit> {
-        return new Set(this.combatHex.units().filter(it => it instanceof LandUnit || (it instanceof AirUnit && it.based) || (it instanceof NavalUnit && it.inPort)));
+        return new Set(this.combatHex.units().filter(it => it instanceof LandUnit || (it instanceof AirUnit && it.based) || (it instanceof NavalUnit && it.inPort())));
     }
 }

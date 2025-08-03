@@ -31,7 +31,7 @@ export class Partnership extends UnitContainer {
      * @returns The convoys belonging to this partnership that can take money.
      */
     convoys(country: Country | null = null): IteratorObject<AliveUnit & Convoy> {
-        return this.units().filter(it => it instanceof Convoy).filter(it => it.inPort && it.money === 0 && !it.hex().isColony && (country === null || it.hex().country === country));
+        return this.units().filter(it => it instanceof Convoy).filter(it => it.inPort() && it.money === 0 && !it.hex().isColony && (country === null || it.hex().country === country));
     }
 
     /**

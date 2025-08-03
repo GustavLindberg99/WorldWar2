@@ -40,7 +40,7 @@ export default class UnitMarker {
     readonly #possibleInfoMarkers: ReadonlyArray<[string, string, () => boolean]> = [
         ["images/inside.svg", "Embarked units:", () => this.#unit.embarkedUnits().size > 0],
         ["images/landing-plane.svg", "Based", () => this.#unit instanceof AirUnit && this.#unit.based],
-        ["images/port.svg", "In port", () => this.#unit instanceof NavalUnit && this.#unit.inPort],
+        ["images/port.svg", "In port", () => this.#unit instanceof NavalUnit && this.#unit.inPort()],
         ["images/damaged.svg", "Damaged", () => (this.#unit instanceof AirUnit || this.#unit instanceof NavalUnit) && this.#unit.damaged()],
         ["images/sword.svg", "Has attacked this turn", () => this.#unit.hasAttacked],
         ["images/train.svg", "Moving by rail", () => this.#unit instanceof LandUnit && this.#unit.movingByRail]

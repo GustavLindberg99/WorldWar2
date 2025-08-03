@@ -88,7 +88,7 @@ export default abstract class UnitCombat implements Combat {
             const possibleHexes = this.adjacentHexes(firstDefender.hex()!!).filter(hex =>
                     this.#hexIsRetreatable(hex, firstDefender.owner.partnership() as Partnership)
                     && firstDefender.canEnterHexWithinStackingLimits(
-                        hex, false, joinIterables(
+                        hex, joinIterables(
                             this.relevantUnitsInHex(hex),
                             previousRetreat.entries().filter(it => it[1] === hex).map(it => it[0])
                         )

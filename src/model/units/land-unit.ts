@@ -117,7 +117,7 @@ export default abstract class LandUnit extends Unit {
         }
     }
 
-    override canEnterHexWithinStackingLimits(hex: Hex, _willBeBased: boolean = false, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
+    override canEnterHexWithinStackingLimits(hex: Hex, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
         const landUnits = [...otherUnits.filter(it => it !== this && it instanceof LandUnit)];
         return landUnits.length - (landUnits.some(it => it instanceof SupplyUnit) ? 1 : 0) - (landUnits.some(it => it instanceof Paratrooper) ? 1 : 0) < 2
     }

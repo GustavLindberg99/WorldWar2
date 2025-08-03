@@ -36,7 +36,6 @@ test("Save game", () => {
     chineseInfantry.hasAttacked = true;
 
     japaneseTransportShip.setHex(tokyo);
-    japaneseTransportShip.inPort = true;
     japaneseEmbarkedInfantry.embarkOnto(japaneseTransportShip);
     expect(Countries.japan.units()).toContain(japaneseEmbarkedInfantry);
 
@@ -85,7 +84,6 @@ test("Save game", () => {
     expect(japaneseTransportShipJson.movementAllowance).toBe(50);
     expect(japaneseTransportShipJson.hex?.x).toBe(tokyo.x);
     expect(japaneseTransportShipJson.hex?.y).toBe(tokyo.y);
-    expect(japaneseTransportShipJson.inPort).toBe(true);
     expect(japaneseTransportShipJson.remainingSupply).toBe(3);
     expect(japaneseTransportShipJson.damaged).toBe(false);
     expect(japaneseTransportShipJson.embarkedUnits?.length).toBe(1);
@@ -217,7 +215,7 @@ test("Load saved game", () => {
                 preferredPartnership: "Allies",
                 availableUnits: [{...britishInfantryJson, strength: 1}],
                 units: [
-                    {...britishTransportShipJson, hex: {x: leHavre.x, y: leHavre.y}, inPort: true},
+                    {...britishTransportShipJson, hex: {x: leHavre.x, y: leHavre.y}},
                     {...britishArmorJson, hex: {x: malta.x, y: malta.y}}
                 ],
                 gotMoneyFromConvoys: true,
@@ -303,7 +301,7 @@ test("Load saved game", () => {
     const britishUnit = [...leHavre.units()][0];
     expect(britishUnit).toBeInstanceOf(TransportShip);
     expect(britishUnit.isAlive()).toBe(true);
-    expect(britishUnit.inPort).toBe(true);
+    expect(britishUnit.inPort()).toBe(true);
     expect(britishUnit.owner.name()).toBe("United Kingdom");
     expect(britishUnit.defense).toBe(2);
     expect(britishUnit.movementAllowance).toBe(50);

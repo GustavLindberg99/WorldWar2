@@ -15,6 +15,7 @@ const lubeck = Hex.allCityHexes.find(it => it.city === "Lübeck");
 const newYork = Hex.allCityHexes.find(it => it.city === "New York");
 const boston = Hex.allCityHexes.find(it => it.city === "Boston");
 const capeCod = Hex.fromCoordinates(133, 114);
+const sea = Hex.fromCoordinates(159, 166);
 
 test("Set hex while iterating over units", () => {
     Countries.germany.joinPartnership(Partnership.Axis);
@@ -30,8 +31,8 @@ test("Set hex while iterating over units", () => {
     let processedUnits = new Set();
     for(let unit of Countries.germany.units()){
         expect(processedUnits).not.toContain(unit);
-        const possibleHexes = Countries.germany.cities.filter(it => unit.canEnterHexWithinStackingLimits(it, false));
-        const newHex = possibleHexes.findLast(it => unit.canEnterHexWithinStackingLimits(it, false));
+        const possibleHexes = Countries.germany.cities.filter(it => unit.canEnterHexWithinStackingLimits(it));
+        const newHex = possibleHexes.findLast(it => unit.canEnterHexWithinStackingLimits(it));
         unit.setHex(newHex);
         processedUnits.add(unit);
     }
@@ -60,8 +61,10 @@ test("Embarking and disembarking units", () => {
     Countries.germany.joinPartnership(Partnership.Axis);
     const germanInfantry = new Infantry(1, 3, Countries.germany);
     const germanTransportShip = new TransportShip(Countries.germany);
+    const germanTransportShip2 = new TransportShip(Countries.germany);
 
     germanTransportShip.setHex(bremerhaven);
+    germanTransportShip2.setHex(lubeck);
     germanInfantry.setHex(bremerhaven);
     expect(germanTransportShip.embarkedOn()).toBe(null);
     expect(germanInfantry.embarkedOn()).toBe(null);
@@ -112,6 +115,12 @@ test("Embarking and disembarking units", () => {
     expect(lubeck.units()).toContain(germanInfantry);
     expect(Countries.germany.units()).toContain(germanTransportShip);
     expect(Countries.germany.units()).toContain(germanInfantry);
+
+    germanInfantry.embarkOnto(germanTransportShip);
+    germanInfantry.embarkOnto(germanTransportShip2);
+    expect(germanInfantry.embarkedOn()).toBe(germanTransportShip2);
+    expect(germanTransportShip2.embarkedUnits()).toContain(germanInfantry);
+    expect(germanTransportShip.embarkedUnits()).not.toContain(germanInfantry);
 });
 
 test("Destroying land units", () => {
@@ -171,12 +180,12 @@ test("Destroying heavy ships", () => {
     Countries.germany.joinPartnership(Partnership.Axis);
     const germanBattleship = new Battleship("Scharnhorst", 4, 8, 44, Countries.germany);
 
-    germanBattleship.setHex(bremerhaven);
+    germanBattleship.setHex(sea);
     expect(germanBattleship.isAlive()).toBe(true);
 
     germanBattleship.die();
     expect(germanBattleship.isAlive()).toBe(false);
-    expect(bremerhaven.units()).not.toContain(germanBattleship);
+    expect(sea.units()).not.toContain(germanBattleship);
     expect(Countries.germany.availableUnits).not.toContain(germanBattleship);
 });
 
@@ -225,11 +234,12 @@ test("Carriers", () => {
     expect(bremerhaven.units()).toContain(germanCarrier);
     expect(bremerhaven.units()).not.toContain(germanAirUnit);
 
+    germanCarrier.setHex(sea);
     germanCarrier.die();
     expect(germanCarrier.isAlive()).toBe(false);
     expect(germanAirUnit.isAlive()).toBe(false);
-    expect(bremerhaven.units()).not.toContain(germanCarrier);
-    expect(bremerhaven.units()).not.toContain(germanAirUnit);
+    expect(sea.units()).not.toContain(germanCarrier);
+    expect(sea.units()).not.toContain(germanAirUnit);
     expect(Countries.germany.availableUnits).toContain(germanAirUnit);
     expect(Countries.germany.availableUnits).not.toContain(germanCarrier);
 });
@@ -245,9 +255,9 @@ test("Moving air and naval units", () => {
     expect(germanAirUnit.based).toBe(false);
 
     germanBattleship.setHex(bremerhaven);
-    germanBattleship.inPort = true;
-    germanBattleship.setHex(lubeck);
-    expect(germanBattleship.inPort).toBe(false);
+    expect(germanBattleship.inPort()).toBe(true);
+    germanBattleship.setHex(sea);
+    expect(germanBattleship.inPort()).toBe(false);
 });
 
 test("Land unit stacking limits", () => {
@@ -292,27 +302,21 @@ test("Air unit stacking limits", () => {
     const dc3 = new AirUnit("DC-3", Countries.unitedStates);
 
     //Stacking on an airbase
-    expect(p40.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(p40.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(p40.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     p40.setHex(newYork);
     p40.based = true;
-    expect(b24.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(b24.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(b24.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     b24.setHex(newYork);
     b24.based = true;
-    expect(b17.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(b17.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(b17.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     b17.setHex(newYork);
     b17.based = true;
-    expect(dc3.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(dc3.canEnterHexWithinStackingLimits(newYork, true)).toBe(false);
+    expect(dc3.canEnterHexWithinStackingLimits(newYork)).toBe(false);
     p40.based = false;
-    expect(dc3.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(dc3.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(dc3.canEnterHexWithinStackingLimits(newYork)).toBe(true);
 
     //Stacking outside of airbases
-    expect(dc3.canEnterHexWithinStackingLimits(capeCod, false)).toBe(true);
-    expect(dc3.canEnterHexWithinStackingLimits(capeCod, true)).toBe(false);
+    expect(dc3.canEnterHexWithinStackingLimits(capeCod)).toBe(false);
 });
 
 test("Naval unit stacking limits", () => {
@@ -325,59 +329,33 @@ test("Naval unit stacking limits", () => {
     const heavyCruiser = new HeavyCruiser("Baltimore", 4, 5, 47, Countries.unitedStates);
 
     //Minor ports
-    expect(transportShip.canEnterHexWithinStackingLimits(boston, false)).toBe(true);
-    expect(transportShip.canEnterHexWithinStackingLimits(boston, true)).toBe(true);
+    expect(transportShip.canEnterHexWithinStackingLimits(boston)).toBe(true);
     transportShip.setHex(boston);
-    transportShip.inPort = true;
-    expect(destroyer.canEnterHexWithinStackingLimits(boston, false)).toBe(true);
-    expect(destroyer.canEnterHexWithinStackingLimits(boston, true)).toBe(true);
+    expect(destroyer.canEnterHexWithinStackingLimits(boston)).toBe(true);
     destroyer.setHex(boston);
-    destroyer.inPort = true;
-    expect(destroyerEscort.canEnterHexWithinStackingLimits(boston, false)).toBe(true);
-    expect(destroyerEscort.canEnterHexWithinStackingLimits(boston, true)).toBe(true);
+    expect(destroyerEscort.canEnterHexWithinStackingLimits(boston)).toBe(true);
     destroyerEscort.setHex(boston);
-    destroyerEscort.inPort = true;
-    expect(battleship.canEnterHexWithinStackingLimits(boston, false)).toBe(true);
-    expect(battleship.canEnterHexWithinStackingLimits(boston, true)).toBe(true);
+    expect(battleship.canEnterHexWithinStackingLimits(boston)).toBe(true);
     battleship.setHex(boston);
-    battleship.inPort = true;
-    expect(battlecruiser.canEnterHexWithinStackingLimits(boston, false)).toBe(true);
-    expect(battlecruiser.canEnterHexWithinStackingLimits(boston, true)).toBe(true);
+    expect(battlecruiser.canEnterHexWithinStackingLimits(boston)).toBe(true);
     battlecruiser.setHex(boston);
-    battlecruiser.inPort = true;
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(boston, false)).toBe(false);
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(boston, true)).toBe(false);
-    transportShip.inPort = false;
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(boston, false)).toBe(false);
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(boston, true)).toBe(false);
+    expect(heavyCruiser.canEnterHexWithinStackingLimits(boston)).toBe(false);
 
     //Major ports
-    expect(transportShip.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(transportShip.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(transportShip.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     transportShip.setHex(newYork);
-    transportShip.inPort = true;
-    expect(destroyer.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(destroyer.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(destroyer.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     destroyer.setHex(newYork);
-    destroyer.inPort = true;
-    expect(destroyerEscort.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(destroyerEscort.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(destroyerEscort.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     destroyerEscort.setHex(newYork);
-    destroyerEscort.inPort = true;
-    expect(battleship.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(battleship.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(battleship.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     battleship.setHex(newYork);
-    battleship.inPort = true;
-    expect(battlecruiser.canEnterHexWithinStackingLimits(newYork, false)).toBe(true);
-    expect(battlecruiser.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(battlecruiser.canEnterHexWithinStackingLimits(newYork)).toBe(true);
     battlecruiser.setHex(newYork);
-    battlecruiser.inPort = true;
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(newYork, false)).toBe(false);
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(newYork, true)).toBe(true);
+    expect(heavyCruiser.canEnterHexWithinStackingLimits(newYork)).toBe(true);
 
     //Outside of ports
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(capeCod, false)).toBe(true);
-    expect(heavyCruiser.canEnterHexWithinStackingLimits(capeCod, true)).toBe(false);
+    expect(heavyCruiser.canEnterHexWithinStackingLimits(capeCod)).toBe(true);
 });
 
 test("Land unit movement", () => {
@@ -448,7 +426,6 @@ test("Air unit movement", () => {
     const seaByBremerhaven = Hex.fromCoordinates(161, 167);
     const leeuwarden = Hex.fromCoordinates(160, 168);
     const seaByLeeuwarden = Hex.fromCoordinates(160, 167);
-    const sea = Hex.fromCoordinates(159, 166);
     const seaByIpswich = Hex.fromCoordinates(158, 166);
     const ipswich = Hex.allCityHexes.find(it => it.city === "Ipswich");
     const middelfart = Hex.fromCoordinates(164, 169);
@@ -512,9 +489,7 @@ test("Naval unit movement", () => {
 
     germanBattleship.setHex(seaFurtherNorth);
     sovietBattleship.setHex(murmansk);
-    sovietBattleship.inPort = true;
     sovietSubmarine.setHex(murmansk);
-    sovietSubmarine.inPort = true;
 
     expect(sovietBattleship.validateMovement([murmansk, zaozyorsk, petsamo])).toBe(true);
     expect(sovietBattleship.validateMovement([murmansk, seaByMurmansk])).toBe(true);
@@ -527,8 +502,6 @@ test("Naval unit movement", () => {
     expect(sovietBattleship.validateMovement([murmansk, tumanny, ostrovnoy])).toBe(false);               //Can't enter partial icecap hexes
     expect(sovietBattleship.validateMovement([murmansk, tumanny, ostrovnoy, chizha])).toBe(false);       //Can't enter all icecap hexes
     expect(germanBattleship.validateMovement([seaFurtherNorth, seaByMurmansk, zaozyorsk])).toBe(false);  //Naval units in ports have control zones
-    sovietBattleship.inPort = false;
-    expect(germanBattleship.validateMovement([seaFurtherNorth, seaByMurmansk, zaozyorsk])).toBe(false);  //But they do outside of ports in port hexes
     germanSubmarine.setHex(seaFurtherNorth);
     expect(sovietSubmarine.validateMovement([murmansk, seaByMurmansk, zaozyorsk])).toBe(true);           //Submarines can continue one hex after control zones
     expect(sovietSubmarine.validateMovement([murmansk, seaByMurmansk, zaozyorsk, petsamo])).toBe(false); //But not more than one hex
@@ -561,20 +534,17 @@ test("Can attack", () => {
 
     const frenchTransportShip = new TransportShip(Countries.france);
     frenchTransportShip.setHex(marseille);
-    frenchTransportShip.inPort = true;
     const frenchEmbarkedInfantry = new Infantry(6, 3, Countries.france);
     frenchEmbarkedInfantry.embarkOnto(frenchTransportShip);
     const frenchAmphibiousInfantry = new Infantry(6, 3, Countries.france);
     frenchAmphibiousInfantry.setHex(naples);
     const frenchLightCruiser = new LightCruiser("Pluton", 1, 1, 43, Countries.france);
     frenchLightCruiser.setHex(marseille);
-    frenchLightCruiser.inPort = true;
     const italianBattleship = new Battleship("Giulio Cesare", 4, 5, 30, Countries.italy);
     italianBattleship.setHex(sea);
 
     const italianHeavyCruiser = new HeavyCruiser("San Giorgio", 3, 3, 33, Countries.italy);
     italianHeavyCruiser.setHex(naples);
-    italianHeavyCruiser.inPort = true;
     const italianDestroyer = new Destroyer("Turbine", 1, 1, 47, Countries.italy);
     italianDestroyer.setHex(naples);    //Not in port
     const frenchBattleship = new Battleship("Courbet", 4, 4, 30, Countries.france);

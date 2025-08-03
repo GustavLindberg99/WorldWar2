@@ -50,7 +50,7 @@ class LandAutoplacer {
         const haikou = Hex.allCityHexes.find(it => it.city === "Haikou")!!;
         for(let hex of [shantou, guangzhou, haikou, guangzhouResourceHex]){
             const supplyUnit = this.#availableSupplyUnits.values().find(it => hex.unitCanBePlacedHere(it));
-            if(supplyUnit !== undefined && !hex.landUnits().some(it => it instanceof SupplyUnit) && supplyUnit.canEnterHexWithinStackingLimits(hex, false, this.#totalUnitsToBeInHex(hex))){
+            if(supplyUnit !== undefined && !hex.landUnits().some(it => it instanceof SupplyUnit) && supplyUnit.canEnterHexWithinStackingLimits(hex, this.#totalUnitsToBeInHex(hex))){
                 this.placements.set(supplyUnit, hex);
                 this.#availableSupplyUnits.delete(supplyUnit);
             }
@@ -139,7 +139,7 @@ class LandAutoplacer {
         for(let newUnit of this.#availableSupplyUnits){
             const allowedHexes = allowedHexesByCountry.get(newUnit.owner) ?? newUnit.owner.hexes.filter(it =>
                 it.unitCanBePlacedHere(newUnit)
-                && newUnit.canEnterHexWithinStackingLimits(it, false, this.#totalUnitsToBeInHex(it))
+                && newUnit.canEnterHexWithinStackingLimits(it, this.#totalUnitsToBeInHex(it))
             );
             let hex: Hex | undefined;
             do{
@@ -148,7 +148,7 @@ class LandAutoplacer {
             } while(
                 hex !== undefined
                 && (
-                    !newUnit.canEnterHexWithinStackingLimits(hex, false, this.#totalUnitsToBeInHex(hex))
+                    !newUnit.canEnterHexWithinStackingLimits(hex, this.#totalUnitsToBeInHex(hex))
                     || !SupplyLines.canTraceSupplyLine(hex, newUnit.owner, false)
                 )
             );
@@ -243,7 +243,7 @@ class LandAutoplacer {
      */
     #findAvailableHex(hexes: ReadonlyArray<Hex>, newUnit: LandUnit): Hex | undefined {
         return hexes.find(it => this.#increaseableUnit(it, newUnit) !== undefined)
-            ?? hexes.find(it => newUnit.canEnterHexWithinStackingLimits(it, false, this.#totalUnitsToBeInHex(it)));
+            ?? hexes.find(it => newUnit.canEnterHexWithinStackingLimits(it, this.#totalUnitsToBeInHex(it)));
     }
 }
 

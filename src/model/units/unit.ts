@@ -333,15 +333,14 @@ abstract class Unit {
     abstract modifiedLandAttack(): number;
 
     /**
-     * Checks if this unit can enter the given hex within stacking limits.
+     * Checks if this unit can enter the given hex within stacking limits. For air units assumes the air unit will be based (otherwise there are no stacking limits).
      *
      * @param hex           The hex that the unit is attempting to enter.
-     * @param willBeBased   True if the air unit is trying to base or if the naval unit is trying to enter the port, false otherwise.
      * @param otherUnits    Other units that are also planning on entering this hex. Can but doesn't have to contain this unit.
      *
      * @returns True if this unit can enter the hex within the stacking limits, false otherwise.
      */
-    abstract canEnterHexWithinStackingLimits(hex: Hex, willBeBased?: boolean, otherUnits?: IteratorObject<Unit>): boolean;
+    abstract canEnterHexWithinStackingLimits(hex: Hex, otherUnits?: IteratorObject<Unit>): boolean;
 
     /**
      * Checks if the unit can move along the given array of passed hexes. Takes into account both movement allowance and control zones.
@@ -533,9 +532,6 @@ abstract class Unit {
         if(unit instanceof AirUnit && json.hex !== undefined && json.based){
             unit.based = true;
         }
-        if(unit instanceof NavalUnit && json.hex !== undefined && json.inPort){
-            unit.inPort = true;
-        }
         return unit;
     }
 }
@@ -573,7 +569,6 @@ namespace Unit {
         attack?: number,            //Optional, defaults to 0
         submarineAttack?: number,   //Optional, defaults to 0
         defense?: number,
-        inPort?: boolean,
         remainingSupply?: number,
 
         //Convoy specific

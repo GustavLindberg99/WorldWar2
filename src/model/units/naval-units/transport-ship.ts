@@ -38,6 +38,6 @@ export default class TransportShip extends NavalUnit {
     }
 
     override sameBasicType(other: Unit): boolean {
-        return other instanceof TransportShip && other.owner.partnership() === this.owner.partnership();
+        return other instanceof TransportShip && (other.embarkedUnits().size === 0) === (this.embarkedUnits().size === 0) && other.owner.partnership() === this.owner.partnership();
     }
 }

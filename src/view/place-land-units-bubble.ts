@@ -174,11 +174,12 @@ export default class PlaceLandUnitsBubble {
      * @param unit                      The unit whose strength to increase.
      * @param showErrors                If true, shows an error message in case of failure, otherwise fails silently.
      * @param changeAvailableLandUnits  If true, removes strength points from availableLandUnits.
+     * @param allowOutsideOfHomeCountry If true, allows placing new land units outside of their home country. Useful for transferring strength. Not useful for initial placements as unitCanBePlacedHere() already takes that into account.
      *
      * @returns True if the unit's strength was increased, false if it's not possible.
      */
-    #increaseUnitStrength(unit: LandUnit, showErrors: boolean = true, changeAvailableLandUnits: boolean = true): boolean {
-        if(!this.#hex.unitCanBePlacedHere(unit)){
+    #increaseUnitStrength(unit: LandUnit, showErrors: boolean = true, changeAvailableLandUnits: boolean = true, allowOutsideOfHomeCountry: boolean = false): boolean {
+        if(!allowOutsideOfHomeCountry && !this.#hex.unitCanBePlacedHere(unit)){
             if(showErrors){
                 Toastify({text: "You can only place new land units in their home country."}).showToast();
             }
@@ -340,7 +341,7 @@ export default class PlaceLandUnitsBubble {
                 }
             }
             else{
-                this.#increaseUnitStrength(otherUnit, true, false) && this.#decreaseUnitStrength(unit, false, false);
+                this.#increaseUnitStrength(otherUnit, true, false, true) && this.#decreaseUnitStrength(unit, false, false);
             }
         };
     }

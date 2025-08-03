@@ -136,7 +136,6 @@ test("Air-naval combat", () => {
 
     const americanShip = new Battleship("Nevada", 4, 5, 29, Countries.unitedStates);
     americanShip.setHex(pearlHarbor);
-    americanShip.inPort = true;
 
     const japaneseAirUnit = new AirUnit("A5M", Countries.japan);
     japaneseAirUnit.setHex(pearlHarbor);

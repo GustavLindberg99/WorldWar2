@@ -151,13 +151,10 @@ export default class ComputerMovementPhase {
                         const alreadyEmbarked = unit.embarkedOn() === transportShip;
                         const hex = transportShipMovement.at(-1)!!;
                         transportShip.setHex(hex);
-                        if(hex.isPort() && hex.controller()?.partnership() === this.#partnership){
-                            transportShip.inPort = true;
-                        }
                         if(!alreadyEmbarked){
                             unit.embarkOnto(transportShip);
                         }
-                        else if(transportShip.inPort){
+                        else if(transportShip.inPort()){
                             unit.disembark();
                         }
                         this.passedHexes.set(unit, supplyUnitMovement);
@@ -248,8 +245,7 @@ export default class ComputerMovementPhase {
                     const passedHexes = this.#returnToPort(unit, destinationCountry);
                     if(passedHexes !== null){
                         const hex = passedHexes.at(-1)!!;
-                        const putInPort = hex.isPort() && hex.controller()?.partnership() === this.#partnership;
-                        while(!unit.canEnterHexWithinStackingLimits(hex, putInPort, hex.navalUnits().filter(it => !unitsToMove.has(it)))){
+                        while(!unit.canEnterHexWithinStackingLimits(hex, hex.navalUnits().filter(it => !unitsToMove.has(it)))){
                             const unitToMove = hex.navalUnits().find(it => !(it instanceof Convoy) && !unitsToMove.has(it));
                             if(unitToMove === undefined){
                                 continue outerLoop;
@@ -257,16 +253,13 @@ export default class ComputerMovementPhase {
                             unitsToMove.add(unitToMove);
                         }
                         unit.setHex(hex);
-                        if(putInPort){
-                            unit.inPort = true;
-                        }
                         this.passedHexes.set(unit, passedHexes);
                         continue;
                     }
                 }
                 if(!(unit instanceof TransportShip) && !(unit instanceof Convoy) && !unit.damaged()){
                     let passedHexes = movementFromHex.get(unit.hex()) ?? null;
-                    if(passedHexes === null || !unit.canEnterHexWithinStackingLimits(passedHexes.at(-1)!!, false)){
+                    if(passedHexes === null || !unit.canEnterHexWithinStackingLimits(passedHexes.at(-1)!!)){
                         passedHexes = this.#moveNavalUnitToFrontLine(unit);
                     }
                     if(passedHexes !== null){
@@ -449,7 +442,7 @@ export default class ComputerMovementPhase {
      * @returns The hexes passed by the naval unit, or null if no such movement is possible.
      */
     #returnToPort(unit: AliveUnit & NavalUnit, country: Country | null): Array<Hex> | null {
-        if(unit.inPort && (country === null || (unit.hex().country === country && !unit.hex().isColony))){
+        if(unit.inPort() && (country === null || (unit.hex().country === country && !unit.hex().isColony))){
             return null;
         }
         let passedHexes = SupplyLines.simplifiedPathBetweenHexes(
@@ -457,7 +450,7 @@ export default class ComputerMovementPhase {
             destination => (country === null || destination.country === country)
                 && destination.controller()?.partnership() === this.#partnership
                 && destination.isPort()
-                && (country !== null || unit.canEnterHexWithinStackingLimits(destination, true))
+                && (country !== null || unit.canEnterHexWithinStackingLimits(destination))
                 && (country === null || !destination.isColony)
                 && SupplyLines.canTraceSupplyLine(destination, unit.owner),
             passedHex => !passedHex.isInNavalControlZone(this.#partnership.opponent(), unit instanceof Submarine),
@@ -514,7 +507,7 @@ export default class ComputerMovementPhase {
             unit.hex(),
             destination => destination.controller()?.partnership() === this.#partnership
                 && (destination.airbaseCapacity() > 0 || (unit.carrierBased() && destination.navalUnits().some(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0)))
-                && unit.canEnterHexWithinStackingLimits(destination, true),
+                && unit.canEnterHexWithinStackingLimits(destination),
             passedHex => !passedHex.airUnitsGrounded(),
             true,
             true,

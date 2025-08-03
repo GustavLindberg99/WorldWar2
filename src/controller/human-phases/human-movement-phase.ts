@@ -1,9 +1,9 @@
 import { joinIterables, sortNumber, xdialogConfirm } from "../../utils.js";
 
-import { Hex } from "../../model/mapsheet.js";
+import { Hex, SupplyLines } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries } from "../../model/countries.js";
-import { AirUnit, AliveUnit, Armor, Carrier, LandUnit, NavalUnit, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Armor, Carrier, LandUnit, NavalUnit, SupplyUnit, TransportShip, Unit } from "../../model/units.js";
 import { Phase } from "../../model/phase.js";
 
 import HexMarker from "../../view/markers/hex-marker.js";
@@ -39,7 +39,7 @@ export default class HumanMovementPhase {
     constructor(partnership: Partnership){
         this.partnership = partnership;
         this.#opponentTurn = (this.partnership === Partnership.Allies && Phase.current === Phase.AxisSecondMovement) || (this.partnership === Partnership.Axis && Phase.current === Phase.AlliedSecondMovement);
-        this.#initiallyBasedUnits = new Set(this.partnership.units().filter(it => (it instanceof AirUnit && it.based) || (it instanceof NavalUnit && it.inPort)));
+        this.#initiallyBasedUnits = new Set(this.partnership.units().filter(it => (it instanceof AirUnit && it.based) || (it instanceof NavalUnit && it.inPort())));
         this.#initiallyEmbarkedUnits = new Map(
             this.partnership.units()
             .filter(it => it.embarkedUnits().size > 0)
@@ -57,12 +57,26 @@ export default class HumanMovementPhase {
      * @param nextPhase The next phase to display on the Next button.
      */
     async run(nextPhase: string): Promise<void> {
+        const autoDisembarkSupplyUnitsContainer = document.createElement("div");
+        const autoDisembarkSupplyUnitsButton = document.createElement("button");
+        autoDisembarkSupplyUnitsButton.textContent = "Auto-disembark supply units";
+        autoDisembarkSupplyUnitsButton.onclick = () => {
+            const disembarkedUnits = this.#autoDisembarkSupplyUnits();
+            autoDisembarkSupplyUnitsContainer.textContent = disembarkedUnits.size === 0 ? "No supply units were disembarked." : "The following supply units were disembarked:"
+            autoDisembarkSupplyUnitsContainer.appendChild(document.createElement("br"));
+            for(let unit of disembarkedUnits){
+                autoDisembarkSupplyUnitsContainer.appendChild(UnitMarker.get(unit).createCopyImage(true));
+            }
+        };
+
         switch(Phase.current){
         case Phase.AxisFirstMovement:
         case Phase.AlliedFirstMovement:
             LeftPanel.appendParagraph("During this phase, air units may move up to their full movement allowance, but if they don't end this phase based, movement points used during this phase can't be used during the second movement phase. If they can't reach a friendly base with the remaining movement points during the second movement phase they will be eliminated.");
             LeftPanel.appendParagraph("Land units may move their full movement allowance. Armor units that have done a successful overrun may ignore enemy control zones when moving.");
             LeftPanel.appendParagraph("Naval units may move their full movement allowance.");
+            LeftPanel.appendElement(autoDisembarkSupplyUnitsButton);
+            LeftPanel.appendElement(autoDisembarkSupplyUnitsContainer);
             break;
         case Phase.AxisSecondMovement:
         case Phase.AlliedSecondMovement:
@@ -74,6 +88,8 @@ export default class HumanMovementPhase {
             if(!this.#opponentTurn){
                 LeftPanel.appendParagraph("Land units that have not moved during the first movement phase or attacked this turn may either move their full movement allowance or move by rail. Armor units that attacked during the combat phase may move their full movement allowance regardless of whether they have moved previously this turn.");
                 LeftPanel.appendParagraph("Naval units may move their full movement allowance regardless of whether they have moved or attacked previously this turn.");
+                LeftPanel.appendElement(autoDisembarkSupplyUnitsButton);
+                LeftPanel.appendElement(autoDisembarkSupplyUnitsContainer);
             }
             break;
         case Phase.AxisInterception:
@@ -326,7 +342,7 @@ export default class HumanMovementPhase {
      * @returns True if it can be dropped, false if it can't. If it can but is a bad idea, returns the result of the confirmation dialog.
      */
     protected async unitsCanBeDroppedHere(units: ReadonlyArray<AliveUnit & Unit>, hex: Hex): Promise<boolean> {
-        if(this.#unitToBeEmbarkedOn === null && units.some(it => it.hex() !== hex && !it.canEnterHexWithinStackingLimits(hex, this.bubbleHoveredOver, joinIterables(hex.units(), units.values())))){
+        if(this.#unitToBeEmbarkedOn === null && units.some(it => it.hex() !== hex && !it.canEnterHexWithinStackingLimits(hex, joinIterables(hex.units(), units.values())) && (this.bubbleHoveredOver || !(it instanceof AirUnit)))){
             Toastify({text: "This unit can't enter this hex because of stacking limits."}).showToast();
             return false;
         }
@@ -400,13 +416,11 @@ export default class HumanMovementPhase {
             this.#embarkingBubble?.destroy();
             this.#embarkingBubble = null;
             this.bubbleHoveredOver = false;
-            if(((units.every(it => it instanceof AirUnit) && hex.airbaseCapacity() > 0) || (units.every(it => it instanceof NavalUnit) && hex.isPort())) && hex.controller()?.partnership() === this.partnership){
+            if(units.every(it => it instanceof AirUnit) && hex.airbaseCapacity() > 0 && hex.controller()?.partnership() === this.partnership){
                 const canEnterWithinStackingLimits = units.every(unit =>
-                    unit.canEnterHexWithinStackingLimits(hex, true, joinIterables(units, hex.units()).filter(it => it !== unit))
+                    unit.canEnterHexWithinStackingLimits(hex, joinIterables(units, hex.units()).filter(it => it !== unit))
                 );
-                const text = canEnterWithinStackingLimits
-                    ? units.every(it => it instanceof AirUnit) ? "Base air unit here" : "Place naval unit in port"
-                    : units.every(it => it instanceof AirUnit) ? "Airbase capacity reached" : "Port capacity reached";
+                const text = canEnterWithinStackingLimits ? "Base air unit here" : "Airbase capacity reached";
                 const imageFilename = units.every(it => it instanceof AirUnit) ? "landing-plane.svg" : "port.svg";
                 this.#landingBubble = InfoBubble.hexTippy(hex, {
                     content: `<img class="inline" src="images/${imageFilename}"/> ${text}`
@@ -475,9 +489,6 @@ export default class HumanMovementPhase {
             if(unit instanceof AirUnit){
                 unit.based = this.bubbleHoveredOver;
             }
-            else if(unit instanceof NavalUnit){
-                unit.inPort = this.bubbleHoveredOver;
-            }
             else if(unit instanceof LandUnit && (Phase.current === Phase.AxisFirstMovement || Phase.current === Phase.AlliedFirstMovement)){
                 unit.hasMoved = passedHexes !== undefined && passedHexes.length > 1;
             }
@@ -518,6 +529,28 @@ export default class HumanMovementPhase {
     }
 
     /**
+     * Automatically disembarks supply units where needed.
+     *
+     * @returns The units that were disembarked.
+     */
+    #autoDisembarkSupplyUnits(): Set<SupplyUnit> {
+        let result = new Set<SupplyUnit>();
+        for(let transportShip of this.partnership.units().filter(it => it instanceof TransportShip)){
+            const supplyUnit = transportShip.embarkedUnits().values().find(it => it instanceof SupplyUnit);
+            if(supplyUnit === undefined){
+                continue;
+            }
+            if(transportShip.hex().controller()?.partnership() === this.partnership && !SupplyLines.canTraceSupplyLine(transportShip.hex(), supplyUnit.owner)){
+                supplyUnit.disembark();
+                result.add(supplyUnit);
+                UnitMarker.get(supplyUnit).update();
+                UnitMarker.get(transportShip).update();
+            }
+        }
+        return result;
+    }
+
+    /**
      * Colors the hexes that the given units have passed.
      *
      * @param units The units that are moving.
@@ -533,7 +566,7 @@ export default class HumanMovementPhase {
                 if(
                     (
                         hex.controller()?.partnership() === this.partnership
-                        && units.every(it => it.canEnterHexWithinStackingLimits(hex, true, joinIterables(hex.units(), units)))
+                        && units.every(it => it.canEnterHexWithinStackingLimits(hex, joinIterables(hex.units(), units)))
                     )
                     || units.every(airUnit =>
                         [...hex.navalUnits().filter(

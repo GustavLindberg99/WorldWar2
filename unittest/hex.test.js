@@ -395,25 +395,24 @@ test("Set controller", () => {
     swedishAirUnit.setHex(malmo);
     swedishAirUnit.based = true;
     swedishNavalUnit.setHex(malmo);
-    swedishNavalUnit.inPort = true;
 
     malmo.setController(Countries.unitedStates, false);
     expect(malmo.controller().name()).toBe("Sweden");
     expect(malmo.fortified()).toBe(true);
     expect(swedishAirUnit.based).toBe(true);
-    expect(swedishNavalUnit.inPort).toBe(true);
+    expect(swedishNavalUnit.inPort()).toBe(true);
 
     malmo.setController(Countries.unitedStates, true);
     expect(malmo.controller().name()).toBe("United States");
     expect(malmo.fortified()).toBe(true);
     expect(swedishAirUnit.based).toBe(true);
-    expect(swedishNavalUnit.inPort).toBe(true);
+    expect(swedishNavalUnit.inPort()).toBe(true);
 
     malmo.setController(Countries.germany, false);
     expect(malmo.controller().name()).toBe("Germany");
     expect(malmo.fortified()).toBe(false);
     expect(swedishAirUnit.based).toBe(false);
-    expect(swedishNavalUnit.inPort).toBe(false);
+    expect(swedishNavalUnit.inPort()).toBe(false);
 });
 
 test("Path between hexes", () => {

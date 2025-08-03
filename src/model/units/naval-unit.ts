@@ -10,7 +10,6 @@ export default abstract class NavalUnit extends Unit {
     readonly submarineAttack: number;
     readonly defense: number;
 
-    inPort: boolean = false;
     #remainingSupply: number = 3;
     #damaged: boolean = false;
 
@@ -35,7 +34,6 @@ export default abstract class NavalUnit extends Unit {
 
     override setHex(hex: Hex): void {
         super.setHex(hex);
-        this.inPort = false;
     }
 
     override delete(): void {
@@ -44,7 +42,7 @@ export default abstract class NavalUnit extends Unit {
     }
 
     override die(): void {
-        if(this.inPort){
+        if(this.inPort()){
             this.owner.availableUnits.add(this);
         }
         this.delete();
@@ -55,7 +53,7 @@ export default abstract class NavalUnit extends Unit {
             return false;
         }
         const hex = this.hex();
-        if(hex === null || (this.inPort && SupplyLines.canTraceSupplyLine(hex, this.owner))){
+        if(hex === null || (this.inPort() && SupplyLines.canTraceSupplyLine(hex, this.owner))){
             this.#remainingSupply = 3;
         }
         return this.#remainingSupply <= 0;
@@ -63,7 +61,7 @@ export default abstract class NavalUnit extends Unit {
 
     override updateSupply(): boolean {
         const hex = this.hex();
-        if(hex === null || (this.inPort && SupplyLines.canTraceSupplyLine(hex, this.owner))){
+        if(hex === null || (this.inPort() && SupplyLines.canTraceSupplyLine(hex, this.owner))){
             this.#remainingSupply = 3;
         }
         else{
@@ -94,7 +92,7 @@ export default abstract class NavalUnit extends Unit {
             return hex === unit.hex();
         }
         else if(unit instanceof NavalUnit){
-            return hex.adjacentSeaHexes().includes(unit.hex()) && (!unit.inPort || !unit.hex().isMajorPort());
+            return hex.adjacentSeaHexes().includes(unit.hex()) && (!unit.inPort() || !unit.hex().isMajorPort());
         }
         else{
             return false;
@@ -105,12 +103,9 @@ export default abstract class NavalUnit extends Unit {
         return this.attack / (this.damaged() ? 10 : 5);
     }
 
-    override canEnterHexWithinStackingLimits(hex: Hex, willBeBased: boolean = false, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
-        if(willBeBased && hex.isMajorPort()){
+    override canEnterHexWithinStackingLimits(hex: Hex, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
+        if(hex.isMajorPort() && hex.controller()?.partnership() === this.owner.partnership()){
             return true;
-        }
-        if(willBeBased && !hex.isPort()){
-            return false;
         }
         return [...otherUnits.filter(it => it !== this && it instanceof NavalUnit)].length < 5;
     }
@@ -187,6 +182,19 @@ export default abstract class NavalUnit extends Unit {
         return this.#remainingSupply;
     }
 
+    /**
+     * Checks if the unit is in a port.
+     *
+     * @returns True if it's in a port, false otherwise.
+     */
+    inPort(): boolean {
+        const hex = this.hex();
+        if(hex === null){
+            return false;
+        }
+        return hex.isPort() && hex.controller()?.partnership() === this.owner.partnership();
+    }
+
     override toJson(): Unit.Json {
         let json = super.toJson();
         json.name = this.name;
@@ -194,7 +202,6 @@ export default abstract class NavalUnit extends Unit {
         json.submarineAttack = this.submarineAttack || undefined;
         json.defense = this.defense;
         json.movementAllowance = this.movementAllowance;
-        json.inPort = this.inPort;
         json.remainingSupply = this.#remainingSupply;
         json.damaged = this.#damaged;
         return json;
@@ -227,10 +234,6 @@ export default abstract class NavalUnit extends Unit {
         }
         else if(!("movementAllowance" in json) || typeof(json.movementAllowance) !== "number" || json.movementAllowance <= 0){
             console.warn(`Invalid naval unit ${json.name}: invalid movement allowance.`);
-            return false;
-        }
-        else if(!("inPort" in json) || typeof(json.inPort) !== "boolean"){
-            console.warn(`Invalid naval unit ${json.name}: invalid inPort.`);
             return false;
         }
         else if(!("remainingSupply" in json) || typeof(json.remainingSupply) !== "number"){

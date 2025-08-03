@@ -391,7 +391,6 @@ test("Finnish surrender", () => {
     germanBasedAirUnit.based = true;
     germanUnbasedAirUnit.setHex(helsinki);
     germanShip.setHex(turku);
-    germanShip.inPort = true;
     germanEmbarkedUnit.embarkOnto(germanShip);
 
     const konigsberg = Hex.allCityHexes.find(it => it.city === "Königsberg");
@@ -493,7 +492,6 @@ test("Vichy France creation", () => {
     britishBasedAirUnit.based = true;
     britishUnbasedAirUnit.setHex(vichy);
     britishShipInPort.setHex(marseille);
-    britishShipInPort.inPort = true;
     britishEmbarkedInfantry.embarkOnto(britishShipInPort);
     britishShipOutsidePort.setHex(marseille);
 

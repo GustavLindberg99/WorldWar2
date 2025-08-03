@@ -117,7 +117,7 @@ namespace AirNavalAutoplacement {
             progress++;
             updateProgress?.(progress / availableAirUnits.length);
             const possibleHexes = airbases.filter(it =>
-                unit.canEnterHexWithinStackingLimits(it, true, totalUnitsToBeInHex(it))
+                unit.canEnterHexWithinStackingLimits(it, totalUnitsToBeInHex(it))
                 && it.unitCanBePlacedHere(unit)
                 && SupplyLines.canTraceSupplyLine(it, unit.owner)
             );
@@ -167,7 +167,7 @@ namespace AirNavalAutoplacement {
             progress++;
             updateProgress?.(progress / availableNavalUnits.length);
             const port = ports.find(it =>
-                unit.canEnterHexWithinStackingLimits(it, true, totalUnitsToBeInHex(it))
+                unit.canEnterHexWithinStackingLimits(it, totalUnitsToBeInHex(it))
                 && it.unitCanBePlacedHere(unit)
                 && SupplyLines.canTraceSupplyLine(it, unit.owner)
             );
@@ -189,9 +189,6 @@ namespace AirNavalAutoplacement {
             unit.setHex(hex);
             if(unit instanceof AirUnit){
                 unit.based = true;
-            }
-            else{
-                unit.inPort = true;
             }
             UnitMarker.get(unit).update();
         }
