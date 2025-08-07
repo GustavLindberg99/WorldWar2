@@ -43,6 +43,10 @@ export default class Convoy extends NavalUnit {
         return this.owner === other.owner && other instanceof Convoy;
     }
 
+    override sameBasicType(other: Unit): boolean {
+        return other instanceof Convoy && other.owner.partnership() === this.owner.partnership();
+    }
+
     override toJson(): Unit.Json {
         let json = super.toJson();
         json.money = this.money || undefined;

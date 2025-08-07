@@ -205,7 +205,7 @@ export default class PlaceLandUnitsBubble {
         unit.strength++;
         UnitMarker.get(unit).update();
 
-        this.#rows.get(unit)!!.querySelector(".imageContainer")!!.replaceChildren(UnitMarker.get(unit).createCopyImage());
+        this.#rows.get(unit)!!.querySelector(".imageContainer")!!.replaceChildren(UnitMarker.get(unit).createCopyImage(false));
         return true;
     }
 
@@ -258,7 +258,7 @@ export default class PlaceLandUnitsBubble {
             }
             unit.strength--;
             UnitMarker.get(unit).update();
-            this.#rows.get(unit)!!.querySelector(".imageContainer")!!.replaceChildren(UnitMarker.get(unit).createCopyImage());
+            this.#rows.get(unit)!!.querySelector(".imageContainer")!!.replaceChildren(UnitMarker.get(unit).createCopyImage(false));
             return true;
         }
     }

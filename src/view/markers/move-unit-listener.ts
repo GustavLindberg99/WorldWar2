@@ -37,7 +37,7 @@ export default class MoveUnitListener {
         this.#marker.addEventListener("mousedown", this.#mousedown);
         this.#marker.addEventListener("touchstart", this.#mousedown);
 
-        this.#copyImage = UnitMarker.get(unit).createCopyImage();
+        this.#copyImage = UnitMarker.get(unit).createCopyImage(false);
         this.#copyImage.style.position = "absolute";
 
         this.#allowHexesOutsideMapsheet = allowHexesOutsideMapsheet;

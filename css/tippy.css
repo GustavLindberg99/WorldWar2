@@ -4,6 +4,11 @@
     background-color: var(--background-color-light);
 }
 
+.tippy-content {
+    max-height: 95vh;
+    overflow-y: auto;
+}
+
 .tippy-box[data-placement^='top'] > .tippy-arrow::before {
     border-top-color: var(--background-color-light);
 }

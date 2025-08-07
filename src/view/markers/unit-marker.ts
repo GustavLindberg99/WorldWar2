@@ -104,7 +104,7 @@ export default class UnitMarker {
      * @param keepInfoMarkers   Whether to keep the info markers that are on this unit marker.
      * @param size              The size that the element should have.
      */
-    createCopyImage(showBubble: boolean = false, keepInfoMarkers: boolean = false, size: string = "2em"): SVGSVGElement {
+    createCopyImage(showBubble: boolean, keepInfoMarkers: boolean = false, size: string = "2em"): SVGSVGElement {
         const image = this.#makeMarker("svg", showBubble);
         image.setAttribute("width", size);
         image.setAttribute("height", size);
@@ -720,6 +720,7 @@ export default class UnitMarker {
                 UnitMarker.#expandedStackHex = null;
                 this.#expandStack(event);
             };
+            this.#fleetMarker.oncontextmenu = this.#marker.oncontextmenu;
             tippy(this.#fleetMarker, {
                 content: `${markers.length} units, click to show`,
                 showOnCreate: false,

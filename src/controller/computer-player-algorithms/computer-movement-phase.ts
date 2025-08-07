@@ -100,7 +100,7 @@ export default class ComputerMovementPhase {
             LeftPanel.appendParagraph("The following units haven't been able to return to their bases and have been eliminated:");
             const eliminatedUnitsContainer = document.createElement("div");
             for(let unit of this.#eliminatedAirUnits){
-                eliminatedUnitsContainer.appendChild(UnitMarker.get(unit).createCopyImage());
+                eliminatedUnitsContainer.appendChild(UnitMarker.get(unit).createCopyImage(true));
             }
             LeftPanel.appendElement(eliminatedUnitsContainer);
         }

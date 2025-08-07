@@ -107,14 +107,14 @@ export default class HumanMovementPhase {
             this.#initializeMoveUnitListener(unit, listener);
             this.#moveUnitListeners.set(unitMarker, listener);
         }
-        InfoBubble.onshowembarkedunit = (embarkedUnit: Unit, copyImage: HTMLElement | SVGElement) => {
-            const listener = new MoveUnitListener(embarkedUnit, copyImage, true);
-            this.#initializeMoveUnitListener(embarkedUnit as AliveUnit & Unit, listener);
+        InfoBubble.onshowcopyimage = (unit: Unit, copyImage: HTMLElement | SVGElement) => {
+            const listener = new MoveUnitListener(unit, copyImage, true);
+            this.#initializeMoveUnitListener(unit as AliveUnit & Unit, listener);
         };
 
         const secondMovement = Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement;
         await LeftPanel.waitForNextButtonPressed(nextPhase, () => {
-            if(this.passedHexes.size === 0 && Phase.current !== Phase.AxisInterception && Phase.current !== Phase.AlliedInterception){
+            if(this.passedHexes.size === 0 && !this.#opponentTurn && Phase.current !== Phase.AxisInterception && Phase.current !== Phase.AlliedInterception){
                 return xdialogConfirm("Skip movement phase?", "You haven't moved any units. Are you sure you want to skip the movement phase?");
             }
             if(secondMovement){
@@ -156,7 +156,7 @@ export default class HumanMovementPhase {
         for(let listener of this.#moveUnitListeners.values()){
             listener.delete();
         }
-        InfoBubble.onshowembarkedunit = null;
+        InfoBubble.onshowcopyimage = null;
 
         //Eliminate unbased air units after the second movement phase
         if(secondMovement){

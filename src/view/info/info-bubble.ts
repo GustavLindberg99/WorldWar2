@@ -3,7 +3,7 @@ import { wait } from "../../utils.js";
 import { Hex } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries, Country } from "../../model/countries.js";
-import { AirUnit, Convoy, Destroyer, LandUnit, NavalUnit, TransportShip, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Convoy, Destroyer, LandUnit, NavalUnit, TransportShip, Unit } from "../../model/units.js";
 import { date, dateToString } from "../../model/date.js";
 import { Phase } from "../../model/phase.js";
 
@@ -13,7 +13,10 @@ import UnitMarker from "../markers/unit-marker.js";
 
 namespace InfoBubble {
     let hexTippyElement: SVGElement | null = null;    //Dummy element at the center of the hex because tippy.js needs an element to point to
+    let hexTippyBubble: Tippy.Tippy | null = null;
     let unitTippyBubbles = new Map<Tippy.Tippy, Unit>();
+
+    export let onshowcopyimage: ((unit: Unit, copyImage: HTMLElement | SVGElement) => void) | null = null;
 
     /**
      * Shows a tippy bubble on a hex. Similar to the tippy() function, but takes a hex instead of a DOM element.
@@ -70,7 +73,8 @@ namespace InfoBubble {
             }
         }
 
-        hexTippy(hex, {content: `
+        hexTippyBubble?.destroy();
+        hexTippyBubble = hexTippy(hex, {content: `
             <div class="infoBubble">
                 <div class="box">
                     <h3>Terrain</h3>
@@ -96,11 +100,14 @@ namespace InfoBubble {
         });
 
         const unitsContainer = document.getElementById("Hex.units")!!;
-        if([...hex.units()].length === 0){
+        const units: ReadonlyArray<AliveUnit & Unit> = [...hex.units()];
+        if(units.length === 0){
             unitsContainer.textContent = "None";
         }
-        else for(let unit of hex.units()){
-            unitsContainer.appendChild(UnitMarker.get(unit).createCopyImage());
+        else for(let unit of units){
+            const copyImage = UnitMarker.get(unit).createCopyImage(false, true);
+            unitsContainer.appendChild(copyImage);
+            InfoBubble.onshowcopyimage?.(unit, copyImage);
         }
 
         makeCountryInfoLinksClickable();
@@ -211,7 +218,7 @@ namespace InfoBubble {
             unitsOnMapContainer.textContent = "None";
         }
         else for(let [unit, numberOfUnits] of unitsOnMap){
-            unitsOnMapContainer.appendChild(UnitMarker.get(unit).createCopyImage(true));
+            unitsOnMapContainer.appendChild(UnitMarker.get(unit).createCopyImage(true, true));
             if(numberOfUnits > 1){
                 unitsOnMapContainer.appendChild(document.createTextNode("(x" + numberOfUnits  + ") "));
             }
@@ -223,7 +230,7 @@ namespace InfoBubble {
             availableUnitsContainer.textContent = "None";
         }
         else for(let [unit, numberOfUnits] of availableUnits){
-            availableUnitsContainer.appendChild(UnitMarker.get(unit).createCopyImage(true));
+            availableUnitsContainer.appendChild(UnitMarker.get(unit).createCopyImage(true, true));
             if(numberOfUnits > 1){
                 availableUnitsContainer.appendChild(document.createTextNode("(x" + numberOfUnits  + ") "));
             }
@@ -246,7 +253,7 @@ namespace InfoBubble {
 
             const delayedUnitsContainer = document.createElement("p");
             for(let [unit, numberOfUnits] of groupedDelayedUnits){
-                delayedUnitsContainer.appendChild(UnitMarker.get(unit).createCopyImage(true));
+                delayedUnitsContainer.appendChild(UnitMarker.get(unit).createCopyImage(true, true));
                 if(numberOfUnits > 1){
                     delayedUnitsContainer.appendChild(document.createTextNode("(x" + numberOfUnits  + ") "));
                 }
@@ -254,8 +261,6 @@ namespace InfoBubble {
             infoBubble.appendChild(delayedUnitsContainer);
         }
     }
-
-    export let onshowembarkedunit: ((embarkedUnit: Unit, copyImage: HTMLElement | SVGElement) => void) | null = null;
 
     /**
      * Shows an info bubble with information about a unit.
@@ -397,7 +402,7 @@ namespace InfoBubble {
             for(let embarkedUnit of unit.embarkedUnits()){
                 const embarkedImage = UnitMarker.get(embarkedUnit).createCopyImage(true, true);
                 document.getElementById("InfoBubble.embarkedUnits")?.appendChild(embarkedImage);
-                InfoBubble.onshowembarkedunit?.(embarkedUnit, embarkedImage);
+                InfoBubble.onshowcopyimage?.(embarkedUnit, embarkedImage);
             }
 
             const activeListener = MoveUnitListener.activeListener();
