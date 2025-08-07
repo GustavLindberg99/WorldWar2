@@ -49,13 +49,6 @@ export default abstract class NavalUnit extends Unit {
     }
 
     override outOfSupply(): boolean {
-        if(this.#remainingSupply > 0){
-            return false;
-        }
-        const hex = this.hex();
-        if(hex === null || (this.inPort() && SupplyLines.canTraceSupplyLine(hex, this.owner))){
-            this.#remainingSupply = 3;
-        }
         return this.#remainingSupply <= 0;
     }
 

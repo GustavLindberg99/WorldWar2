@@ -158,7 +158,13 @@ When a country with colonies is conquered, what happens to the colonies depends 
 ### Vichy France
 If Paris is captured by the Axis either within two years of France entering the war, the Axis player may choose to attempt to create Vichy France, with a 75% chance of succeeding. If the attempt failed, the Axis player may never attempt to create Vichy France again in the game.
 
-When Vichy France is created, Germany gains control of all hexes in France north of the temporary border, Japan gains control of all hexes in French Indochina, the United Kingdom gains control of Lebanon-Syria, French Cameroon, French Equatorial Africa and French islands in the Pacific, France gains control of all other hexes in France and its colonies, and the United Kingdom gains control of all hexes that France controlled outside of French territory. Vichy France is treated as a neutral country which either player can declare war on. All non-French units in Vichy French territory are removed from the map and returned during the next deployment phase for free.
+When Vichy France is created, the following countries gain control of the following hexes:
+- **Germany** gains control of all hexes in France north of the temporary border.
+- **Japan** gains control of all hexes in French Indochina.
+- The **United Kingdom** gains control of Lebanon-Syria, French Cameroon, French Equatorial Africa and French islands in the Pacific, as well as all hexes that France controlled outside of French territory.
+- **Vichy France** gains control of all other hexes in France and its colonies.
+
+Vichy France is treated as a neutral country which either player can declare war on. All non-French units in Vichy French territory are removed from the map and returned during the next deployment phase for free.
 
 If the Allies gain control of all hexes in mainland France north of the temporary border while Vichy France is still neutral, France is considered liberated and Vichy France joins the Allies.
 
@@ -432,7 +438,7 @@ A unit must be in supply to attack. What units are in supply depends on the type
 - Infantry, paratrooper and marine units are out of supply when they can't trace a supply line to a friendly supply source.
 - Armor and supply units are out of supply when they can't trace a supply line to a friendly supply source if they haven't been able to do so since the last supply phase.
 - Air units are out of supply if they haven't been on a base where they were able to trace a supply line to a friendly supply source since the last supply phase.
-- Naval units are out of supply if they haven't been on a base where they were able to trace a supply line to a friendly supply source for the past three months.
+- Naval units are out of supply if they haven't been in a port where they were able to trace a supply line to a friendly supply source during the past three supply phases (they must be in the port during the supply phase, it's not enough if they move to the port during the first movement phase and move out again during the second movement phase).
 - Embarked units are in supply whenever the unit they're embarked on is in supply.
 
 A supply line is a line of hexes of any length from a unit to a supply source. Each hex in a supply line must be free from enemy units and controlled by a friendly country (though they don't have to be located in a friendly country), and may only be located in an enemy control zone if the hex contains friendly land units.

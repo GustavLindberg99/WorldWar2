@@ -105,18 +105,21 @@ class LandAutoplacer {
             await refreshUI();
             progress++;
             this.#updateProgress?.(progress / maxProgress);
-            let hex: Hex | undefined;
+
+            //First try to find a city or front line hex where it's possible to place the unit
             let hexes = hexesByCountry.get(newUnit.owner) ?? this.#sortHexesByPreferred(newUnit.owner, newUnit, [...newUnit.owner.cities, ...this.#frontLine]);
-            do{
-                lodash.pull(hexes, hex);    //During the first iteration, hex will always be undefined, so this won't do anything. During subsequent iterations, this will remove out of supply hexes.
-                hex = this.#findAvailableHex(hexes, newUnit);
-                if(hex === undefined){
-                    hexes = this.#sortHexesByPreferred(newUnit.owner, newUnit, newUnit.owner.hexes);
-                    hex = this.#findAvailableHex(hexes, newUnit);
-                }
-                hexesByCountry.set(newUnit.owner, hexes);
-                await refreshUI();
-            } while(hex !== undefined && !SupplyLines.canTraceSupplyLine(hex, newUnit.owner));
+            let hex = await this.#findSuppliedHex(hexes, newUnit);
+
+            //If that's not possible, find any hex where it's possible to place the unit.
+            if(hex === undefined){
+                hexes = this.#sortHexesByPreferred(newUnit.owner, newUnit, newUnit.owner.hexes);
+                hex = await this.#findSuppliedHex(hexes, newUnit);
+            }
+
+            //Cache the hexes where it's possible to place this country's units for performance reasons.
+            hexesByCountry.set(newUnit.owner, hexes);
+
+            //If a hex was found, place the unit.
             if(hex !== undefined){
                 const existingUnit = this.#increaseableUnit(hex, newUnit);
                 if(existingUnit !== undefined && this.#expectedStrength(existingUnit) < existingUnit.maxStrength()){
@@ -234,16 +237,22 @@ class LandAutoplacer {
     }
 
     /**
-     * Finds the first hex in the given array where the given unit can be either placed or merged with another unit.
+     * Finds the first supplied hex in the given array where the given unit can be either placed or merged with another unit.
      *
-     * @param hexes     The hexes to place the unit in, sorted in order of preference.
+     * @param hexes     The hexes to place the unit in, sorted in order of preference. Gets mutated to filter out hexes that are out of supply.
      * @param newUnit   The unit to place.
      *
      * @returns The hex to place the unit in, or undefined if it's not possible to place it in any of the hexes.
      */
-    #findAvailableHex(hexes: ReadonlyArray<Hex>, newUnit: LandUnit): Hex | undefined {
-        return hexes.find(it => this.#increaseableUnit(it, newUnit) !== undefined)
-            ?? hexes.find(it => newUnit.canEnterHexWithinStackingLimits(it, this.#totalUnitsToBeInHex(it)));
+    async #findSuppliedHex(hexes: Array<Hex>, newUnit: LandUnit): Promise<Hex | undefined> {
+        let hex;
+        do{
+            lodash.pull(hexes, hex);    //During the first iteration, hex will always be undefined, so this won't do anything. During subsequent iterations, this will remove out of supply hexes.
+            hex = hexes.find(it => this.#increaseableUnit(it, newUnit) !== undefined)
+                ?? hexes.find(it => newUnit.canEnterHexWithinStackingLimits(it, this.#totalUnitsToBeInHex(it)));
+            await refreshUI();
+        } while(hex !== undefined && !SupplyLines.canTraceSupplyLine(hex, newUnit.owner));
+        return hex;
     }
 }
 

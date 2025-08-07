@@ -291,6 +291,9 @@ test("Naval unit and carrier supply", () => {
 
     //Going into a port that's in supply does help, but only if it actually enters the port
     americanCarrier.setHex(pearlHarbor);
+    expect(americanCarrier.outOfSupply()).toBe(true);
+    expect(americanAirUnit.outOfSupply()).toBe(true);
+    americanCarrier.updateSupply();
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
 
@@ -333,6 +336,9 @@ test("Naval unit and carrier supply", () => {
     expect(americanCarrier.outOfSupply()).toBe(true);
     expect(americanAirUnit.outOfSupply()).toBe(true);
     americanCarrier.setHex(pearlHarbor);
+    expect(americanCarrier.outOfSupply()).toBe(true);
+    expect(americanAirUnit.outOfSupply()).toBe(true);
+    americanCarrier.updateSupply();
     expect(americanCarrier.outOfSupply()).toBe(false);
     expect(americanAirUnit.outOfSupply()).toBe(false);
 });

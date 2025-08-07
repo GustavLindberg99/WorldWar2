@@ -1,9 +1,9 @@
 import { joinIterables, sortNumber, xdialogConfirm } from "../../utils.js";
 
-import { Hex, SupplyLines } from "../../model/mapsheet.js";
+import { Hex } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries } from "../../model/countries.js";
-import { AirUnit, AliveUnit, Armor, Carrier, LandUnit, NavalUnit, SupplyUnit, TransportShip, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Armor, Carrier, LandUnit, NavalUnit, Unit } from "../../model/units.js";
 import { Phase } from "../../model/phase.js";
 
 import HexMarker from "../../view/markers/hex-marker.js";
@@ -11,6 +11,8 @@ import InfoBubble from "../../view/info/info-bubble.js";
 import LeftPanel from "../../view/left-panel.js";
 import MoveUnitListener from "../../view/markers/move-unit-listener.js";
 import UnitMarker from "../../view/markers/unit-marker.js";
+
+import Automovement from "../computer-player-algorithms/automovement.js";
 
 export default class HumanMovementPhase {
     passedHexes = new Map<Unit, Array<Hex>>();
@@ -61,7 +63,7 @@ export default class HumanMovementPhase {
         const autoDisembarkSupplyUnitsButton = document.createElement("button");
         autoDisembarkSupplyUnitsButton.textContent = "Auto-disembark supply units";
         autoDisembarkSupplyUnitsButton.onclick = () => {
-            const disembarkedUnits = this.#autoDisembarkSupplyUnits();
+            const disembarkedUnits = Automovement.autoDisembarkSupplyUnits(this.partnership);
             autoDisembarkSupplyUnitsContainer.textContent = disembarkedUnits.size === 0 ? "No supply units were disembarked." : "The following supply units were disembarked:"
             autoDisembarkSupplyUnitsContainer.appendChild(document.createElement("br"));
             for(let unit of disembarkedUnits){
@@ -112,6 +114,9 @@ export default class HumanMovementPhase {
 
         const secondMovement = Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement;
         await LeftPanel.waitForNextButtonPressed(nextPhase, () => {
+            if(this.passedHexes.size === 0 && Phase.current !== Phase.AxisInterception && Phase.current !== Phase.AlliedInterception){
+                return xdialogConfirm("Skip movement phase?", "You haven't moved any units. Are you sure you want to skip the movement phase?");
+            }
             if(secondMovement){
                 if([...this.#unbasedAirUnits()].length > 0){
                     return xdialogConfirm("Lose unbased air units?", "You still have unbased air units. If they don't return to a friendly base, they will be eliminated.<br/><br/>Do you really want to continue?");
@@ -526,28 +531,6 @@ export default class HumanMovementPhase {
                 this.passedHexes.delete(unit);
             }
         }
-    }
-
-    /**
-     * Automatically disembarks supply units where needed.
-     *
-     * @returns The units that were disembarked.
-     */
-    #autoDisembarkSupplyUnits(): Set<SupplyUnit> {
-        let result = new Set<SupplyUnit>();
-        for(let transportShip of this.partnership.units().filter(it => it instanceof TransportShip)){
-            const supplyUnit = transportShip.embarkedUnits().values().find(it => it instanceof SupplyUnit);
-            if(supplyUnit === undefined){
-                continue;
-            }
-            if(transportShip.hex().controller()?.partnership() === this.partnership && !SupplyLines.canTraceSupplyLine(transportShip.hex(), supplyUnit.owner)){
-                supplyUnit.disembark();
-                result.add(supplyUnit);
-                UnitMarker.get(supplyUnit).update();
-                UnitMarker.get(transportShip).update();
-            }
-        }
-        return result;
     }
 
     /**

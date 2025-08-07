@@ -39,7 +39,7 @@ export default class HumanMoneyExchange {
         const allowedExchangesWithoutConvoys: ReadonlyMap<Country, ReadonlyArray<Country>> = new Map(
             [Countries.japan, Countries.germany, Countries.unitedStates, Countries.unitedKingdom, Countries.china]
             .filter(it => it.partnership() === this.#partnership)
-            .map(key => [key, Countries.all().filter(value =>
+            .map(key => [key, this.#partnership.countries().filter(value =>
                 value.canSendMoneyWithoutConvoys().includes(key)
                 && (key.canSendMoneyWithoutConvoys().includes(value) || key === Countries.japan || key === Countries.china)
             )])

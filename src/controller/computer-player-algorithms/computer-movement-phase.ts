@@ -10,6 +10,8 @@ import HexMarker from "../../view/markers/hex-marker.js";
 import LeftPanel from "../../view/left-panel.js";
 import UnitMarker from "../../view/markers/unit-marker.js";
 
+import Automovement from "./automovement.js";
+
 export default class ComputerMovementPhase {
     passedHexes = new Map<Unit, ReadonlyArray<Hex>>();
     #eliminatedAirUnits = new Set<AirUnit>();
@@ -199,9 +201,10 @@ export default class ComputerMovementPhase {
                     }
                     else{
                         unit.setHex(passedHexes.at(-1)!!);
-                        const carrier = unit.carrierBased() ? unit.hex().navalUnits().find(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0) : undefined
+                        const carrier = unit.carrierBased() ? unit.hex().navalUnits().find(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0) : undefined;
                         if(carrier !== undefined){
                             unit.embarkOnto(carrier);
+                            UnitMarker.get(carrier).update();
                         }
                         unit.based = true;
                         this.passedHexes.set(unit, passedHexes);
@@ -280,6 +283,8 @@ export default class ComputerMovementPhase {
                 }
             }
         }
+
+        Automovement.autoDisembarkSupplyUnits(this.#partnership);
     }
 
     /**
@@ -503,20 +508,31 @@ export default class ComputerMovementPhase {
      * @returns The hexes passed by the air unit, or null if no such movement is possible.
      */
     #returnToBase(unit: AliveUnit & AirUnit): Array<Hex> | null {
-        const passedHexes = SupplyLines.simplifiedPathBetweenHexes(
+        const pathToCarrier = unit.carrierBased() ? SupplyLines.simplifiedPathBetweenHexes(
+            unit.hex(),
+            destination => destination.navalUnits().some(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0),
+            passedHex => !passedHex.airUnitsGrounded(),
+            true,
+            true,
+            unit.movementAllowance
+        ) : null;
+        if(pathToCarrier !== null && unit.validateMovement(pathToCarrier, false)){
+            return pathToCarrier;
+        }
+        const pathToAirbase = SupplyLines.simplifiedPathBetweenHexes(
             unit.hex(),
             destination => destination.controller()?.partnership() === this.#partnership
-                && (destination.airbaseCapacity() > 0 || (unit.carrierBased() && destination.navalUnits().some(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0)))
+                && destination.airbaseCapacity() > 0
                 && unit.canEnterHexWithinStackingLimits(destination),
             passedHex => !passedHex.airUnitsGrounded(),
             true,
             true,
             unit.movementAllowance
         );
-        if(passedHexes === null || !unit.validateMovement(passedHexes, false)){
-            return null;
+        if(pathToAirbase !== null && unit.validateMovement(pathToAirbase, false)){
+            return pathToAirbase;
         }
-        return passedHexes;
+        return null;
     }
 
     /**
@@ -526,7 +542,16 @@ export default class ComputerMovementPhase {
      */
     #japaneseSupplyLines(): Set<Hex> {
         let result = new Set<Hex>();
-        for(let unit of this.#partnership.landUnits().filter(it => it.hex().country === Countries.china && it.hex().airbaseCapacity() > 0)){
+        const unitsToKeep = this.#partnership.landUnits().filter(unit =>
+            unit.hex().country === Countries.china
+            && (
+                unit.hex().airbaseCapacity() > 0
+                || unit.hex().adjacentLandHexes().values()
+                    .flatMap(it => it.units())
+                    .some(it => it.owner.partnership() !== this.#partnership)
+            )
+        );
+        for(let unit of unitsToKeep){
             const supplyLine = SupplyLines.simplifiedPathBetweenHexes(
                 unit.hex(),
                 hex => (hex.country !== Countries.china && hex.controller()?.partnership() === unit.owner.partnership()) || hex.landUnits().some(it => it.owner.partnership() === unit.owner.partnership() && it instanceof SupplyUnit),
