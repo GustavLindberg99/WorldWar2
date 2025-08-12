@@ -111,7 +111,7 @@ export default class ComputerMovementPhase {
                 HexMarker.uncolorHex(hex);
             }
         }
-        for(let unit of this.passedHexes.keys()){
+        for(let unit of this.#partnership.units()){
             UnitMarker.get(unit).onclick = null;
         }
     }

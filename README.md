@@ -28,6 +28,13 @@ The human player decides whether to play as the Axis or the Allies, and a comput
     - [Strength Points](#strength-points)
     - [Buying Back Eliminated Units](#buying-back-eliminated-units)
     - [New Available Units](#new-available-units)
+- [Stacking](#stacking)
+    - [Stacking Limits](#stacking-limits)
+        - [Land Stacking Limits](#land-stacking-limits)
+        - [Air Stacking Limits](#air-stacking-limits)
+        - [Naval Stacking Limits](#naval-stacking-limits)
+    - [Overstacked Units](#overstacked-units)
+    - [Friendly and Enemy Units Stacked Together](#friendly-and-enemy-units-stacked-together)
 - [Combat](#combat)
     - [Land Combat](#land-combat)
         - [Overrun](#overrun)
@@ -340,6 +347,40 @@ Some countries regularly receive new units that can be bought:
 - **Sweden** receives two infantry strength points every month starting when Norway or Sweden enters the war until 15 months after that date, as well as one destroyer each 2 and 3 years after Norway or Sweden enters the war. If Norway enters the war but not Sweden, Sweden receives these units while it's neutral, making it more difficult to attack Sweden long after Norway has entered the war.
 - The **United Kingdom** receives naval and air units at a fixed schedule. Once it's entered the war, it receives one armor strength point and two infantry strength points each turn. Once the United States has also entered the war, this is increased to one armor strength point and four infantry strength points each turn.
 - The **United States** regularly receives land units and submarines, carriers and destroyers once it's entered the war. It also receives air and naval unis at a fixed schedule.
+
+## Stacking
+If several units are in the same hex, they're considered stacked.
+
+### Stacking Limits
+Multiple friendly units can stack together within the same hex within the following limits.
+
+#### Land Stacking Limits
+Up to two land units can stack together in the same hex, plus one paratrooper and one supply unit. Land units embarked on naval or air units don't count towards the stacking limits.
+
+#### Air Stacking Limits
+There are no stacking limits for unbased air units (even on hexes with airbases). The following installations can base the following number of air units:
+- Cities can base up to two air units.
+- Resource hexes can base up to one air unit.
+- Airfield installations can base up to two air units.
+- Carriers can base up to one carrier-based air unit each (air units based on carriers are embarked on the carrier the same way as land units are embarked on transport units).
+
+These capacities are cumulative, so a hex with a city, a resource hex and an airfield installation can base up to five air units.
+
+Only based air units count against the above limits, an airbase can be full but there can still be more friendly air units that are unbased but in the same hex.
+
+#### Naval Stacking Limits
+Up to five naval units can stack together in the same hex, except for freindly controlled major ports which have no stacking limits.
+
+### Overstacked Units
+There are certain situations where naval units can be overstacked, for example if the enemy gains control of a major port where more than five naval units are stacked, or if a naval unit is intercepted and is forced to return to its starting position when other units have already entered that hex. If this happens, the units may remain in the hex for as long as they want without being affected by this, but if they leave the hex normal stacking limits apply, and no new naval units can enter the hex until enough units have left for normal stacking limits would allow for that.
+
+Naval units may never become overstacked voluntarily. There is no situation where non-naval units can become overstacked.
+
+### Friendly and Enemy Units Stacked Together
+Units of different types (land/air, land/naval and air/naval) can always stack together, regardless of whether or not the units belong to the same partnership. Units of the same type but different partnerships can stack together in the following situations:
+- Land units of different partnerships can only stack together if land units of one partnership do an amphibious assault or paradrop onto a hex containing land units of the opposing partnership. When this happens, the assaulting land units must attack the enemy units during the subsequent combat phase. If enemy units are still present in the hex at the end of the combat phase, the assaulting units are eliminated. Stacking limits apply to each partnership seperately.
+- Air units of different parnerships can always stack together.
+- Naval units of different partnerships can never stack together.
 
 ## Combat
 ### Land Combat

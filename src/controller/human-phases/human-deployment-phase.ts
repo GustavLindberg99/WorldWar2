@@ -98,15 +98,18 @@ export default class HumanDeploymentPhase {
         this.#landBox.appendChild(this.#landHelpText);
         this.#landBox.appendChild(this.#autoplaceLandUnitsButton);
         this.#landBox.appendChild(this.#landContainer);
-
-        HexMarker.onhexclick = (hex: Hex) => new PlaceLandUnitsBubble(hex, this.#partnership, this);
-        this.#autoplaceLandUnitsButton.onclick = this.#autoplaceAirUnitsButton.onclick = this.#autoplaceNavalUnitsButton.onclick = (event) => this.#autoplaceUnits(event.currentTarget as HTMLButtonElement);
     }
 
     /**
      * Runs the deployment phase. Returns when the deployment phase is finished.
      */
     async run(): Promise<void> {
+        HexMarker.onhexclick = (hex: Hex) => new PlaceLandUnitsBubble(hex, this.#partnership, this);
+        this.#autoplaceLandUnitsButton.onclick = this.#autoplaceAirUnitsButton.onclick = this.#autoplaceNavalUnitsButton.onclick = (event) => this.#autoplaceUnits(event.currentTarget as HTMLButtonElement);
+        for(let unit of Unit.allAliveUnits()){
+            UnitMarker.get(unit).onclick = () => new PlaceLandUnitsBubble(unit.hex(), this.#partnership, this);
+        }
+
         for(let country of this.#partnership.countries()){
             country.delayedUnits.delete(date.current);
         }
@@ -160,6 +163,9 @@ export default class HumanDeploymentPhase {
         }
 
         HexMarker.onhexclick = null;
+        for(let unit of Unit.allAliveUnits()){
+            UnitMarker.get(unit).onclick = null;
+        }
     }
 
     /**

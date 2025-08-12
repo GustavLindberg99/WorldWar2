@@ -145,7 +145,9 @@ export default class ComputerCombatPhase {
             const attackers: ReadonlyArray<AliveUnit & Unit> = friendlyUnits.filter(it => it.canAttackInHex(enemyLandUnits[0]) && (!this.#overrun || it.canDoOverrun()));
             const defenders: ReadonlyArray<AliveUnit & LandUnit> = enemyLandUnits.filter(defender => attackers.every(attacker => attacker.canAttackInHex(defender)));
             const combat = new LandCombat(attackers, defenders);
-            if(combat.attackerEliminationProbability() === 0 || combat.attackers.some(it => it.hex()!!.controller()?.partnership() === this.#partnership.opponent())){
+
+            //Only do the attack if there's no risk for the attacker to be eliminated or if he has to because it's an amphibious assault
+            if(combat.attackerEliminationProbability() === 0 || combat.attackers.some(it => it instanceof LandUnit && it.hex()!!.controller()?.partnership() === this.#partnership.opponent())){
                 return combat;
             }
         }

@@ -101,6 +101,8 @@ export default class HumanMovementPhase {
             throw new Error("The current phase is not a movement phase.");
         }
 
+        LeftPanel.appendParagraph("To drag multiple units at once, hold the Ctrl key down while dragging them.");
+
         for(let unit of this.partnership.units()){
             const unitMarker = UnitMarker.get(unit);
             const listener = unitMarker.createMoveUnitListener(true);

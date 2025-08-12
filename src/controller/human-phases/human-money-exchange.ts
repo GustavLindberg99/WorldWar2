@@ -107,25 +107,53 @@ export default class HumanMoneyExchange {
             }
         }
 
-        await LeftPanel.waitForNextButtonPressed("To unit build phase");
+        let sentMoneyByCountry = new Map<Country, number>();
+        let receivedMoneyByCountry = new Map<Country, number>();
+        let receivedMoneyByConvoy = new Map<Convoy, [Country, number]>();
+        await LeftPanel.waitForNextButtonPressed("To unit build phase", () => {
+            for(let exchange of this.#exchanges){
+                const reversed = exchange.leftButton.classList.contains("selected");
+                const rightCountry = Countries.fromName(exchange.receiverDropdown.selectedOptions[0]?.value);
+                const amount = parseInt(exchange.amountInput.value);
+                if(rightCountry === null || isNaN(amount)){
+                    continue;
+                }
 
-        for(let exchange of this.#exchanges){
-            const reversed = exchange.leftButton.classList.contains("selected");
-            const rightCountry = Countries.fromName(exchange.receiverDropdown.selectedOptions[0]?.value);
-            const amount = parseInt(exchange.amountInput.value);
-            if(rightCountry === null || isNaN(amount)){
-                continue;
+                //Get sender and validate sent amount
+                const sender = reversed ? rightCountry : exchange.sender;
+                const previouslySentMoney = sentMoneyByCountry.get(sender) ?? 0;
+                const totalSentMoney = previouslySentMoney + amount;
+                if(totalSentMoney > sender.maxMoneyExchange()){
+                    Toastify({text: `${sender.name()} is attempting to send $${totalSentMoney}B, but can't send more than $${sender.maxMoneyExchange()}B.`}).showToast();
+                    sentMoneyByCountry = new Map();
+                    receivedMoneyByCountry = new Map();
+                    receivedMoneyByConvoy = new Map();
+                    return false;
+                }
+                sentMoneyByCountry.set(sender, totalSentMoney);
+
+                //Get receiver
+                const receiver = reversed ? exchange.sender : rightCountry;
+                if(exchange.convoy !== null){
+                    receivedMoneyByConvoy.set(exchange.convoy, [receiver, amount]);
+                }
+                else{
+                    const previouslyReceivedMoney = receivedMoneyByCountry.get(receiver) ?? 0;
+                    receivedMoneyByCountry.set(receiver, previouslyReceivedMoney + amount);
+                }
             }
-            const sender = reversed ? rightCountry : exchange.sender;
-            const receiver = reversed ? exchange.sender : rightCountry;
+            return true;
+        });
+
+        for(let [sender, amount] of sentMoneyByCountry){
             sender.money -= amount;
-            if(exchange.convoy !== null){
-                exchange.convoy.money = amount;
-                exchange.convoy.destination = receiver;
-            }
-            else{
-                receiver.money += amount;
-            }
+        }
+        for(let [receiver, amount] of receivedMoneyByCountry){
+            receiver.money += amount;
+        }
+        for(let [convoy, [receiver, amount]] of receivedMoneyByConvoy){
+            convoy.money = amount;
+            convoy.destination = receiver;
         }
     }
 

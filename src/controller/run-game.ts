@@ -178,9 +178,9 @@ export default async function runGame(humanPlayer: HumanPlayer, computerPlayer: 
                     UnitMarker.get(unit).update();
                 }
             }
+            clearHasAttacked();
             autosaveGame(humanPlayer.partnership);
         }
-        clearHasAttacked();
 
         if(Phase.current === Phase.AlliedOverrun){
             PhaseMarker.update();
@@ -228,9 +228,9 @@ export default async function runGame(humanPlayer: HumanPlayer, computerPlayer: 
                 }
             }
             debarkConvoyMoney();
+            clearHasAttacked();
             autosaveGame(humanPlayer.partnership);
         }
-        clearHasAttacked();
 
         if(Phase.current === Phase.Supply){
             PhaseMarker.update();
