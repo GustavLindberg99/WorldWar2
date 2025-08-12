@@ -6,6 +6,12 @@ import { Countries } from "../build/model/countries.js";
 import { AirUnit, Infantry, Marine, TransportShip } from "../build/model/units.js";
 import { date } from "../build/model/date.js";
 
+test("Capital", () => {
+    for(let country of Countries.all()){
+        expect(country.capital()?.city ?? null).not.toBe(null);
+    }
+});
+
 test("Countries that can be invaded", () => {
     //Finland can't be invaded directly by anyone (instead it joins the partnership opposing the Soviet Union)
     expect(Countries.finland.canBeInvadedBy(Partnership.Axis)).toBe(false);

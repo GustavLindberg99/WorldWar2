@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      width="544.513mm"
-     inkscape:zoom="10.97531"
-     inkscape:cx="787.76818"
-     inkscape:cy="1587.1533"
+     inkscape:zoom="15.521432"
+     inkscape:cx="1274.4958"
+     inkscape:cy="1281.0351"
      inkscape:window-width="1920"
      inkscape:window-height="974"
      inkscape:window-x="-11"
@@ -18124,7 +18124,7 @@
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="87.739174"
          y="238.52773"
-         id="tspan63">Montevideo,left</tspan></text>
+         id="tspan63">Montevideo,left,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -18173,7 +18173,7 @@
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="104.40841"
          y="234.36923"
-         id="tspan59">Asunción</tspan></text>
+         id="tspan59">Asunción,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -41247,7 +41247,7 @@
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="234.25774"
          y="318.95737"
-         id="tspan244">Luxemburg,left,e</tspan></text>
+         id="tspan244">Luxemburg,left,he</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43088,7 +43088,7 @@
          id="tspan157"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="212.77791"
-         y="188.06113">Mexico City,m</tspan></text>
+         y="188.06113">Mexico City,hm</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43132,7 +43132,7 @@
          id="tspan168"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="192.5882"
-         y="191.44574">Guatemala City</tspan></text>
+         y="191.44574">Guatemala City,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43143,7 +43143,7 @@
          id="tspan170"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="190.14133"
-         y="192.80693">San Salvador</tspan></text>
+         y="192.80693">San Salvador,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43154,7 +43154,7 @@
          id="tspan172"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="187.76677"
-         y="195.61835">Tegucigalpa</tspan></text>
+         y="195.61835">Tegucigalpa,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43165,7 +43165,7 @@
          id="tspan174"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="184.23508"
-         y="196.26012">Managua</tspan></text>
+         y="196.26012">Managua,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43176,7 +43176,7 @@
          id="tspan176"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="179.48598"
-         y="196.24014">San José</tspan></text>
+         y="196.24014">San José,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43187,7 +43187,7 @@
          id="tspan178"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="172.29001"
-         y="201.75615">Panama City</tspan></text>
+         y="201.75615">Panama City,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43220,7 +43220,7 @@
          id="tspan185"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="177.06815"
-         y="222.41388">Port-au-Prince</tspan></text>
+         y="222.41388">Port-au-Prince,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43231,7 +43231,7 @@
          id="tspan187"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="175.83868"
-         y="225.82005">Santo Domingo,left</tspan></text>
+         y="225.82005">Santo Domingo,left,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43363,7 +43363,7 @@
          id="tspan16"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="159.13147"
-         y="198.32092">Quito</tspan></text>
+         y="198.32092">Quito,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -43396,7 +43396,7 @@
          id="tspan25"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="124.71496"
-         y="207.30594">La Paz</tspan></text>
+         y="207.30594">La Paz,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -45530,7 +45530,7 @@
          id="tspan383"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="274.68823"
-         y="369.56586">Riyadh</tspan></text>
+         y="369.56586">Riyadh,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -45585,7 +45585,7 @@
          id="tspan390"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="270.00064"
-         y="383.21005">Sana'a</tspan></text>
+         y="383.21005">Sana'a,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -45640,7 +45640,7 @@
          id="tspan395"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="283.03409"
-         y="353.67529">Tehran,m</tspan></text>
+         y="353.67529">Tehran,hm</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -45695,7 +45695,7 @@
          id="tspan402"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="336.54388"
-         y="336.50446">Lhasa</tspan></text>
+         y="336.50446">Lhasa,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
@@ -46905,7 +46905,7 @@
          id="tspan557"
          style="font-size:0.176389px;text-align:center;text-anchor:middle;stroke-width:0.00676347"
          x="168.7504"
-         y="342.73776">Monrovia,left</tspan></text>
+         y="342.73776">Monrovia,left,h</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:0.176389px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.00676347"
