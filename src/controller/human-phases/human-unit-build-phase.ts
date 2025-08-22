@@ -35,7 +35,7 @@ export default class HumanUnitBuildPhase {
         LeftPanel.appendParagraph("Click on the \"buy\" button next to the units you want to buy.");
         LeftPanel.appendBox("Units that you can buy", [this.#availableUnitsContainer]);
         LeftPanel.appendBox("Units that you have bought this turn", [
-            "These units will be available for use in a future turn. Exactly how long it takes before they're available [depends on the type of unit](README.md#buying-units).",
+            "These units will be available for use in a future turn. Exactly how long it takes before they're available [depends on the type of unit](rules.html#buying-units).",
             this.#boughtUnitsContainer
         ]);
         this.#updateUnits();
