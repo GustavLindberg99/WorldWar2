@@ -18,7 +18,7 @@ namespace InitView {
 
         //Download the world map
         const worldMap = document.getElementById("worldMap")!!;
-        const worldMapHtml = await (await fetch("mapsheet/world.xml")).text();
+        const worldMapHtml = await (await fetch("build/world.xml")).text();
         worldMap.innerHTML = worldMapHtml + "<g id=\"hexGrid\"></g><g id=\"installations\"></g>";
         writeAllCountryNames();
 

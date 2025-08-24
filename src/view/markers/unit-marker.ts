@@ -108,7 +108,7 @@ export default class UnitMarker {
         const image = this.#makeMarker("svg", showBubble);
         image.setAttribute("width", size);
         image.setAttribute("height", size);
-        image.setAttribute("viewBox", "0 0 3 3");
+        image.setAttribute("viewBox", "0 0 1 1");
         image.classList.add("copyImage");
         image.style.marginRight = "4px";
         image.style.userSelect = "none";
@@ -145,8 +145,8 @@ export default class UnitMarker {
             topLeftText.setAttribute("class", "topLeftText");
             topLeftText.textContent = topLeft;
             topLeftText.setAttribute("fill", textColor);
-            topLeftText.setAttribute("x", "0.3");
-            topLeftText.setAttribute("y", "1.1");
+            topLeftText.setAttribute("x", "0.1");
+            topLeftText.setAttribute("y", "0.4");
             topLeftText.setAttribute("text-anchor", "start");
             result.appendChild(topLeftText);
         }
@@ -157,8 +157,8 @@ export default class UnitMarker {
             topRightText.setAttribute("class", "topRightText");
             topRightText.textContent = topRight;
             topRightText.setAttribute("fill", textColor);
-            topRightText.setAttribute("x", "2.7");
-            topRightText.setAttribute("y", "1.1");
+            topRightText.setAttribute("x", "0.9");
+            topRightText.setAttribute("y", "0.4");
             topRightText.setAttribute("text-anchor", "end");
             result.appendChild(topRightText);
         }
@@ -167,8 +167,8 @@ export default class UnitMarker {
         bottomLeftText.setAttribute("class", "bottomLeftText");
         bottomLeftText.textContent = this.#bottomLeftText();
         bottomLeftText.setAttribute("fill", textColor);
-        bottomLeftText.setAttribute("x", "0.3");
-        bottomLeftText.setAttribute("y", "2.6");
+        bottomLeftText.setAttribute("x", "0.1");
+        bottomLeftText.setAttribute("y", "0.9");
         bottomLeftText.setAttribute("text-anchor", "start");
         result.appendChild(bottomLeftText);
 
@@ -176,8 +176,8 @@ export default class UnitMarker {
         bottomRightText.setAttribute("class", "bottomRightText");
         bottomRightText.textContent = this.#bottomRightText();
         bottomRightText.setAttribute("fill", textColor);
-        bottomRightText.setAttribute("x", "2.7");
-        bottomRightText.setAttribute("y", "2.6");
+        bottomRightText.setAttribute("x", "0.9");
+        bottomRightText.setAttribute("y", "0.9");
         bottomRightText.setAttribute("text-anchor", "end");
         result.appendChild(bottomRightText);
 
@@ -539,14 +539,14 @@ export default class UnitMarker {
                 }
                 const start = performance.now();
                 marker.#showStackedUnitsInterval = setInterval(() => {
-                    const distance = Math.min(0.002 * (performance.now() - start), 1.5);
+                    const distance = Math.min(0.0007 * (performance.now() - start), 0.5);
                     marker.#updatePosition(i * distance);
                     if(marker === firstNavalMarker){
                         for(let collapsedMarker of collapsedMarkers){
                             collapsedMarker.#marker.style.transform = marker.#marker.style.transform;
                         }
                     }
-                    if(distance >= 1.5 && marker.#showStackedUnitsInterval !== null){
+                    if(distance >= 0.5 && marker.#showStackedUnitsInterval !== null){
                         clearInterval(marker.#showStackedUnitsInterval);
                         marker.#showStackedUnitsInterval = null;
                     }
@@ -581,7 +581,7 @@ export default class UnitMarker {
 
             //Move down the info markers
             for(let infoMarker of this.#infoMarkers.keys()){
-                infoMarker.setAttribute("y", "2.7");
+                infoMarker.setAttribute("y", "0.9");
                 infoMarker.setAttribute("opacity", "1");
             }
         }
@@ -644,7 +644,7 @@ export default class UnitMarker {
 
         //Move up the info markers
         for(let infoMarker of this.#infoMarkers.keys()){
-            infoMarker.setAttribute("y", "2");
+            infoMarker.setAttribute("y", "0.7");
             infoMarker.setAttribute("opacity", "0.5");
         }
     }
@@ -664,15 +664,15 @@ export default class UnitMarker {
         infoMarker.classList.add("infoMarker");
         infoMarker.setAttribute("href", imageUrl);
         infoMarker.setAttribute("preserveAspectRatio", "none");
-        infoMarker.setAttribute("width", "1");
-        infoMarker.setAttribute("height", "1");
-        infoMarker.setAttribute("x", (2 - this.#infoMarkers.size).toString());
+        infoMarker.setAttribute("width", "0.3");
+        infoMarker.setAttribute("height", "0.3");
+        infoMarker.setAttribute("x", (0.7 - this.#infoMarkers.size * 0.3).toString());
         if(this.#infoMarkers.size > 0){
             infoMarker.setAttribute("y", [...this.#infoMarkers.keys()][0].getAttribute("y")!!);
             infoMarker.setAttribute("opacity", [...this.#infoMarkers.keys()][0].getAttribute("opacity")!!);
         }
         else{
-            infoMarker.setAttribute("y", "2");
+            infoMarker.setAttribute("y", "0.7");
             infoMarker.setAttribute("opacity", "0.5");
         }
         this.#marker.appendChild(infoMarker);
@@ -692,7 +692,7 @@ export default class UnitMarker {
                 this.#infoMarkers.delete(marker);
             }
             else{
-                marker.setAttribute("x", (2 - i).toString());
+                marker.setAttribute("x", (0.7 - i * 0.3).toString());
                 i++;
             }
         }
@@ -812,7 +812,7 @@ export default class UnitMarker {
      * @param offset    The distance to the bottom right from the center of the hex that it should be at. Used when stacks get expanded.
      */
     #updatePosition(offset: number = 0): void {
-        this.#marker.style.transform = `translate(${this.#hex.centerX() - Hex.hexWidth / 3}px,${this.#hex.centerY() - Hex.hexWidth / 3}px) translate(${offset}px,${offset}px) scale(${3 / Hex.hexWidth})`;
+        this.#marker.style.transform = `translate(${this.#hex.centerX() - Hex.hexWidth / 3}px,${this.#hex.centerY() - Hex.hexWidth / 3}px) translate(${offset}px,${offset}px) scale(${1 / Hex.hexWidth})`;
         if(this.#fleetMarker !== null){
             this.#fleetMarker.style.transform = this.#marker.style.transform;
         }

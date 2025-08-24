@@ -1,7 +1,3 @@
-:root{
-    --zoom: 3;    /*When changing this, also change it in compile_mapsheet.py*/
-}
-
 .sea, g.sea *{
     fill: #33bbff;
     fill-rule: evenodd;
@@ -10,14 +6,14 @@
 
 #lakes .sea, g#lakes.sea *{
     stroke: #005581;
-    stroke-width: calc(var(--zoom) * 0.05px);
+    stroke-width: 0.15px;
 }
 
 .land, g.land *{
     fill: #f2f2f2;
     fill-rule: evenodd;
     stroke: #005581;
-    stroke-width: calc(var(--zoom) * 0.05px);
+    stroke-width: 0.15px;
 }
 
 .mountain, g.mountain *{
@@ -47,7 +43,7 @@
 .railway, g.railway *{
     fill: none;
     stroke: black;
-    stroke-width: calc(var(--zoom) * 0.05px);
+    stroke-width: 0.15px;
     stroke-dasharray: 0.5;
 }
 
@@ -59,7 +55,7 @@ g.canal > g > path{
 g.canal > g > path+path{
     fill: none;
     stroke: black;
-    stroke-width: calc(var(--zoom) * 0.05px);
+    stroke-width: 0.15px;
 }
 
 .icecap, g.icecap *{
@@ -71,7 +67,7 @@ g.canal > g > path+path{
 .border, g.border *{
     fill: none;
     stroke: #ec6622;
-    stroke-width: calc(var(--zoom) * 0.15px);
+    stroke-width: 0.45px;
     opacity: 0.9;
 }
 
@@ -83,12 +79,12 @@ g.canal > g > path+path{
     fill: none;
     stroke: black;
     stroke-opacity: 0.5;
-    stroke-width: 0.5px;
+    stroke-width: 0.15px;
 }
 
 .weather, g.weather *{
     fill: none;
-    stroke-width: calc(var(--zoom) * 0.1px);
+    stroke-width: 0.3px;
     opacity: 0.8;
 }
 

@@ -35,7 +35,7 @@ namespace PanZoom {
         panZoomInstance = svgPanZoom(mapsheet, {
             controlIconsEnabled: true,
             minZoom: Math.max(mapsheet.clientWidth / mapsheet.clientHeight, mapsheet.clientHeight / mapsheet.clientWidth),
-            maxZoom: 50,
+            maxZoom: 150,
             onPan: fixPanLimits,
             onZoom: fixPanLimits
         });

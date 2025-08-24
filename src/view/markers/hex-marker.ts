@@ -101,7 +101,7 @@ namespace HexMarker {
             resourceMarker.setAttribute("d", "M" + (-sideLength / 2) + " " + (sideLength / Math.sqrt(12)) + "H" + (sideLength / 2) + "L0 " + (-sideLength / Math.sqrt(3)) + "Z");
             resourceMarker.setAttribute("fill", "none");
             resourceMarker.setAttribute("stroke", "black");
-            resourceMarker.setAttribute("stroke-width", "0.3");
+            resourceMarker.setAttribute("stroke-width", "0.1");
             document.getElementById("installations")!!.appendChild(resourceMarker);
         }
     }
@@ -150,7 +150,7 @@ namespace HexMarker {
                 fortificationMarker = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 fortificationMarker.setAttribute("class", "fortificationMarker");
                 fortificationMarker.setAttribute("data-hex", `${hex.x},${hex.y}`);
-                fortificationMarker.setAttribute("transform", `translate(${hex.centerX() - Hex.hexHeight * 2 / 3},${hex.centerY() - Hex.hexHeight / 3})`);
+                fortificationMarker.setAttribute("transform", `translate(${hex.centerX() - Hex.hexHeight * 2 / 3},${hex.centerY() - Hex.hexHeight / 3}) scale(${Hex.hexWidth * 0.25})`);
                 fortificationMarker.setAttribute("fill", "none");
                 fortificationMarker.setAttribute("stroke", "darkred");
                 fortificationMarker.setAttribute("stroke-width", "0.3");
