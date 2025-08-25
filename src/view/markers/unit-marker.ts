@@ -739,8 +739,8 @@ export default class UnitMarker {
             sizeText.textContent = numberOfUnits;
             sizeText.setAttribute("font-size", "0.8px");
             sizeText.setAttribute("fill", textColor);
-            sizeText.setAttribute("x", "2.7");
-            sizeText.setAttribute("y", "1.1");
+            sizeText.setAttribute("x", "0.9");
+            sizeText.setAttribute("y", "0.4");
             sizeText.setAttribute("text-anchor", "end");
             sizeText.setAttribute("font-weight", "bold");
             this.#fleetMarker.appendChild(sizeText);
@@ -749,16 +749,17 @@ export default class UnitMarker {
             movementAllowanceText.textContent = movementAllowance.toString();
             movementAllowanceText.setAttribute("font-size", "0.8px");
             movementAllowanceText.setAttribute("fill", textColor);
-            movementAllowanceText.setAttribute("x", "2.7");
-            movementAllowanceText.setAttribute("y", "2.7");
+            movementAllowanceText.setAttribute("x", "0.9");
+            movementAllowanceText.setAttribute("y", "0.9");
             movementAllowanceText.setAttribute("text-anchor", "end");
             movementAllowanceText.setAttribute("font-weight", "bold");
             this.#fleetMarker.appendChild(movementAllowanceText);
 
             const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+            image.setAttribute("class", "unitMarkerImage");
             image.setAttribute("href", "images/ships/fleet.svg");
-            image.setAttribute("x", "0.5");
-            image.setAttribute("y", "0.75");
+            image.setAttribute("x", "-1");
+            image.setAttribute("y", "-0.3");
             image.setAttribute("width", "2");
             image.setAttribute("height", "1.5");
             image.setAttribute("preserveAspectRatio", "none");
