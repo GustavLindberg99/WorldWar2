@@ -147,8 +147,8 @@ abstract class Country extends UnitContainer {
                 if(hex.controller() === this){
                     const conquerer = this.capital().controller()!!;
                     const friendlyCountry = Countries.all()
-                        .filter(it => !it.conquered() && it.partnership() === this.partnership())
-                        .toSorted((a, b) => [...b.units()].length - [...a.units()].length)[0];
+                        .filter(it => !it.conquered() && it !== this && it.partnership() === this.partnership())
+                        .toSorted((a, b) => a.capital().distanceFromHex(hex) - b.capital().distanceFromHex(hex))[0];
                     const [landUnit] = hex.landUnits();
                     if(landUnit !== undefined){
                         hex.setController(landUnit.owner);

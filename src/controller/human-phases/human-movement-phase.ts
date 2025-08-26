@@ -3,7 +3,7 @@ import { joinIterables, sortNumber, xdialogConfirm } from "../../utils.js";
 import { Hex } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries } from "../../model/countries.js";
-import { AirUnit, AliveUnit, Armor, Carrier, LandUnit, NavalUnit, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Armor, Carrier, Convoy, LandUnit, NavalUnit, Unit } from "../../model/units.js";
 import { Phase } from "../../model/phase.js";
 
 import HexMarker from "../../view/markers/hex-marker.js";
@@ -119,13 +119,16 @@ export default class HumanMovementPhase {
             if(this.passedHexes.size === 0 && !this.#opponentTurn && Phase.current !== Phase.AxisInterception && Phase.current !== Phase.AlliedInterception){
                 return xdialogConfirm("Skip movement phase?", "You haven't moved any units. Are you sure you want to skip the movement phase?");
             }
-            if(secondMovement){
+            else if(secondMovement){
                 if([...this.#unbasedAirUnits()].length > 0){
                     return xdialogConfirm("Lose unbased air units?", "You still have unbased air units. If they don't return to a friendly base, they will be eliminated.<br/><br/>Do you really want to continue?");
                 }
                 else{
                     return true;
                 }
+            }
+            else if(this.partnership.navalUnits().some(it => it instanceof Convoy && it.money > 0 && !this.passedHexes.has(it))){
+                return xdialogConfirm("Skip moving convoys?", "You have convoys that haven't moved this phase. Are you sure you don't want to move them towards their destination?");
             }
             else{
                 return true;

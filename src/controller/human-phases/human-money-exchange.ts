@@ -94,7 +94,7 @@ export default class HumanMoneyExchange {
         if(allowedExchangesWithConvoys.size > 0){
             const table = document.createElement("table");
             table.className = "moneyExchange";
-            for(let convoy of this.#partnership.convoys()){
+            for(let convoy of this.#partnership.availableConvoys()){
                 const sender = convoy.hex().country;
                 const receivers = allowedExchangesWithConvoys.get(sender);
                 if(sender === null || sender.partnership() !== this.#partnership || receivers === undefined || receivers.length === 0){

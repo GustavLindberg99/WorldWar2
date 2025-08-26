@@ -117,7 +117,7 @@ namespace HexMarker {
             }
             else{
                 if(hex.resourceHexDestroyed){
-                    resourceMarker.style.strokeDasharray = "0.75";
+                    resourceMarker.style.strokeDasharray = "0.25";
                 }
                 else{
                     resourceMarker.style.strokeDasharray = "";

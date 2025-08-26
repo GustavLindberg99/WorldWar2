@@ -58,7 +58,7 @@ export default class ComputerPlayer extends Player {
         ){
             const max = Math.floor(Math.min(sender.maxMoneyExchange(), maxAmount) / 10) * 10;
             let totalAmount = 0;
-            for(let convoy of this.partnership.convoys(sender)){
+            for(let convoy of this.partnership.availableConvoys(sender)){
                 convoy.destination = receiver;
                 const amount = Math.min(Convoy.maxMoney, max - totalAmount);
                 convoy.money = amount;

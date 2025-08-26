@@ -69,9 +69,10 @@ namespace CombatTables {
                 const damageProbability = combat.damageProbability(unit);
                 const pureEliminationProbability = combat.eliminationProbability(unit);
                 const damageEliminationProbability = unit.canTakeDamage() ? 0 : damageProbability;
+                const eliminationProbability = unionProbability(pureEliminationProbability, damageEliminationProbability);
                 table.appendChild(createRow(UnitMarker.get(unit).createCopyImage(true), [
-                    unit.canTakeDamage() ? `${Math.round(damageProbability * 100)}%` : "Will be eliminated directly if damaged",
-                    `${Math.round(unionProbability(pureEliminationProbability, damageEliminationProbability) * 100)}%`
+                    (unit.canTakeDamage() || eliminationProbability === 0) ? `${Math.round(damageProbability * 100)}%` : "Will be eliminated directly if damaged",
+                    `${Math.round(eliminationProbability * 100)}%`
                 ]));
             }
 

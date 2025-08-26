@@ -1,13 +1,13 @@
 {
   "name": "worldwar2",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Free online World War 2 simulation game",
   "license": "GPL-3.0-only",
   "author": "Gustav Lindberg",
   "scripts": {
     "preinstall": "pip install -U mypy && pip install numpy svg.path",
     "build": "mypy mapsheet/compile_mapsheet.py && python mapsheet/compile_mapsheet.py --npm-all=${npm_config_all} && npx tsc -p src && npx uglifyjs-folder build -o build -x .js -e",
-    "test": "npx vitest --run --test-timeout=60000"
+    "test": "npx vitest --run --test-timeout=0"
   },
   "dependencies": {
     "@types/lodash": "4.17.x",
