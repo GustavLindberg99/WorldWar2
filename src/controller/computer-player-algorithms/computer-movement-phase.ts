@@ -17,6 +17,7 @@ export default class ComputerMovementPhase {
     #eliminatedAirUnits = new Set<AirUnit>();
 
     readonly #partnership: Partnership;
+    readonly #secondMovement: boolean;
 
     /**
      * Constructs a ComputerMovementPhase object. Does not run it, use run() for that.
@@ -25,6 +26,7 @@ export default class ComputerMovementPhase {
      */
     constructor(partnership: Partnership){
         this.#partnership = partnership;
+        this.#secondMovement = Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement;
     }
 
     /**
@@ -125,7 +127,6 @@ export default class ComputerMovementPhase {
      */
     async #chooseMovements(): Promise<void> {
         const opponentTurn = (this.#partnership === Partnership.Allies && Phase.current === Phase.AxisSecondMovement) || (this.#partnership === Partnership.Axis && Phase.current === Phase.AlliedSecondMovement);
-        const secondMovementPhase = Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement;
 
         let progress = 0;
         const landUnits: ReadonlyArray<AliveUnit & LandUnit> = opponentTurn ? [] : [...this.#partnership.landUnits()];
@@ -167,7 +168,7 @@ export default class ComputerMovementPhase {
                 else{
                     const movementToFrontLine = this.#moveLandUnitToSupply(unit) ?? this.#moveLandUnitToFrontLine(unit);
                     const [transportShip, movementToAmphibiousAssault, transportShipMovement] =
-                        secondMovementPhase    //Don't prepare for amphibious assaults during the second movment phase
+                        this.#secondMovement    //Don't prepare for amphibious assaults during the second movment phase
                         || movementToFrontLine?.at(-1)!!.adjacentLandHexes().values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.#partnership)    //If the unit is occupied on the front line, don't send it to an amphibious assault for performance reasons
                         ? [null, null, null]
                         : this.#moveLandUnitBySea(unit, destination => [destination, ...destination.adjacentLandHexes()].every(it => it.controller()?.partnership() === this.#partnership.opponent()));
@@ -191,7 +192,7 @@ export default class ComputerMovementPhase {
         for(let unit of airUnits){
             progress++;
             await refreshUI(1000);
-            if(secondMovementPhase){
+            if(this.#secondMovement){
                 if(!unit.based){
                     const passedHexes = this.#returnToBase(unit);
                     if(passedHexes === null){
@@ -392,7 +393,8 @@ export default class ComputerMovementPhase {
             passedHex => !passedHex.isInNavalControlZone(this.#partnership.opponent(), false),
             true,
             false,
-            transportShip.movementAllowance
+            transportShip.movementAllowance,
+            this.#partnership
         );
         if(transportShipMovement === null || !transportShip.validateMovement(transportShipMovement, false)){
             return [null, null, null];
@@ -408,20 +410,38 @@ export default class ComputerMovementPhase {
      * @returns The hexes passed by the naval unit, or null if no such movement is possible.
      */
     #moveNavalUnitToFrontLine(unit: AliveUnit & NavalUnit): Array<Hex> | null {
-        if(this.#hasAttackableEnemyUnit(unit.hex(), unit)){
-            return null;
+        let passedHexes: Array<Hex> | null = null;
+
+        //German naval units prefer attacking convoys
+        if(unit.owner === Countries.germany){
+            if(this.#hasAttackableEnemyNavalUnit(unit.hex(), unit, true)){
+                return null;
+            }
+            passedHexes = this.#pathToEnemyNavalUnit(unit, true);
         }
-        const passedHexes = SupplyLines.simplifiedPathBetweenHexes(
-            unit.hex(),
-            destination => unit.canEnterHexWithinStackingLimits(destination) && this.#hasAttackableEnemyUnit(destination, unit),
-            () => true,
-            true,
-            false,
-            unit.movementAllowance
-        );
-        if(passedHexes === null || !unit.validateMovement(passedHexes, false)){
-            return null;
+
+        //If no path was found above (either if the friendly unit isn't German or if there are no convoys), look for other naval units to attack
+        if(passedHexes === null){
+            if(this.#hasAttackableEnemyNavalUnit(unit.hex(), unit, false)){
+                return null;
+            }
+            passedHexes = this.#pathToEnemyNavalUnit(unit, false);
         }
+
+        //If he can't go all the way (most likely because he doesn't have the movement allowance), stop at the farthest port during the second movment phase, or at the farthest hex during the first movement phase
+        while(passedHexes !== null && !unit.validateMovement(passedHexes, false)){
+            if(this.#secondMovement){
+                const lastPortIndex = passedHexes.findLastIndex(it => it.isPort() && it.controller()!!.partnership() === this.#partnership);
+                if(lastPortIndex === -1){
+                    return null;
+                }
+                passedHexes.length = lastPortIndex + 1;
+            }
+            else{
+                passedHexes.pop();
+            }
+        }
+
         return passedHexes;
     }
 
@@ -429,12 +449,34 @@ export default class ComputerMovementPhase {
      * Checks if the given hex has an adjacent sea hex with an enemy naval unit that the given friendly naval unit can attack.
      *
      * @param hex           The hex to check the adjacent hexes of.
-     * @param friendlyUnit  The friendly unit that wants to attack
+     * @param friendlyUnit  The friendly unit that wants to attack.
+     * @param mustBeConvoy  True if the unit to attack must be a convoy, false if any unit is fine.
      */
-    #hasAttackableEnemyUnit(hex: Hex, friendlyUnit: AliveUnit & NavalUnit): boolean {
+    #hasAttackableEnemyNavalUnit(hex: Hex, friendlyUnit: AliveUnit & NavalUnit, mustBeConvoy: boolean): boolean {
         return hex.adjacentSeaHexes().values().flatMap(it => it.navalUnits()).some(it =>
             it.owner.partnership() !== this.#partnership
+            && (!mustBeConvoy || it instanceof Convoy)
             && (it instanceof Submarine ? friendlyUnit.submarineAttack > 0 : friendlyUnit.attack > 0)
+        );
+    }
+
+    /**
+     * Gets the path to a hex adjacent to an enemy naval unit.
+     *
+     * @param friendlyUnit  The friendly naval unit to move.
+     * @param mustBeConvoy  True if the unit to attack must be a convoy, false if any unit is fine.
+     *
+     * @returns The hexes passed by the friendly naval unit, or null if no such movement is possible.
+     */
+    #pathToEnemyNavalUnit(friendlyUnit: AliveUnit & NavalUnit, mustBeConvoy: boolean): Array<Hex> | null {
+        return SupplyLines.simplifiedPathBetweenHexes(
+            friendlyUnit.hex(),
+            destination => friendlyUnit.canEnterHexWithinStackingLimits(destination) && this.#hasAttackableEnemyNavalUnit(destination, friendlyUnit, mustBeConvoy),
+            passedHex => !passedHex.isInNavalControlZone(this.#partnership.opponent(), friendlyUnit instanceof Submarine),
+            true,
+            false,
+            friendlyUnit.movementAllowance,
+            this.#partnership
         );
     }
 
@@ -460,7 +502,9 @@ export default class ComputerMovementPhase {
                 && SupplyLines.canTraceSupplyLine(destination, unit.owner),
             passedHex => !passedHex.isInNavalControlZone(this.#partnership.opponent(), unit instanceof Submarine),
             true,
-            false
+            false,
+            Infinity,
+            this.#partnership
         );
         if(passedHexes === null || !unit.validateMovement(passedHexes.slice(0, 2), false)){
             return null;

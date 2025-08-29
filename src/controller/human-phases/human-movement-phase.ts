@@ -114,9 +114,10 @@ export default class HumanMovementPhase {
             this.#initializeMoveUnitListener(unit as AliveUnit & Unit, listener);
         };
 
+        const interception = Phase.current === Phase.AxisInterception || Phase.current === Phase.AlliedInterception;
         const secondMovement = Phase.current === Phase.AxisSecondMovement || Phase.current === Phase.AlliedSecondMovement;
         await LeftPanel.waitForNextButtonPressed(nextPhase, () => {
-            if(this.passedHexes.size === 0 && !this.#opponentTurn && Phase.current !== Phase.AxisInterception && Phase.current !== Phase.AlliedInterception){
+            if(this.passedHexes.size === 0 && !this.#opponentTurn && !interception){
                 return xdialogConfirm("Skip movement phase?", "You haven't moved any units. Are you sure you want to skip the movement phase?");
             }
             else if(secondMovement){
@@ -127,7 +128,7 @@ export default class HumanMovementPhase {
                     return true;
                 }
             }
-            else if(this.partnership.navalUnits().some(it => it instanceof Convoy && it.money > 0 && !this.passedHexes.has(it))){
+            else if(!this.#opponentTurn && !interception && this.partnership.navalUnits().some(it => it instanceof Convoy && it.money > 0 && !this.passedHexes.has(it))){
                 return xdialogConfirm("Skip moving convoys?", "You have convoys that haven't moved this phase. Are you sure you don't want to move them towards their destination?");
             }
             else{

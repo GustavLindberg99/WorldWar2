@@ -1,12 +1,12 @@
 import lodash from "https://cdn.jsdelivr.net/npm/lodash@4.17.21/+esm";
-import { addToMapOfSets, joinIterables, sortNumber } from "../../utils.js";
+import { joinIterables } from "../../utils.js";
 
 import Player from "./player.js";
 
 import { Hex, SupplyLines } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries, Country } from "../../model/countries.js";
-import { AirUnit, AliveUnit, Armor, Convoy, Infantry, LandUnit, NavalUnit, Paratrooper, Submarine, SupplyUnit, TransportShip, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Convoy, LandUnit, NavalUnit, Paratrooper, Submarine, Unit } from "../../model/units.js";
 import { date, Month } from "../../model/date.js";
 import { Phase } from "../../model/phase.js";
 import { UnitCombat } from "../../model/combat.js";
@@ -21,6 +21,7 @@ import ComputerCombatPhase from "../computer-player-algorithms/computer-combat-p
 import ComputerMovementPhase from "../computer-player-algorithms/computer-movement-phase.js";
 import FrontLine from "../computer-player-algorithms/front-line.js";
 import LandAutoplacement from "../computer-player-algorithms/autoplace/land-unit-autoplacement.js";
+import ComputerUnitBuildPhase from "../computer-player-algorithms/computer-unit-build-phase.js";
 
 export default class ComputerPlayer extends Player {
     #hasDecidedOnSwedenInvasion: boolean = true;
@@ -161,29 +162,7 @@ export default class ComputerPlayer extends Player {
     }
 
     override async unitBuildPhase(): Promise<void> {    //This function does not contain any await, but is async so that it can override the async function in the parent class
-        for(let unit of joinIterables<AliveUnit & (AirUnit | NavalUnit)>(this.partnership.airUnits(), this.partnership.navalUnits().filter(it => it.inPort()))){
-            if(unit.damaged() && unit.owner.money >= 200){
-                unit.owner.money -= 200;
-                unit.repair();
-                UnitMarker.get(unit).update();
-            }
-        }
-        const ownerIsInvaded = (unitToBuy: Unit) => unitToBuy.owner.cities.some(it => !it.isColony && it.controller()!!.partnership() !== it.country!!.partnership());
-        const canUseConvoys = this.partnership.countries().some(a => !a.conquered() && this.partnership.countries().some(b => !b.conquered() && a.canSendMoneyWithConvoys().includes(b)));
-        const orderedAvailableUnits =   //The available units ordered so that the ones he wants most are first
-            lodash.shuffle([...this.partnership.availableUnits()])
-            .sort((a, b) =>
-                sortNumber(b, a, unitToBuy => unitToBuy instanceof Infantry && ownerIsInvaded(unitToBuy))
-                || sortNumber(b, a, unitToBuy => unitToBuy instanceof Armor && ownerIsInvaded(unitToBuy))
-            ).filter(it => canUseConvoys || !(it instanceof Convoy));
-        for(let unit of orderedAvailableUnits){
-            if(unit.owner.money < unit.price()){
-                continue;
-            }
-            unit.owner.availableUnits.delete(unit);
-            unit.owner.money -= unit.price();
-            addToMapOfSets(unit.owner.delayedUnits, date.current + unit.delay(), unit);
-        }
+        new ComputerUnitBuildPhase(this.partnership).run();
     }
 
     override async overrunPhase(): Promise<void> {
@@ -256,9 +235,6 @@ export default class ComputerPlayer extends Player {
                 .map(it => it.hex())
         );
         for(let hex of assaultHexes){
-            HexMarker.colorHex(hex, "purple");
-            HexMarker.scrollToHex(hex);
-
             //Choose units within stacking limits
             const eligibleAmphibiousUnits: ReadonlyArray<AliveUnit & LandUnit> = [...
                 hex.navalUnits()
@@ -294,9 +270,12 @@ export default class ComputerPlayer extends Player {
             //Cancel if it's a bad idea
             const friendlyStrength = joinIterables(amphibiousUnits, paradropUnits).reduce((a, b) => a + b.strength, 0);
             const enemyStrength = hex.landUnits().filter(it => it.owner.partnership() !== this.partnership).reduce((a, b) => a + b.strength, 0);
-            if(friendlyStrength < enemyStrength){
+            if(friendlyStrength === 0 || friendlyStrength < enemyStrength){
                 continue;
             }
+
+            HexMarker.colorHex(hex, "purple");
+            HexMarker.scrollToHex(hex);
 
             const successProbability = UnitCombat.amphibiousParadropSuccessProbability(amphibiousUnits, paradropUnits);
 

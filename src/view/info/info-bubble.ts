@@ -30,8 +30,8 @@ namespace InfoBubble {
         hexTippyElement ??= document.createElementNS("http://www.w3.org/2000/svg", "rect");
         hexTippyElement.setAttribute("x", hex.centerX().toString());
         hexTippyElement.setAttribute("y", hex.centerY().toString());
-        hexTippyElement.setAttribute("width", "1");    //The width and height can't be 0 otherwise it won't work in Firefox
-        hexTippyElement.setAttribute("height", "1");
+        hexTippyElement.setAttribute("width", "0.01");    //The width and height can't be 0 otherwise it won't work in Firefox
+        hexTippyElement.setAttribute("height", "0.01");
         hexTippyElement.setAttribute("fill", "none");
         hexTippyElement.setAttribute("stroke", "none");
         document.getElementById("installations")!!.appendChild(hexTippyElement);

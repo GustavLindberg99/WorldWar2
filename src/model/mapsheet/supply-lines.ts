@@ -29,10 +29,11 @@ namespace SupplyLines {
      *
      * @param origin            The hex to trace a path from.
      * @param isDestination     A callback returning whether a given hex is an allowed destination.
-     * @param allowedToPass     A callback returning whether passing through a given hex is allowed. Neutral hexes are always disallowed, no need to specify that explicitly.
+     * @param allowedToPass     A callback returning whether passing through a given hex is allowed. Neutral hexes are always disallowed, no need to specify that explicitly. If `isDestination(hex)` is true but `allowedToPass(hex)` is false, `hex` can still be used as a destination.
      * @param allowSeaHexsides  Whether the path is allowed to cross all-sea hexsides.
      * @param allowLandHexsides Whether the path is allowed to cross all-land hexsides.
      * @param maxDistance       The max distance that the path is allowed to have. Exists only for performance reasons, does not guarentee that the returned path is shorter than maxDistance.
+     * @param canalOwner        Allows passing through canals owned by this partnership. If null, doesn't allow passing through any canals. Has no effect if `allowSeaHexsides` is false or if `allowLandHexsides` is true.
      *
      * @returns A path that meets the above requirements (containing both the origin and the destination), or null if no such path is possible. If several paths are possible, which one is returned is unspecified (so it's not necessarily the shortest one).
      */
@@ -42,7 +43,8 @@ namespace SupplyLines {
         allowedToPass: (it: Hex) => boolean,
         allowSeaHexsides: boolean = false,
         allowLandHexsides: boolean = true,
-        maxDistance: number = Infinity
+        maxDistance: number = Infinity,
+        canalOwner: Partnership | null = null
     ): ReadonlyArray<Hex> | null {
         //In practice cache only has a noticeable impact during the supply phase, in which case this condition is true. This fact is used to simplify the structure of the cachedSupplyLines map.
         const useCache = allowLandHexsides && !allowSeaHexsides;
@@ -89,7 +91,7 @@ namespace SupplyLines {
             }
             const allowedAdjacentHexes = adjacentHexesByHex.get(hex) ?? (
                 allowSeaHexsides
-                ? (allowLandHexsides ? hex.adjacentHexes() : hex.adjacentSeaHexes())
+                ? (allowLandHexsides ? hex.adjacentHexes() : hex.adjacentSeaHexes(canalOwner))
                 : (allowLandHexsides ? hex.adjacentLandHexes() : [])
             ).filter(it =>
                 //Don't check hexes we've already checked
@@ -208,10 +210,11 @@ namespace SupplyLines {
      *
      * @param origin            The hex to trace a path from.
      * @param isDestination     A callback returning whether a given hex is an allowed destination.
-     * @param allowedToPass     A callback returning whether passing through a given hex is allowed. Neutral hexes are always disallowed, no need to specify that explicitly.
+     * @param allowedToPass     A callback returning whether passing through a given hex is allowed. Neutral hexes are always disallowed, no need to specify that explicitly. If `isDestination(hex)` is true but `allowedToPass(hex)` is false, `hex` can still be used as a destination.
      * @param allowSeaHexsides  Whether the path is allowed to cross all-sea hexsides.
      * @param allowLandHexsides Whether the path is allowed to cross all-land hexsides.
      * @param maxDistance       The max distance that the path is allowed to have. Exists only for performance reasons, does not guarentee that the returned path is shorter than maxDistance.
+     * @param canalOwner        Allows passing through canals owned by this partnership. If null, doesn't allow passing through any canals. Has no effect if `allowSeaHexsides` is false or if `allowLandHexsides` is true.
      *
      * @returns A path that meets the above requirements (containing both the origin and the destination), or null if no such path is possible. If several paths are possible, which one is returned is unspecified (so it's not necessarily the shortest one).
      */
@@ -221,9 +224,10 @@ namespace SupplyLines {
         allowedToPass: (it: Hex) => boolean,
         allowSeaHexsides: boolean = false,
         allowLandHexsides: boolean = true,
-        maxDistance: number = Infinity
+        maxDistance: number = Infinity,
+        canalOwner: Partnership | null = null
     ): Array<Hex> | null {
-        const nonSimplifiedPath = pathBetweenHexes(origin, isDestination, allowedToPass, allowSeaHexsides, allowLandHexsides, maxDistance);
+        const nonSimplifiedPath = pathBetweenHexes(origin, isDestination, allowedToPass, allowSeaHexsides, allowLandHexsides, maxDistance, canalOwner);
         if(nonSimplifiedPath === null){
             return null;
         }
@@ -231,7 +235,7 @@ namespace SupplyLines {
         while(result.at(-1) !== nonSimplifiedPath.at(-1)){
             const hex = result.at(-1)!!;
             const allowedAdjacentHexes = allowSeaHexsides
-                ? (allowLandHexsides ? hex.adjacentHexes() : hex.adjacentSeaHexes())
+                ? (allowLandHexsides ? hex.adjacentHexes() : hex.adjacentSeaHexes(canalOwner))
                 : (allowLandHexsides ? hex.adjacentLandHexes() : []);
             result.push(nonSimplifiedPath.findLast(it => allowedAdjacentHexes.includes(it))!!)
         }
