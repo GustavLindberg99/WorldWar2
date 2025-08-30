@@ -43,7 +43,9 @@ export default class UnitMarker {
         ["images/port.svg", "In port", () => this.#unit instanceof NavalUnit && this.#unit.inPort()],
         ["images/damaged.svg", "Damaged", () => (this.#unit instanceof AirUnit || this.#unit instanceof NavalUnit) && this.#unit.damaged()],
         ["images/sword.svg", "Has attacked this turn", () => this.#unit.hasAttacked],
-        ["images/train.svg", "Moving by rail", () => this.#unit instanceof LandUnit && this.#unit.movingByRail]
+        ["images/train.svg", "Moving by rail", () => this.#unit instanceof LandUnit && this.#unit.movingByRail],
+        ["images/out-of-supply.svg", "Out of supply", () => this.#unit.outOfSupply()],
+        ["images/supply-warning.svg", "Remaining supply: 1 month", () => this.#unit instanceof NavalUnit && this.#unit.remainingSupply() === 1]
     ];
 
     /**
@@ -209,7 +211,7 @@ export default class UnitMarker {
     }
 
     /**
-     * Updates the unit marker with info from the unit. Deletes the unit marker if the unit is no longer alive.
+     * Updates the unit marker with info from the unit (including the info markers). Deletes the unit marker if the unit is no longer alive.
      */
     update(): void {
         const hex = this.#unit.hex();
@@ -233,17 +235,24 @@ export default class UnitMarker {
             this.#marker.querySelector(".bottomRightText")!!.textContent = this.#bottomRightText();
 
             //Update the info markers
-            for(let [url, title, condition] of this.#possibleInfoMarkers){
-                if(condition()){
-                    this.#addInfoMarker(url, title);
-                }
-                else{
-                    this.#removeInfoMarker(url);
-                }
-            }
+            this.updateInfoMarkers();
         }
         if(this.#unit.embarkedOn() !== null){
             this.delete();    //This must be done at the end so that copy images get updated
+        }
+    }
+
+    /**
+     * Updates the info markers.
+     */
+    updateInfoMarkers(): void {
+        for(let [url, title, condition] of this.#possibleInfoMarkers){
+            if(condition()){
+                this.#addInfoMarker(url, title);
+            }
+            else{
+                this.#removeInfoMarker(url);
+            }
         }
     }
 

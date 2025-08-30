@@ -269,6 +269,8 @@ namespace InfoBubble {
      * @param marker    The marker that the info bubble should point to (can be the marker on the mapsheet or a copy image).
      */
     export function showUnitInfo(unit: Unit, marker: SVGGElement | SVGSVGElement): void {
+        UnitMarker.get(unit).updateInfoMarkers();
+
         const unitImageId = unit.embarkedOn() === null ? "InfoBubble.unitImage" : "InfoBubble.embarkedUnitImage";
         let content = `
             <div class="infoBubble">
@@ -282,17 +284,6 @@ namespace InfoBubble {
             content += ` (${unit.usedMovementPoints} used)`;
         }
         content += "</p>";
-        if(unit instanceof NavalUnit){
-            if(unit.outOfSupply()){
-                content += `<p>Out of supply: <b style="color:red">Yes</b></p>`;
-            }
-            else{
-                content += `<p>Remaining supply: ${unit.remainingSupply()} months</p>`;
-            }
-        }
-        else{
-            content += `<p>Out of supply: ${unit.outOfSupply() ? "<b style=\"color:red\">Yes</b>" : "No"}</p>`
-        }
         content += "</div>";
         if(unit instanceof LandUnit){
             content += `
@@ -338,8 +329,12 @@ namespace InfoBubble {
         }
 
         const infoMarkers = UnitMarker.get(unit).infoMarkers();
-        if(infoMarkers.size > 0){
+        if(infoMarkers.size > 0 || unit instanceof NavalUnit){
             content += `<div class="box"><h3>More info</h3>`;
+            if(unit instanceof NavalUnit && unit.remainingSupply() >= 2){
+                //Only show this if remainingSupply >= 2, otherwise it will be shown in an info marker instead
+                content += `<p>Remaining supply: ${unit.remainingSupply()} months</p>`;
+            }
             for(let [infoMarker, title] of infoMarkers){
                 content += `<p><img src="${infoMarker.getAttribute("href")}" class="inline"/> ${title}</p>`;
                 if(title === "Embarked units:"){

@@ -4,7 +4,7 @@ import { joinIterables, refreshUI, sortNumber } from "../../../utils.js";
 import { Hex, SupplyLines } from "../../../model/mapsheet.js";
 import { Partnership } from "../../../model/partnership.js";
 import { Countries, Country } from "../../../model/countries.js";
-import { LandUnit, SupplyUnit } from "../../../model/units.js";
+import { LandUnit, Marine, SupplyUnit, TransportShip } from "../../../model/units.js";
 import { date, Month } from "../../../model/date.js";
 
 import UnitMarker from "../../../view/markers/unit-marker.js";
@@ -19,7 +19,8 @@ class LandAutoplacer {
     readonly #updateProgress: ((it: number) => void) | null;
 
     #availableSupplyUnits: Set<SupplyUnit>;
-    #availableNonSupplyUnits: Set<LandUnit>;
+    #availableMarines: Set<Marine>;
+    #availableLandUnits: Set<LandUnit>;
 
     /**
      * Constructs as LandAutoplacer object.
@@ -36,7 +37,8 @@ class LandAutoplacer {
 
         //These get emptied as the units are placed
         this.#availableSupplyUnits = new Set(availableLandUnits.filter(it => it instanceof SupplyUnit));
-        this.#availableNonSupplyUnits = new Set(availableLandUnits.filter(it => !(it instanceof SupplyUnit)));
+        this.#availableMarines = new Set(availableLandUnits.filter(it => it instanceof Marine));
+        this.#availableLandUnits = new Set(availableLandUnits.filter(it => !(it instanceof SupplyUnit) && !(it instanceof Marine)));
     }
 
     /**
@@ -59,12 +61,12 @@ class LandAutoplacer {
         //Start by placing Japanese units in cities
         for(let hex of [...Countries.china.cities, ...Hex.allResourceHexes.filter(h => h.country === Countries.china)]){
             if(hex.controller() === Countries.japan && hex.landUnits().every(it => it instanceof SupplyUnit)){
-                const newUnit = this.#availableNonSupplyUnits.values().find(it => hex.unitCanBePlacedHere(it));
+                const newUnit = this.#availableLandUnits.values().find(it => hex.unitCanBePlacedHere(it));
                 if(newUnit === undefined){
                     break;
                 }
                 this.placements.set(newUnit, hex);
-                this.#availableNonSupplyUnits.delete(newUnit);
+                this.#availableLandUnits.delete(newUnit);
             }
         }
 
@@ -82,12 +84,12 @@ class LandAutoplacer {
             }
             for(let hex of supplyLine){
                 if(this.#totalUnitsToBeInHex(hex).every(it => it instanceof SupplyUnit)){
-                    const unit = this.#availableNonSupplyUnits.values().find(it => hex.unitCanBePlacedHere(it));
+                    const unit = this.#availableLandUnits.values().find(it => hex.unitCanBePlacedHere(it));
                     if(unit === undefined){
                         break;
                     }
                     this.placements.set(unit, hex);
-                    this.#availableNonSupplyUnits.delete(unit);
+                    this.#availableLandUnits.delete(unit);
                 }
             }
             suppliedHexes.push(...supplyLine);
@@ -95,13 +97,13 @@ class LandAutoplacer {
     }
 
     /**
-     * Decides where to place non-supply units.
+     * Decides where to place non-supply, non-marine units.
      */
     async placeNonSupplyUnits(): Promise<void> {
         let progress = 0;
-        const maxProgress = this.#availableNonSupplyUnits.size;
+        const maxProgress = this.#availableLandUnits.size;
         let hexesByCountry = new Map<Country, Array<Hex>>();
-        for(let newUnit of this.#availableNonSupplyUnits){
+        for(let newUnit of this.#availableLandUnits){
             await refreshUI();
             progress++;
             this.#updateProgress?.(progress / maxProgress);
@@ -124,30 +126,33 @@ class LandAutoplacer {
                 const existingUnit = this.#increaseableUnit(hex, newUnit);
                 if(existingUnit !== undefined && this.#expectedStrength(existingUnit) < existingUnit.maxStrength()){
                     this.placements.set(newUnit, existingUnit);
-                    this.#availableNonSupplyUnits.delete(newUnit);
                 }
                 else{
                     this.placements.set(newUnit, hex);
-                    this.#availableNonSupplyUnits.delete(newUnit);
                 }
+                this.#availableLandUnits.delete(newUnit);
             }
         }
     }
 
     /**
-     * Decides where to place supply units.
+     * Decides where to place supply units and marines.
      */
-    placeSupplyUnits(): void {
+    placeSupplyUnitsAndMarines(): void {
         let allowedHexesByCountry = new Map<Country, Array<Hex>>();
-        for(let newUnit of this.#availableSupplyUnits){
-            const allowedHexes = allowedHexesByCountry.get(newUnit.owner) ?? newUnit.owner.hexes.filter(it =>
+        for(let newUnit of joinIterables<SupplyUnit | Marine>(this.#availableSupplyUnits, this.#availableMarines)){
+            const allowedHexes = lodash.shuffle(allowedHexesByCountry.get(newUnit.owner) ?? newUnit.owner.hexes.filter(it =>
                 it.unitCanBePlacedHere(newUnit)
                 && newUnit.canEnterHexWithinStackingLimits(it, this.#totalUnitsToBeInHex(it))
+            )).sort((a, b) =>
+                sortNumber(b, a, hex => [...hex.navalUnits().filter(it => it.owner.partnership() === this.#partnership && it instanceof TransportShip && it.embarkedUnits().size === 0)].length)
+                || sortNumber(b, a, it => it.isMajorPort())
+                || sortNumber(b, a, it => it.isPort())
             );
             let hex: Hex | undefined;
             do{
                 lodash.pull(allowedHexes, hex);    //During the first iteration, hex will always be undefined, so this won't do anything. During subsequent iterations, this will remove out of supply hexes and hexes where there isn't room for more units.
-                hex = allowedHexes.find(it => it.isMajorPort()) ?? allowedHexes.find(it => it.isPort()) ?? lodash.sample(allowedHexes);
+                hex = allowedHexes[0];
             } while(
                 hex !== undefined
                 && (
@@ -158,7 +163,12 @@ class LandAutoplacer {
             allowedHexesByCountry.set(newUnit.owner, allowedHexes);
             if(hex !== undefined){
                 this.placements.set(newUnit, hex);
-                this.#availableSupplyUnits.delete(newUnit);
+                if(newUnit instanceof SupplyUnit){
+                    this.#availableSupplyUnits.delete(newUnit);
+                }
+                else{
+                    this.#availableMarines.delete(newUnit);
+                }
             }
         }
     }
@@ -277,7 +287,7 @@ namespace LandAutoplacement {
 
         //Place non-supply units as close to the front line if possible
         await autoplacer.placeNonSupplyUnits();
-        autoplacer.placeSupplyUnits();
+        autoplacer.placeSupplyUnitsAndMarines();
         return autoplacer.placements;
     }
 

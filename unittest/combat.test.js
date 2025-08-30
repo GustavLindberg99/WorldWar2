@@ -19,12 +19,20 @@ test("Land combat", () => {
     const hamburg = Hex.allCityHexes.find(it => it.city === "Hamburg");
     const bremen = Hex.fromCoordinates(161, 169);
     const bremerhaven = Hex.allCityHexes.find(it => it.city === "Bremerhaven");
+    const dortmund = Hex.allCityHexes.find(it => it.city === "Dortmund");
+    const bielefeld = Hex.fromCoordinates(161, 170);
+    const hannover = Hex.fromCoordinates(162, 171);
+    const schwerin = Hex.fromCoordinates(163, 170);
+    const rostock = Hex.fromCoordinates(164, 170);
+    const middelfart = Hex.fromCoordinates(164, 169);
+    const aarhus = Hex.fromCoordinates(164, 168);
 
     /*
      * Setup:
      *  - Two German units in Cuxhaven and one Danish unit in Esbjerg participating in combat.
      *  - Two German units in Bremerhaven and one German unit each in Bremen and Lübeck to test stacking limits.
      *  - No units in Hamburg.
+     *  - In the last part to test retreating multiple hexes, German units are added to Bremen, Hamburg and Lübeck so that these hexes are filled. Then a German unit is added to Sønderborg to check that it's possible to retreat through friendly units.
      */
     const germanUnit1 = new Infantry(5, 3, Countries.germany);
     germanUnit1.setHex(cuxhaven);
@@ -71,6 +79,7 @@ test("Land combat", () => {
         expect(retreat.values()).not.toContain(esbjerg);        //Because it's occupied by an enemy unit
         expect([...retreat.values().filter(it => it === bremen)].length).toBeLessThanOrEqual(1);    //Because of stacking limits
         expect([...retreat.values().filter(it => it === lubeck)].length).toBeLessThanOrEqual(1);    //Because of stacking limits
+        expect(retreat.values().every(it => it.adjacentLandHexes().includes(cuxhaven))).toBe(true); //Only retreat one hex because there's room in the adjacent hexes
     }
 
     //Losses
@@ -78,6 +87,60 @@ test("Land combat", () => {
     expect(danishAttack.attackerLossProbability(4)).toBe(0);
     expect(danishAttack.attackerEliminationProbability()).toBeGreaterThan(0);
     expect(danishAttack.defenderLossProbability(1)).toBeGreaterThan(0);
+
+    //Retreat multiple hexes because of stacking limits
+    const germanUnit7 = new Infantry(5, 3, Countries.germany);
+    germanUnit7.setHex(lubeck);
+    const germanUnit8 = new Infantry(5, 3, Countries.germany);
+    germanUnit8.setHex(bremen);
+    const germanUnit9 = new Infantry(5, 3, Countries.germany);
+    germanUnit9.setHex(hamburg);
+    const germanUnit10 = new Infantry(5, 3, Countries.germany);
+    germanUnit10.setHex(hamburg);
+    const danishAttack2 = new LandCombat([danishUnit], [germanUnit1, germanUnit2]);
+    const germanRetreats2 = danishAttack2.retreatableHexes();
+    expect(germanRetreats2.some(retreat => [...retreat.values()].includes(dortmund))).toBe(true);
+    expect(germanRetreats2.some(retreat => [...retreat.values()].includes(bielefeld))).toBe(true);
+    expect(germanRetreats2.some(retreat => [...retreat.values()].includes(hannover))).toBe(true);
+    expect(germanRetreats2.some(retreat => [...retreat.values()].includes(schwerin))).toBe(true);
+    expect(germanRetreats2.some(retreat => [...retreat.values()].includes(rostock))).toBe(true);
+    for(let retreat of germanRetreats2){
+        expect(retreat.size).toBe(2);
+        expect(retreat.keys()).toContain(germanUnit1);
+        expect(retreat.keys()).toContain(germanUnit2);
+        expect(retreat.values()).not.toContain(holstebro);  //Because of control zones
+        expect(retreat.values()).not.toContain(aarhus);     //Because of control zones
+        expect(retreat.values()).not.toContain(middelfart); //Because of control zones
+        for(let destination of retreat.values()){
+            expect(destination.distanceFromHex(cuxhaven)).toBe(2);
+        }
+    }
+
+    //Retreating through friendly units should be possible
+    const germanUnit11 = new Infantry(5, 3, Countries.germany);
+    germanUnit11.setHex(sonderborg);
+    sonderborg.setController(Countries.germany);
+    const danishAttack3 = new LandCombat([danishUnit], [germanUnit1, germanUnit2]);
+    const germanRetreats3 = danishAttack3.retreatableHexes();
+    expect(germanRetreats3.some(retreat => [...retreat.values()].includes(dortmund))).toBe(true);
+    expect(germanRetreats3.some(retreat => [...retreat.values()].includes(bielefeld))).toBe(true);
+    expect(germanRetreats3.some(retreat => [...retreat.values()].includes(hannover))).toBe(true);
+    expect(germanRetreats3.some(retreat => [...retreat.values()].includes(schwerin))).toBe(true);
+    expect(germanRetreats3.some(retreat => [...retreat.values()].includes(rostock))).toBe(true);
+    expect(germanRetreats3.some(retreat => [...retreat.values()].includes(middelfart))).toBe(true);
+    expect(germanRetreats3.some(retreat => [...retreat.values()].includes(aarhus))).toBe(true);
+    for(let retreat of germanRetreats3){
+        expect(retreat.size).toBe(2);
+        expect(retreat.keys()).toContain(germanUnit1);
+        expect(retreat.keys()).toContain(germanUnit2);
+        expect(retreat.values()).not.toContain(holstebro);  //Even though he can go through Sønderborg now, Holstebro is still directly in the Danish unit's control zone
+        expect(retreat.values()).toContain(sonderborg);     //This is the only hex where there's room, but there's only room for one unit, so one unit has to go here and the other has to go one more hex
+        for(let destination of retreat.values()){
+            if(destination !== sonderborg){
+                expect(destination.distanceFromHex(cuxhaven)).toBe(2);
+            }
+        }
+    }
 });
 
 test("Combat against supply units", () => {

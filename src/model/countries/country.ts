@@ -232,7 +232,7 @@ abstract class Country extends UnitContainer {
      */
     protected shouldBeLiberated(): boolean {
         return this.surrenderedFromAtomicBomb === null
-            && this.cities.every(it => it.controller()!!.partnership() === this.partnership() || it.isColony);
+            && this.cities.every(it => it.controller()!!.partnership() !== this.partnership()?.opponent() || it.isColony);
     }
 
     /**

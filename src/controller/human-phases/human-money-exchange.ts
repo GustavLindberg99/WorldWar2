@@ -152,8 +152,10 @@ export default class HumanMoneyExchange {
             receiver.money += amount;
         }
         for(let [convoy, [receiver, amount]] of receivedMoneyByConvoy){
-            convoy.money = amount;
-            convoy.destination = receiver;
+            if(amount > 0){
+                convoy.money = amount;
+                convoy.destination = receiver;
+            }
         }
     }
 

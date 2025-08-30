@@ -11,6 +11,7 @@ import HexMarker from "../../view/markers/hex-marker.js";
 import LeftPanel from "../../view/left-panel.js";
 import RunCombat from "../../view/combat/run-combat.js";
 import UnitMarker from "../../view/markers/unit-marker.js";
+import { sortNumber } from "../../utils.js";
 
 export default class ComputerCombatPhase {
     readonly #partnership: Partnership;
@@ -26,7 +27,8 @@ export default class ComputerCombatPhase {
     constructor(partnership: Partnership, overrun: boolean){
         this.#partnership = partnership;
         this.#overrun = overrun;
-        this.#attackableHexes = [...this.#partnership.units().flatMap(it => [it.hex(), ...it.hex().adjacentHexes()])];
+        this.#attackableHexes = lodash.shuffle([...this.#partnership.units().flatMap(it => [it.hex(), ...it.hex().adjacentHexes()])])
+            .sort((a, b) => sortNumber(b, a, it => Number(it.isResourceHex) + Number(it.city !== null)));
     }
 
     /**
@@ -86,7 +88,7 @@ export default class ComputerCombatPhase {
      * @returns The combat, or null if the computer player is ready to end the combat phase.
      */
     #selectCombat(): Combat | null {
-        const hex = lodash.sample(this.#attackableHexes);
+        const hex = this.#attackableHexes[0];
         if(hex === undefined){
             return null;
         }

@@ -33,7 +33,7 @@ abstract class Unit {
     }
 
     /**
-     * Gets all the units on the map (but not units available for build).
+     * Gets all the units on the map, including embarked units (but not units available for build).
      *
      * @returns All units on the map.
      */

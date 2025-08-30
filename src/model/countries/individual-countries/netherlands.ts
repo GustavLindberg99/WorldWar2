@@ -3,7 +3,7 @@ import CountryWithUnits from "../country-with-units.js";
 import { date, Month } from "../../date.js";
 import { Partnership } from "../../partnership.js";
 import { Countries, Country } from "../../countries.js";
-import { AirUnit, Destroyer, HeavyCruiser, Infantry, LightCruiser, Submarine, TransportShip } from "../../units.js";
+import { AirUnit, Destroyer, HeavyCruiser, Infantry, LightCruiser, Submarine, SupplyUnit, TransportShip } from "../../units.js";
 
 export default class Netherlands extends CountryWithUnits {
     constructor(){
@@ -18,7 +18,8 @@ export default class Netherlands extends CountryWithUnits {
             new LightCruiser("Jacob van Heemskerk", 1, 1, 46, this),
             new LightCruiser("Tromp", 1, 1, 46, this),
             new Submarine("K", 3, 2, 19, this),
-            ...(new Array(2)).fill(null).map(() => new TransportShip(this))
+            ...(new Array(2)).fill(null).map(() => new TransportShip(this)),
+            ...(new Array(2)).fill(null).map(() => new SupplyUnit(3, this))
         ]);
     }
 

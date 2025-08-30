@@ -1,9 +1,9 @@
-import { refreshUI } from "../../utils.js";
+import { joinIterables, refreshUI, sortNumber } from "../../utils.js";
 
 import { Hex, SupplyLines } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
 import { Countries, Country } from "../../model/countries.js";
-import { AirUnit, AliveUnit, Armor, Convoy, LandUnit, NavalUnit, Submarine, SupplyUnit, TransportShip, Unit } from "../../model/units.js";
+import { AirUnit, AliveUnit, Armor, Convoy, Infantry, LandUnit, NavalUnit, Submarine, SupplyUnit, TransportShip, Unit } from "../../model/units.js";
 import { Phase } from "../../model/phase.js";
 
 import HexMarker from "../../view/markers/hex-marker.js";
@@ -129,14 +129,18 @@ export default class ComputerMovementPhase {
         const opponentTurn = (this.#partnership === Partnership.Allies && Phase.current === Phase.AxisSecondMovement) || (this.#partnership === Partnership.Axis && Phase.current === Phase.AlliedSecondMovement);
 
         let progress = 0;
-        const landUnits: ReadonlyArray<AliveUnit & LandUnit> = opponentTurn ? [] : [...this.#partnership.landUnits()];
+        const landUnits: ReadonlyArray<AliveUnit & LandUnit> = (opponentTurn ? [] : [...this.#partnership.landUnits()])
+            .sort((a, b) => sortNumber(b, a, it => it.embarkedOn() !== null));  //Embarked units should be first so that it's possible to disembark as many units as possible immediately
         const airUnits: ReadonlyArray<AliveUnit & AirUnit> = [...this.#partnership.airUnits()];
-        const navalUnits: ReadonlyArray<AliveUnit & NavalUnit> = opponentTurn ? [] : [...this.#partnership.navalUnits()].sort((a, b) => Number(b instanceof Convoy) - Number(a instanceof Convoy));
+        const navalUnits: ReadonlyArray<AliveUnit & NavalUnit> = opponentTurn ? [] : [...this.#partnership.navalUnits()]
+            .sort((a, b) => sortNumber(b, a, it => it instanceof Convoy));
         LeftPanel.appendProgressBar(() => progress / (landUnits.length + airUnits.length + navalUnits.length));
 
         //Land units
         if(!opponentTurn){
             const japaneseSupplyLines: ReadonlySet<Hex> = this.#japaneseSupplyLines();
+            let supplyUnitDestinations = new Set<Hex>();
+            let amphibiousAssaultHexes = new Set<Hex>();
             for(let unit of landUnits){
                 progress++;
                 await refreshUI(1000);
@@ -149,20 +153,21 @@ export default class ComputerMovementPhase {
                     continue;
                 }
                 else if(unit instanceof SupplyUnit){
-                    const [transportShip, supplyUnitMovement, transportShipMovement] = this.#moveLandUnitBySea(unit, destination => destination.landUnits().some(it => it.owner === unit.owner) && !SupplyLines.canTraceSupplyLine(destination, unit.owner, false));
+                    const [transportShip, supplyUnitMovement, transportShipMovement] = this.#moveLandUnitBySea(unit, destination =>
+                        destination.landUnits().some(it => it.owner === unit.owner)
+                        && !supplyUnitDestinations.has(destination)
+                        && !SupplyLines.canTraceSupplyLine(destination, unit.owner)
+                    );
                     if(transportShip !== null){
-                        const alreadyEmbarked = unit.embarkedOn() === transportShip;
-                        const hex = transportShipMovement.at(-1)!!;
-                        transportShip.setHex(hex);
-                        if(!alreadyEmbarked){
+                        const destination = transportShipMovement.at(-1)!!;
+                        supplyUnitDestinations.add(destination);
+                        transportShip.setHex(destination);
+                        if(supplyUnitMovement !== null){
                             unit.embarkOnto(transportShip);
+                            this.passedHexes.set(unit, supplyUnitMovement);
+                            unit.hasMoved = true;
                         }
-                        else if(transportShip.inPort()){
-                            unit.disembark();
-                        }
-                        this.passedHexes.set(unit, supplyUnitMovement);
                         this.passedHexes.set(transportShip, transportShipMovement);
-                        unit.hasMoved = true;
                     }
                 }
                 else{
@@ -171,11 +176,21 @@ export default class ComputerMovementPhase {
                         this.#secondMovement    //Don't prepare for amphibious assaults during the second movment phase
                         || movementToFrontLine?.at(-1)!!.adjacentLandHexes().values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.#partnership)    //If the unit is occupied on the front line, don't send it to an amphibious assault for performance reasons
                         ? [null, null, null]
-                        : this.#moveLandUnitBySea(unit, destination => [destination, ...destination.adjacentLandHexes()].every(it => it.controller()?.partnership() === this.#partnership.opponent()));
+                        : this.#moveLandUnitBySea(unit, destination =>
+                            (destination.isResourceHex || destination.city !== null)  //Don't bother doing an amphibious assault if there's nothing interesting
+                            && destination.isCoastal()  //Not needed for it to work, but helps the algorithm take shorter paths which makes it more likely for it to find a destination
+                            && [destination, ...destination.adjacentLandHexes()].every(it => it.controller()?.partnership() === this.#partnership.opponent())   //Don't do an amphibious assault if it's possible to get there through regular movement or combat
+                            && destination.landUnits().reduce((a, b) => a + b.modifiedDefense(), 0) < unit.strength
+                            && !amphibiousAssaultHexes.has(destination)
+                        );
                     if(transportShip !== null && (movementToFrontLine === null || movementToFrontLine.at(-1)!!.adjacentLandHexes().values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.#partnership))){
-                        transportShip.setHex(transportShipMovement.at(-1)!!);
+                        const destination = transportShipMovement.at(-1)!!;
+                        amphibiousAssaultHexes.add(destination);
+                        transportShip.setHex(destination);
                         unit.embarkOnto(transportShip);
-                        this.passedHexes.set(unit, movementToAmphibiousAssault);
+                        if(movementToAmphibiousAssault !== null){
+                            this.passedHexes.set(unit, movementToAmphibiousAssault);
+                        }
                         this.passedHexes.set(transportShip, transportShipMovement);
                         unit.hasMoved = true;
                     }
@@ -246,6 +261,9 @@ export default class ComputerMovementPhase {
                             destinationCountry = Countries.canada;
                         }
                     }
+                    else if(unit instanceof TransportShip){
+                        destinationCountry = unit.owner;    //Empty transport ships should return to their home country to pick up new units
+                    }
                     const passedHexes = this.#returnToPort(unit, destinationCountry);
                     if(passedHexes !== null){
                         const hex = passedHexes.at(-1)!!;
@@ -285,7 +303,9 @@ export default class ComputerMovementPhase {
             }
         }
 
-        Automovement.autoDisembarkSupplyUnits(this.#partnership);
+        for(let unit of Automovement.autoDisembarkSupplyUnits(this.#partnership)){
+            unit.hasMoved = true;
+        }
     }
 
     /**
@@ -325,7 +345,7 @@ export default class ComputerMovementPhase {
                 continue;
             }
             //If a Japanese unit in China is trying to move out of supply
-            if(this.#partnership === Partnership.Axis && destination.country === Countries.china && !destination.adjacentLandHexes().some(it => it.controller()!!.partnership() === this.#partnership)){
+            if(this.#partnership === Partnership.Axis && destination.country === Countries.china && !destination.adjacentLandHexes().flatMap(it => it.units()).some(it => it instanceof Infantry || it instanceof Armor)){
                 continue;
             }
             const result = passedHexes.slice(0, numberOfHexesToKeep);
@@ -367,28 +387,50 @@ export default class ComputerMovementPhase {
      *
      * @returns [Transport ship to use, passed hexes for the land unit, passed hexes for the transport ship].
      */
-    #moveLandUnitBySea(unit: AliveUnit & LandUnit, isDestination: (hex: Hex) => boolean): [TransportShip, Array<Hex>, Array<Hex>] | [null, null, null] {
+    #moveLandUnitBySea(unit: AliveUnit & LandUnit, isDestination: (hex: Hex) => boolean): [AliveUnit & TransportShip, Array<Hex> | null, Array<Hex>] | [null, null, null] {
+        //Don't move Japanese land units away from China
+        if(this.#partnership === Partnership.Axis && unit.hex().country === Countries.china && !unit.hex().landUnits().some(it => it !== unit && it.owner.partnership() === this.#partnership && (it instanceof Infantry || it instanceof Armor))){
+            return [null, null, null];
+        }
+
+        //If there are no naval transport units to embark onto, skip for performance reasons
         if(!this.#partnership.navalUnits().some(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0 && it.hex().distanceFromHex(unit.hex()) <= unit.movementAllowance)){
             return [null, null, null];
         }
-        const movementToTransportShip = SupplyLines.simplifiedPathBetweenHexes(
-            unit.hex(),
-            port => port.navalUnits().some(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0),
-            passedHex => !passedHex.isInLandControlZone(this.#partnership.opponent()),
-            false,
-            true,
-            unit.movementAllowance
-        );
-        if(movementToTransportShip === null || !unit.validateMovement(movementToTransportShip, false)){
-            return [null, null, null];
+
+        let movementToTransportShip: Array<Hex> | null = null;
+        let transportShip: AliveUnit & TransportShip;
+        const embarkedOn = unit.embarkedOn();
+
+        //If the unit is already embarked, don't change transport ships otherwise it won't be possible to disembark the unit this turn
+        if(embarkedOn instanceof TransportShip){
+            transportShip = embarkedOn;
         }
-        const portHex = movementToTransportShip.at(-1)!!;
-        const transportShip = portHex.navalUnits().find(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0);
-        if(transportShip === undefined){
-            return [null, null, null];
+
+        //If it's not already embarked, find a transport ship to embark it onto
+        else{
+            movementToTransportShip = SupplyLines.simplifiedPathBetweenHexes(
+                unit.hex(),
+                port => port.navalUnits().some(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0),
+                passedHex => !passedHex.isInLandControlZone(this.#partnership.opponent()),
+                false,
+                true,
+                unit.movementAllowance
+            );
+            if(movementToTransportShip === null || !unit.validateMovement(movementToTransportShip, false)){
+                return [null, null, null];
+            }
+            const portHex = movementToTransportShip.at(-1)!!;
+            const ship = portHex.navalUnits().find(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0);
+            if(ship === undefined){
+                return [null, null, null];
+            }
+            transportShip = ship;
         }
+
+        //Find somewhere to move the transport unit
         const transportShipMovement = SupplyLines.simplifiedPathBetweenHexes(
-            portHex,
+            transportShip.hex(),
             destination => isDestination(destination) && transportShip.canEnterHexWithinStackingLimits(destination),
             passedHex => !passedHex.isInNavalControlZone(this.#partnership.opponent(), false),
             true,
@@ -396,9 +438,12 @@ export default class ComputerMovementPhase {
             transportShip.movementAllowance,
             this.#partnership
         );
+
+        //If the movement is invalid, skip
         if(transportShipMovement === null || !transportShip.validateMovement(transportShipMovement, false)){
             return [null, null, null];
         }
+
         return [transportShip, movementToTransportShip, transportShipMovement];
     }
 
