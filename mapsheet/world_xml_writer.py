@@ -25,11 +25,11 @@ class WorldXmlWriter:
 
         rootElement.append(this._createOcean())
         rootElement.append(this._createTerrain("Islands and Continents", className="land"))
-        rootElement.append(this._createTerrain("Lakes", className="sea", id="lakes"))
         rootElement.append(this._createTerrain("Desert", className="desert"))
         rootElement.append(this._createTerrain("Forest", className="forest"))
         rootElement.append(this._createTerrain("Mountain", className="mountain"))
         rootElement.append(this._createTerrain("TallMountain", className="tallMountain"))
+        rootElement.append(this._createTerrain("Lakes", className="sea", id="lakes"))
         rootElement.append(this._createTerrain("Icecap", className="icecap"))
         rootElement.append(this._createCanals())
         rootElement.append(this._createTerrain("Railways", className="railway"))
