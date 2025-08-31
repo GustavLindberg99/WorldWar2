@@ -13,7 +13,7 @@ import UnitMarker from "../../view/markers/unit-marker.js";
 import Automovement from "./automovement.js";
 
 export default class ComputerMovementPhase {
-    passedHexes = new Map<Unit, ReadonlyArray<Hex>>();
+    passedHexes = new Map<AliveUnit & Unit, ReadonlyArray<Hex>>();
     #eliminatedAirUnits = new Set<AirUnit>();
 
     readonly #partnership: Partnership;
@@ -42,7 +42,7 @@ export default class ComputerMovementPhase {
 
         await this.#chooseMovements();
 
-        let selectedUnit: Unit | null = null;
+        let selectedUnit: (AliveUnit & Unit) | null = null;
         for(let unit of this.#partnership.units()){
             UnitMarker.get(unit).onclick = () => {
                 //Will be overwritten below if the unit has moved
@@ -133,7 +133,7 @@ export default class ComputerMovementPhase {
             .sort((a, b) => sortNumber(b, a, it => it.embarkedOn() !== null));  //Embarked units should be first so that it's possible to disembark as many units as possible immediately
         const airUnits: ReadonlyArray<AliveUnit & AirUnit> = [...this.#partnership.airUnits()];
         const navalUnits: ReadonlyArray<AliveUnit & NavalUnit> = opponentTurn ? [] : [...this.#partnership.navalUnits()]
-            .sort((a, b) => sortNumber(b, a, it => it instanceof Convoy));
+            .sort((a, b) => sortNumber(b, a, it => this.#shouldReturnToPort(it)));  //Return to port first so that we know if we need to move units away from the port to respect stacking limits
         LeftPanel.appendProgressBar(() => progress / (landUnits.length + airUnits.length + navalUnits.length));
 
         //Land units
@@ -247,7 +247,7 @@ export default class ComputerMovementPhase {
                 if(this.passedHexes.has(unit)){
                     continue;
                 }
-                if(unit instanceof TransportShip || unit instanceof Convoy || unit.remainingSupply() <= 1 || unit.damaged()){
+                if(this.#shouldReturnToPort(unit)){
                     //If this is run for a transport ship, it should always return to port, otherwise it will have been moved with the land units
                     let destinationCountry: Country | null = null;
                     if(unit instanceof Convoy){
@@ -268,7 +268,7 @@ export default class ComputerMovementPhase {
                     if(passedHexes !== null){
                         const hex = passedHexes.at(-1)!!;
                         while(!unit.canEnterHexWithinStackingLimits(hex, hex.navalUnits().filter(it => !unitsToMove.has(it)))){
-                            const unitToMove = hex.navalUnits().find(it => !(it instanceof Convoy) && !unitsToMove.has(it));
+                            const unitToMove = hex.navalUnits().find(it => !(it instanceof Convoy) && !unitsToMove.has(it) && !this.passedHexes.has(it));
                             if(unitToMove === undefined){
                                 continue outerLoop;
                             }
@@ -279,7 +279,7 @@ export default class ComputerMovementPhase {
                         continue;
                     }
                 }
-                if(!(unit instanceof TransportShip) && !(unit instanceof Convoy) && !unit.damaged()){
+                else{
                     let passedHexes = movementFromHex.get(unit.hex()) ?? null;
                     if(passedHexes === null || !unit.canEnterHexWithinStackingLimits(passedHexes.at(-1)!!)){
                         passedHexes = this.#moveNavalUnitToFrontLine(unit);
@@ -292,7 +292,10 @@ export default class ComputerMovementPhase {
                     }
                 }
                 if(unitsToMove.has(unit)){
-                    const hexToMoveTo = unit.hex().adjacentSeaHexes().find(it => unit.validateMovement([unit.hex(), it], false));
+                    const hexToMoveTo = unit.hex().adjacentSeaHexes().find(it =>
+                        unit.canEnterHexWithinStackingLimits(it)
+                        && unit.validateMovement([unit.hex(), it], false)
+                    );
                     if(hexToMoveTo !== undefined){
                         const passedHexes = [unit.hex(), hexToMoveTo];
                         unit.setHex(passedHexes.at(-1)!!);
@@ -543,7 +546,7 @@ export default class ComputerMovementPhase {
                 && destination.controller()?.partnership() === this.#partnership
                 && destination.isPort()
                 && (country !== null || unit.canEnterHexWithinStackingLimits(destination))
-                && (country === null || !destination.isColony)
+                && (!(unit instanceof Convoy) || !destination.isColony)
                 && SupplyLines.canTraceSupplyLine(destination, unit.owner),
             passedHex => !passedHex.isInNavalControlZone(this.#partnership.opponent(), unit instanceof Submarine),
             true,
@@ -558,6 +561,17 @@ export default class ComputerMovementPhase {
             passedHexes.pop();
         }
         return passedHexes;
+    }
+
+    /**
+     * Checks if the given naval unit needs to return to a port.
+     *
+     * @param unit  The unit to check.
+     *
+     * @returns True if it needs to return to a port, false if it doesn't need to.
+     */
+    #shouldReturnToPort(unit: AliveUnit & NavalUnit): boolean {
+        return unit instanceof TransportShip || unit instanceof Convoy || unit.remainingSupply() <= 1 || unit.damaged();
     }
 
     /**
