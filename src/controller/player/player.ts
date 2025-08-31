@@ -150,6 +150,9 @@ export default abstract class Player {
             if(unit.updateSupply()){
                 UnitMarker.get(unit).update();
             }
+            else{
+                UnitMarker.get(unit).updateInfoMarkers();
+            }
             if(unit instanceof AirUnit){
                 unit.usedMovementPoints = 0;
             }

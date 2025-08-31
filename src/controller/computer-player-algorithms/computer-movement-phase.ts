@@ -148,7 +148,7 @@ export default class ComputerMovementPhase {
                     //If it can't move, do nothing
                     continue;
                 }
-                else if(japaneseSupplyLines.has(unit.hex()) && !unit.hex().landUnits().some(it => it !== unit)){
+                else if(japaneseSupplyLines.has(unit.hex()) && !unit.hex().landUnits().some(it => it !== unit && !(it instanceof SupplyUnit))){
                     //If it's needed to maintain Japanese supply lines in China, don't move it
                     continue;
                 }
@@ -173,16 +173,29 @@ export default class ComputerMovementPhase {
                 else{
                     const movementToFrontLine = this.#moveLandUnitToSupply(unit) ?? this.#moveLandUnitToFrontLine(unit);
                     const [transportShip, movementToAmphibiousAssault, transportShipMovement] =
-                        this.#secondMovement    //Don't prepare for amphibious assaults during the second movment phase
-                        || movementToFrontLine?.at(-1)!!.adjacentLandHexes().values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.#partnership)    //If the unit is occupied on the front line, don't send it to an amphibious assault for performance reasons
+                        movementToFrontLine?.at(-1)!!.adjacentLandHexes().values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.#partnership)    //If the unit is occupied on the front line, don't send it by sea for performance reasons
                         ? [null, null, null]
-                        : this.#moveLandUnitBySea(unit, destination =>
-                            (destination.isResourceHex || destination.city !== null)  //Don't bother doing an amphibious assault if there's nothing interesting
-                            && destination.isCoastal()  //Not needed for it to work, but helps the algorithm take shorter paths which makes it more likely for it to find a destination
-                            && [destination, ...destination.adjacentLandHexes()].every(it => it.controller()?.partnership() === this.#partnership.opponent())   //Don't do an amphibious assault if it's possible to get there through regular movement or combat
-                            && destination.landUnits().reduce((a, b) => a + b.modifiedDefense(), 0) < unit.strength
-                            && !amphibiousAssaultHexes.has(destination)
-                        );
+                        : this.#moveLandUnitBySea(unit, destination => {
+                            //Not needed for it to work, but helps the algorithm take shorter paths which makes it more likely for it to find a destination
+                            if(!destination.isCoastal()){
+                                return false;
+                            }
+                            //Don't bother doing an amphibious assault if there's nothing interesting
+                            if(!destination.isResourceHex && destination.city === null){
+                                return false;
+                            }
+                            //During the second movement phase, send reinforcements to friendly controlled hexes overseas
+                            if(this.#secondMovement){
+                                return destination.controller()?.partnership() === this.#partnership    //Hex must be friendly controlled to disembark units
+                                && destination.adjacentLandHexes().some(it => it.controller()?.partnership() === this.#partnership.opponent())  //Don't bother sending reinforcements to islands we control completely
+                            }
+                            //During the first movement phase, do an amphibious assault
+                            else{
+                                return [destination, ...destination.adjacentLandHexes()].every(it => it.controller()?.partnership() === this.#partnership.opponent())   //Don't do an amphibious assault if it's possible to get there through regular movement or combat
+                                && destination.landUnits().reduce((a, b) => a + b.modifiedDefense(), 0) < unit.strength    //Don't do an amphibious assault onto enemy land units if they're too strong
+                                && !amphibiousAssaultHexes.has(destination)    //Don't do several amphibious assaults in the same hex
+                            }
+                        });
                     if(transportShip !== null && (movementToFrontLine === null || movementToFrontLine.at(-1)!!.adjacentLandHexes().values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.#partnership))){
                         const destination = transportShipMovement.at(-1)!!;
                         amphibiousAssaultHexes.add(destination);
@@ -478,15 +491,13 @@ export default class ComputerMovementPhase {
 
         //If he can't go all the way (most likely because he doesn't have the movement allowance), stop at the farthest port during the second movment phase, or at the farthest hex during the first movement phase
         while(passedHexes !== null && !unit.validateMovement(passedHexes, false)){
+            passedHexes.pop();
             if(this.#secondMovement){
                 const lastPortIndex = passedHexes.findLastIndex(it => it.isPort() && it.controller()!!.partnership() === this.#partnership);
                 if(lastPortIndex === -1){
                     return null;
                 }
                 passedHexes.length = lastPortIndex + 1;
-            }
-            else{
-                passedHexes.pop();
             }
         }
 
@@ -644,8 +655,7 @@ export default class ComputerMovementPhase {
      * @returns All hexes in China that Japan needs to maintain supply.
      */
     #japaneseSupplyLines(): Set<Hex> {
-        let result = new Set<Hex>();
-        const unitsToKeep = this.#partnership.landUnits().filter(unit =>
+        const unitsToKeep = new Set(this.#partnership.landUnits().filter(unit =>
             unit.hex().country === Countries.china
             && (
                 unit.hex().airbaseCapacity() > 0
@@ -653,12 +663,13 @@ export default class ComputerMovementPhase {
                     .flatMap(it => it.units())
                     .some(it => it.owner.partnership() !== this.#partnership)
             )
-        );
+        ));
+        let result = new Set<Hex>(unitsToKeep.values().map(it => it.hex()));
         for(let unit of unitsToKeep){
             const supplyLine = SupplyLines.simplifiedPathBetweenHexes(
                 unit.hex(),
-                hex => (hex.country !== Countries.china && hex.controller()?.partnership() === unit.owner.partnership()) || hex.landUnits().some(it => it.owner.partnership() === unit.owner.partnership() && it instanceof SupplyUnit),
-                hex => hex.landUnits().some(it => it.owner.partnership() === this.#partnership)
+                destination => (destination.country !== Countries.china && destination.controller()?.partnership() === unit.owner.partnership()) || destination.landUnits().some(it => it.owner.partnership() === unit.owner.partnership() && it instanceof SupplyUnit),
+                passedHex => passedHex.landUnits().some(it => it.owner.partnership() === this.#partnership)
             );
             supplyLine?.forEach(result.add, result);
         }

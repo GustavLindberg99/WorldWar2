@@ -19,7 +19,7 @@ class LandAutoplacer {
     readonly #updateProgress: ((it: number) => void) | null;
 
     #availableSupplyUnits: Set<SupplyUnit>;
-    #availableMarines: Set<Marine>;
+    #availableMarines: Set<LandUnit>;
     #availableLandUnits: Set<LandUnit>;
 
     /**
@@ -35,10 +35,14 @@ class LandAutoplacer {
         this.#frontLine = frontLine;
         this.#updateProgress = updateProgress;
 
+        const chineseCityNamesToInvadeByLand: ReadonlyArray<string | null> = ["Beijing", "Tianjin", "Qingdao", "Zhengzhou"];
+        const chineseCityHexesToInvadeByLand: ReadonlyArray<Hex> = Hex.allCityHexes.filter(it => chineseCityNamesToInvadeByLand.includes(it.city));
+        const placeJapaneseUnitsInManchukuo = joinIterables(chineseCityHexesToInvadeByLand, Countries.japan.hexes).some(it => it.controller()!!.partnership() === Partnership.Allies);
+
         //These get emptied as the units are placed
         this.#availableSupplyUnits = new Set(availableLandUnits.filter(it => it instanceof SupplyUnit));
-        this.#availableMarines = new Set(availableLandUnits.filter(it => it instanceof Marine));
-        this.#availableLandUnits = new Set(availableLandUnits.filter(it => !(it instanceof SupplyUnit) && !(it instanceof Marine)));
+        this.#availableMarines = new Set(availableLandUnits.filter(it => it instanceof Marine || (it.owner === Countries.japan && !placeJapaneseUnitsInManchukuo)));
+        this.#availableLandUnits = new Set(availableLandUnits.filter(it => !(it instanceof SupplyUnit) && !this.#availableMarines.has(it)));
     }
 
     /**
@@ -140,7 +144,7 @@ class LandAutoplacer {
      */
     placeSupplyUnitsAndMarines(): void {
         let allowedHexesByCountry = new Map<Country, Array<Hex>>();
-        for(let newUnit of joinIterables<SupplyUnit | Marine>(this.#availableSupplyUnits, this.#availableMarines)){
+        for(let newUnit of joinIterables(this.#availableSupplyUnits, this.#availableMarines)){
             const allowedHexes = lodash.shuffle(allowedHexesByCountry.get(newUnit.owner) ?? newUnit.owner.hexes.filter(it =>
                 it.unitCanBePlacedHere(newUnit)
                 && newUnit.canEnterHexWithinStackingLimits(it, this.#totalUnitsToBeInHex(it))
