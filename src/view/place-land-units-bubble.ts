@@ -65,15 +65,17 @@ export default class PlaceLandUnitsBubble {
             content: content,
             hideOnClick: false
         });
-        document.body.addEventListener("mousedown", (event: MouseEvent) => {
-            if(event.button !== 0){    //If it's not the left mouse button that was pressed
+        const closeBubbleIfNecessary = (event: Event) => {
+            if(event instanceof MouseEvent && event.button !== 0){    //If it's not the left mouse button that was pressed
                 return;
             }
             const target = event.target as Node;
             if(!bubble.popper.contains(target) && !this.#newLandUnitBubble?.popper.contains(target)){
                 bubble.destroy();
             }
-        });
+        }
+        document.body.addEventListener("mousedown", closeBubbleIfNecessary);
+        document.body.addEventListener("touchstart", closeBubbleIfNecessary);
 
         const placeLandUnitsButton = document.getElementById("PlaceLandUnitsBubble.placeLandUnits");
         if(placeLandUnitsButton !== null){

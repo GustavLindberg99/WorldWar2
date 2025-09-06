@@ -106,3 +106,16 @@ export function xdialogConfirm(title: string, body: string): Promise<boolean> {
 export function sortNumber<T>(a: T, b: T, f: (it: T) => number | boolean): number {
     return Number(f(a)) - Number(f(b));
 }
+
+/**
+ * Sets a click event on the given element that works for both mouse clicks and touch screens. Only needed for elements inside the mapsheet SVG, for other elements simply setting onclick is enough.
+ *
+ * @param element   The element to set the click event on.
+ * @param callback  The callback to set.
+ */
+export function setClickEvent(element: HTMLElement | SVGElement, callback: (event: MouseEvent | Touch) => void): void {
+    element.onclick = callback;
+    element.ontouchend = (event: TouchEvent) => {
+        callback(event.changedTouches[0]);
+    };
+}

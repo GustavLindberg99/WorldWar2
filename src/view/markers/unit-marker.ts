@@ -1,7 +1,7 @@
 import lodash from "https://cdn.jsdelivr.net/npm/lodash@4.17.21/+esm";
 import Color from "https://colorjs.io/dist/color.min.js";
 
-import { joinIterables, wait } from "../../utils.js";
+import { joinIterables, setClickEvent, wait } from "../../utils.js";
 
 import { Hex } from "../../model/mapsheet.js";
 import { Partnership } from "../../model/partnership.js";
@@ -76,17 +76,17 @@ export default class UnitMarker {
 
         UnitMarker.#allMarkers.set(this.#unit, this);
 
-        this.#marker.onclick = (event: MouseEvent) => {
+        setClickEvent(this.#marker, (event: MouseEvent | Touch) => {
             if(this.onclick !== null){
                 this.onclick();
             }
             else{
                 const clickedHex = HexMarker.hexAtPoint(event.clientX, event.clientY);
                 if(clickedHex === this.#hex){
-                    HexMarker.onhexclick?.(this.#hex, event);
+                    HexMarker.onhexclick?.(this.#hex);
                 }
             }
-        };
+        });
         this.#marker.oncontextmenu = (event: MouseEvent) => {
             const hex = HexMarker.hexAtPoint(event.clientX, event.clientY);
             if(hex !== null){

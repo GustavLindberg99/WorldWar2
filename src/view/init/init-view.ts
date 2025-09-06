@@ -1,3 +1,5 @@
+import { setClickEvent } from "../../utils.js";
+
 import { Hex } from "../../model/mapsheet.js";
 import { date, dateToString } from "../../model/date.js";
 
@@ -22,23 +24,17 @@ namespace InitView {
         worldMap.innerHTML = worldMapHtml + "<g id=\"hexGrid\"></g><g id=\"installations\"></g>";
         writeAllCountryNames();
 
-        //Enable scrolling by dragging
-        const svg = document.getElementById("mapsheet")!!;
-
-        window.addEventListener("click", () => {
-            svg.style.cursor = "";
-        });
-
         //Set the onclick event of the world map in order to enable onclick events for hexes
-        worldMap.onclick = (event: MouseEvent) => {
+        const svg = document.getElementById("mapsheet")!!;
+        setClickEvent(worldMap, (event: MouseEvent | Touch) => {
             if(svg.style.cursor === "move"){
                 return;
             }
             const hex = HexMarker.hexAtPoint(event.clientX, event.clientY);
             if(hex !== null){
-                HexMarker.onhexclick?.(hex, event);
+                HexMarker.onhexclick?.(hex);
             }
-        };
+        });
         worldMap.oncontextmenu = (event) => {
             const hex = HexMarker.hexAtPoint(event.clientX, event.clientY);
             if(hex !== null){

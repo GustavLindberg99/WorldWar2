@@ -15,7 +15,7 @@ namespace HexMarker {
         "M1.2 1 H4.8"
     ];
 
-    export let onhexclick: ((hex: Hex, event: Event) => void) | null = null;
+    export let onhexclick: ((hex: Hex) => void) | null = null;
 
     /**
      * Draws the city markers for all city hexes.
