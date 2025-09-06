@@ -119,7 +119,7 @@ export default class MoveUnitListener {
      * @param event The mousemove or mouseup event. Used to check if the mouse is currently on the mapsheet. Not used to get the actual postion, which is determined using this.#clientX and this.#clientY.
      */
     #hexAtCurrentPosition(event: Event): Hex | null {
-        if(!this.#allowHexesOutsideMapsheet && !document.getElementById("mapsheet")!!.contains(event.target as Node)){
+        if(!this.#allowHexesOutsideMapsheet && !document.getElementById("mapsheet")!!.contains(event.target as Node) && !this.#marker.contains(event.target as Node)){
             return null;
         }
         else{

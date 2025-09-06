@@ -12,6 +12,7 @@ section[role=application] {
 
 #mainArea {
     width: calc(100% - 400px);
+    min-width: calc(100% - 80px - 30vw);
     height: 100vh;
 }
 
@@ -22,6 +23,7 @@ section[role=application] {
 
 #leftPanel{
     width: 320px;
+    max-width: 30vw;
     position:relative;
 }
 

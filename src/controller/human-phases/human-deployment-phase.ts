@@ -252,6 +252,10 @@ export default class HumanDeploymentPhase {
             this.updateUnitsInLeftPanel();
             return;
         }
+        else if(unit instanceof NavalUnit && !hex.isPort()){
+            Toastify({text: "Naval units must be placed in ports (this includes any city in a coastal hex)."}).showToast();
+            return;
+        }
         else if(!hex.unitCanBePlacedHere(unit)){
             Toastify({text: this.#placementText + (this.#exceptionTexts.get(unit.owner) ?? "")}).showToast();
             return;
@@ -259,9 +263,6 @@ export default class HumanDeploymentPhase {
         else if(!unit.canEnterHexWithinStackingLimits(hex)){
             if(unit instanceof AirUnit && hex.airbaseCapacity() === 0){
                 Toastify({text: "Air units must be placed on airbases (this includes cities, resource hexes, and airbase installations)."}).showToast();
-            }
-            else if(unit instanceof NavalUnit && !hex.isPort()){
-                Toastify({text: "Naval units must be placed in ports (this includes any city in a coastal hex)."}).showToast();
             }
             else{
                 Toastify({text: "There isn't room for this unit in this hex."}).showToast();
