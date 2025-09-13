@@ -108,8 +108,11 @@ export default abstract class LandUnit extends Unit {
         }
     }
 
-    override modifiedLandAttack(): number {
-        if(Countries.sovietUnion.enteredWar !== null && date.current <= Countries.sovietUnion.enteredWar + 12 && (this.owner === Countries.sovietUnion || this.owner === Countries.finland) && this.hex()?.weatherCondition() === WeatherCondition.SevereWinter){
+    override modifiedAttackAgainst(defender: Unit): number {
+        if(!(defender instanceof LandUnit)){
+            return 0;
+        }
+        else if(Countries.sovietUnion.enteredWar !== null && date.current <= Countries.sovietUnion.enteredWar + 12 && (this.owner === Countries.sovietUnion || this.owner === Countries.finland) && this.hex()?.weatherCondition() === WeatherCondition.SevereWinter){
             return this.strength * 2;
         }
         else{
@@ -117,48 +120,7 @@ export default abstract class LandUnit extends Unit {
         }
     }
 
-    override canEnterHexWithinStackingLimits(hex: Hex, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
-        const landUnits = [...otherUnits.filter(it => it !== this && it instanceof LandUnit)];
-        return landUnits.length - (landUnits.some(it => it instanceof SupplyUnit) ? 1 : 0) - (landUnits.some(it => it instanceof Paratrooper) ? 1 : 0) < 2
-    }
-
-    override validateMovement(passedHexes: ReadonlyArray<Hex>, movingByRail: boolean): boolean {
-        const opponent = this.owner.partnership()!!.opponent();
-        return passedHexes.every((it, i) => i === 0 || it.adjacentLandHexes().includes(passedHexes[i - 1]))
-            && this.validateMovementThroughNeutralCountries(passedHexes)
-            && !passedHexes.values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.owner.partnership())
-            && (!movingByRail || (passedHexes.every(it => it.canUseRail && it.controller()?.partnership() === this.owner.partnership()) && !this.hasAttacked))
-            && this.validateMovementThroughControlZones(passedHexes, new Set(passedHexes.filter(it => it.isInLandControlZone(opponent))), (passedHexes.at(-1)?.isForest() && passedHexes.at(-2)?.isForest()) ?? false, movingByRail)
-            && (
-                movingByRail
-                || passedHexes.reduce(
-                    (a, b) => a + b.landMovementPointCost(),
-                    -passedHexes[0].landMovementPointCost()
-                ) <= this.movementAllowance
-            );
-    }
-
-    override canEmbarkOnto(unit: Unit): boolean {
-        if(unit.owner.partnership() !== this.owner.partnership() || !(unit instanceof TransportShip || unit instanceof AirUnit) || unit.damaged()){
-            return false;
-        }
-        return unit instanceof TransportShip || (this.strength <= 1 && unit instanceof AirUnit && unit.isTransportUnit() && unit.based);
-    }
-
-    override sameTypeAndStrength(other: Unit): boolean {
-        return other instanceof LandUnit && this.sameType(other) && this.strength === other.strength;
-    }
-
-    override sameBasicType(other: Unit): boolean {
-        return other instanceof LandUnit && other.owner.partnership() === this.owner.partnership();
-    }
-
-    /**
-     * Gets the unit's modified defense strength.
-     *
-     * @returns The unit's modified defense strength.
-     */
-    modifiedDefense(): number {
+    override modifiedDefense(): number {
         const hex = this.hex();
         let result = this.strength;
         if(hex === null){
@@ -183,6 +145,65 @@ export default abstract class LandUnit extends Unit {
             result /= 2;
         }
         return result;
+    }
+
+    override canEnterHexWithinStackingLimits(hex: Hex, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
+        const landUnits = [...otherUnits.filter(it => it !== this && it instanceof LandUnit)];
+        return landUnits.length - (landUnits.some(it => it instanceof SupplyUnit) ? 1 : 0) - (landUnits.some(it => it instanceof Paratrooper) ? 1 : 0) < 2
+    }
+
+    override canEmbarkOnto(unit: Unit): boolean {
+        if(unit.owner.partnership() !== this.owner.partnership() || !(unit instanceof TransportShip || unit instanceof AirUnit) || unit.damaged()){
+            return false;
+        }
+        return unit instanceof TransportShip || (this.strength <= 1 && unit instanceof AirUnit && unit.isTransportUnit() && unit.based);
+    }
+
+    override sameTypeAndStrength(other: Unit): boolean {
+        return other instanceof LandUnit && this.sameType(other) && this.strength === other.strength;
+    }
+
+    override sameBasicType(other: Unit): boolean {
+        return other instanceof LandUnit && other.owner.partnership() === this.owner.partnership();
+    }
+
+    override validateMovement(passedHexes: ReadonlyArray<Hex>): boolean {
+        return this.#validateMovement(passedHexes, false);
+    }
+
+    /**
+     * Checks if the unit can move along the given array of passed hexes assuming it's moving by rail. Takes into account control zones.
+     *
+     * @param passedHexes   Includes both the start and the end hex, not expected to be empty.
+     *
+     * @returns True if the movement is valid, false if it isn't.
+     */
+    validateRailMovement(passedHexes: ReadonlyArray<Hex>): boolean {
+        return this.#validateMovement(passedHexes, true);
+    }
+
+    /**
+     * Common implementation for validateMovement and validateRailMovement.
+     *
+     * @param passedHexes   Includes both the start and the end hex, not expected to be empty.
+     * @param movingByRail  True if the unit is moving by rail, false otherwise.
+     *
+     * @returns True if the movement is valid, false if it isn't.
+     */
+    #validateMovement(passedHexes: ReadonlyArray<Hex>, movingByRail: boolean): boolean {
+        const opponent = this.owner.partnership()!!.opponent();
+        return passedHexes.every((it, i) => i === 0 || it.adjacentLandHexes().includes(passedHexes[i - 1]))
+            && this.validateMovementThroughNeutralCountries(passedHexes)
+            && !passedHexes.values().flatMap(it => it.landUnits()).some(it => it.owner.partnership() !== this.owner.partnership())
+            && (!movingByRail || (passedHexes.every(it => it.canUseRail && it.controller()?.partnership() === this.owner.partnership()) && !this.hasAttacked))
+            && this.validateMovementThroughControlZones(passedHexes, new Set(passedHexes.filter(it => it.isInLandControlZone(opponent))), (passedHexes.at(-1)?.isForest() && passedHexes.at(-2)?.isForest()) ?? false, movingByRail)
+            && (
+                movingByRail
+                || passedHexes.reduce(
+                    (a, b) => a + b.landMovementPointCost(),
+                    -passedHexes[0].landMovementPointCost()
+                ) <= this.movementAllowance
+            );
     }
 
     /**

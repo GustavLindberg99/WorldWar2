@@ -3,7 +3,7 @@ import Unit from "./unit.js";
 import { Hex, SupplyLines } from "../mapsheet.js";
 import { Partnership } from "../partnership.js";
 import { Countries, CountryWithUnits } from "../countries.js";
-import { AliveUnit, Carrier, NavalUnit } from "../units.js";
+import { AliveUnit, Carrier, LandUnit, NavalUnit } from "../units.js";
 
 class AirUnit extends Unit {
     readonly fighterStrength: number;
@@ -15,6 +15,7 @@ class AirUnit extends Unit {
     usedMovementPoints: number = 0;
 
     based: boolean = false;
+    kamikaze: boolean = false;
     #outOfSupply: boolean = false;
     #damaged: boolean = false;
 
@@ -643,8 +644,35 @@ class AirUnit extends Unit {
         return super.canAttackInHex(unit) && this.isAlive() && !this.based && this.hex() === unit.hex() && this.embarkedOn() === null && unit.embarkedOn() === null;
     }
 
-    override modifiedLandAttack(): number {
-        return this.bomberStrength / (this.damaged() ? 2 : 1);
+    override modifiedAttackAgainst(defender: Unit): number {
+        if(this.affectedByPearlHarbor()){
+            return 0;
+        }
+        let result: number;
+        if(this.kamikaze){
+            result = (this.bomberStrength || this.kamikazeBaseStrength) * 3;
+        }
+        else if(defender instanceof AirUnit){
+            result = this.fighterStrength;
+        }
+        else{
+            result = this.bomberStrength;
+        }
+        if(this.damaged()){
+            result /= 2;
+        }
+        return result;
+    }
+
+    override modifiedDefense(): number {
+        let result = this.defense;
+        if(this.damaged()){
+            result /= 2;
+        }
+        if(this.affectedByPearlHarbor()){
+            result /= 2;
+        }
+        return result;
     }
 
     override canEnterHexWithinStackingLimits(hex: Hex, otherUnits: IteratorObject<Unit> = hex.units()): boolean {
@@ -656,7 +684,7 @@ class AirUnit extends Unit {
         ).length < hex.airbaseCapacity();
     }
 
-    override validateMovement(passedHexes: ReadonlyArray<Hex>, _movingByRail: boolean): boolean {
+    override validateMovement(passedHexes: ReadonlyArray<Hex>): boolean {
         return passedHexes.length + this.usedMovementPoints - 1 <= this.movementAllowance
             && passedHexes.every((it, i) => i === 0 || it.adjacentHexes().includes(passedHexes[i - 1]))
             && this.validateMovementThroughNeutralCountries(passedHexes)

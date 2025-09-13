@@ -205,7 +205,7 @@ export default class ComputerPlayer extends Player {
             }
             const interceptorPassedHexes = SupplyLines.simplifiedPathBetweenHexes(interceptor.hex(), it => alreadyPassedHexes.includes(it), it => !it.airUnitsGrounded(), true, true);
             //This needs to be checked for because it can happen for example that there's a neutral country in the way
-            if(interceptorPassedHexes === null || interceptorPassedHexes.length - 1 > interceptor.movementAllowance / 2 || !interceptor.validateMovement(interceptorPassedHexes, false)){
+            if(interceptorPassedHexes === null || interceptorPassedHexes.length - 1 > interceptor.movementAllowance / 2 || !interceptor.validateMovement(interceptorPassedHexes)){
                 continue;
             }
             passedHexesByUnit.set(interceptor, interceptorPassedHexes);

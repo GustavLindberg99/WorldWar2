@@ -24,7 +24,6 @@ namespace RunCombat {
     export async function runCombat(combat: Combat, passedHexesByUnit: ReadonlyMap<Unit, ReadonlyArray<Hex>> = new Map(), interceptions: Array<[AirUnit, AirUnit | NavalUnit]> = []): Promise<HTMLElement> {
         const result = document.createElement("div");
 
-        const unmodifiedAttackStrength = combat.unmodifiedAttackStrength();
         const unmodifiedDefenseStrength = combat instanceof LandCombat ? combat.unmodifiedDefenseStrength() : 0;
         const ableToRetreat = combat instanceof LandCombat ? combat.retreatableHexes().length > 0 : true;
 
@@ -35,7 +34,7 @@ namespace RunCombat {
         if(combat instanceof LandCombat && losses.attackerLosses !== undefined){
             const attackerLosses = document.createElement("p");
             attackerLosses.textContent = `Attacker losses: ${losses.attackerLosses} strength points`;
-            if(losses.attackerLosses >= unmodifiedAttackStrength){
+            if(losses.attackerLosses >= combat.unmodifiedAttackStrength()){
                 attackerLosses.textContent += " (eliminated because losses greater than strength)";
             }
             result.appendChild(attackerLosses);

@@ -34,8 +34,11 @@ export default class Submarine extends NavalUnit {
         return !(unit instanceof LandUnit) && super.canAttack(unit);
     }
 
-    override modifiedLandAttack(): number {
-        return 0;
+    override modifiedAttackAgainst(defender: Unit): number {
+        if(defender instanceof LandUnit){
+            return 0;
+        }
+        return super.modifiedAttackAgainst(defender);
     }
 
     protected override validateMovementThroughControlZones(passedHexes: ReadonlyArray<Hex>, controlZones: ReadonlySet<Hex>, _canMoveOneExtraHex: boolean, movingByRail: boolean): boolean {

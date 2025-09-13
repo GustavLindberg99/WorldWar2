@@ -169,7 +169,15 @@ export default class HumanCombatPhase {
             else if(defender instanceof NavalUnit && this.#attackers.every(it => it instanceof AirUnit || it instanceof NavalUnit)){
                 this.#defenders = [...hex.navalUnits().filter(it => defender instanceof Submarine ? it instanceof Submarine : !(it instanceof Submarine))];
                 const combat = new AirNavalCombat(this.#attackers, this.#defenders);
-                combat.kamikaze = this.#attackers.some(it => it instanceof AirUnit && it.model === "MXY-7 Ohka");
+                if(this.#attackers.some(it => it instanceof AirUnit && it.model === "MXY-7 Ohka")){
+                    if(!this.#attackers.every(it => it instanceof AirUnit) || !this.#attackers.every(it => it.canDoKamikaze())){
+                        Toastify({text: "You have selected some units that are kamikaze-only and other units that can't do kamikaze attacks."}).showToast();
+                        return;
+                    }
+                    else for(let attacker of this.#attackers){
+                        attacker.kamikaze = true;
+                    }
+                }
                 this.#combat = combat;
             }
             else if(defender instanceof AirUnit && this.#attackers.every(it => it instanceof AirUnit)){
@@ -223,10 +231,16 @@ export default class HumanCombatPhase {
 
                 const kamikazeCheckbox = document.createElement("input");
                 kamikazeCheckbox.type = "checkbox";
-                kamikazeCheckbox.checked = combat.kamikaze;
+                kamikazeCheckbox.checked = combat.attackers.every(it => it instanceof AirUnit && it.kamikaze);
+                for(let attacker of combat.attackers){
+                    attacker.kamikaze = kamikazeCheckbox.checked;
+                }
                 kamikazeCheckbox.disabled = combat.attackers.some(it => !it.canDoKamikaze() || it.model === "MXY-7 Ohka");
+                const attackers = combat.attackers;    //This particular checkbox will be replaced by another one when the attackers change, so it's fine to store this
                 kamikazeCheckbox.onchange = () => {
-                    combat.kamikaze = kamikazeCheckbox.checked;
+                    for(let attacker of attackers){
+                        attacker.kamikaze = kamikazeCheckbox.checked;
+                    }
                     this.#updateLeftPanel();
                 };
                 kamikazeLabel.appendChild(kamikazeCheckbox);

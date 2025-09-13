@@ -1,6 +1,6 @@
 import { Partnership } from "../model/partnership.js";
 import { Countries, Country } from "../model/countries.js";
-import { Armor, Convoy, LandUnit, Unit } from "../model/units.js";
+import { AirUnit, Armor, Convoy, LandUnit, Unit } from "../model/units.js";
 import { date, dateToString, Month } from "../model/date.js";
 import { Phase } from "../model/phase.js";
 import { SavedGames } from "../model/saved-games.js";

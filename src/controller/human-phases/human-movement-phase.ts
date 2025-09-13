@@ -392,7 +392,7 @@ export default class HumanMovementPhase {
         this.clearPassedHexesColors(units);
 
         //Check if rail movement is needed and add the current hex
-        if(units.every(it => it.validateMovement(this.#removeLoopsFromPassedHexes([...this.passedHexes.get(it)!!, hex]), false))){
+        if(units.every(it => it.validateMovement(this.#removeLoopsFromPassedHexes([...this.passedHexes.get(it)!!, hex])))){
             for(let unit of units){
                 this.passedHexes.get(unit)!!.push(hex);
                 if(unit instanceof LandUnit){
@@ -400,7 +400,11 @@ export default class HumanMovementPhase {
                 }
             }
         }
-        else if(units.every(it => it instanceof LandUnit) && units.every(it => it instanceof LandUnit) && units.every(it => it.canUseRail(units) && it.validateMovement(this.#removeLoopsFromPassedHexes([...this.passedHexes.get(it)!!, hex]), true))){
+        else if(
+            units.every(it => it instanceof LandUnit)
+            && units.every(it => it.canUseRail(units)
+            && it.validateRailMovement(this.#removeLoopsFromPassedHexes([...this.passedHexes.get(it)!!, hex])))
+        ){
             for(let unit of units){
                 this.passedHexes.get(unit)!!.push(hex);
                 unit.movingByRail = true;
@@ -589,11 +593,12 @@ export default class HumanMovementPhase {
         const nextPossibleHexes = lastHex.adjacentHexes().filter(adjacentHex =>
             !units.flatMap(it => this.passedHexes.get(it)).includes(adjacentHex)
             && units.every(unit =>
-                unit.validateMovement([...this.passedHexes.get(unit)!!, adjacentHex], unit instanceof NavalUnit)
+                unit.validateMovement([...this.passedHexes.get(unit)!!, adjacentHex])
                 || (
                     unit instanceof LandUnit
-                    && unit.canUseRail()
-                    && unit.validateMovement([...this.passedHexes.get(unit)!!, adjacentHex], true)
+                    && units.every(it => it instanceof LandUnit)
+                    && unit.canUseRail(units)
+                    && unit.validateRailMovement([...this.passedHexes.get(unit)!!, adjacentHex])
                 )
             )
         );

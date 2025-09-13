@@ -216,7 +216,7 @@ test("Air-naval combat", () => {
     const initialSuccessProbabillity = combat.defenderCancelOrRetreatProbability();
     const initialDamageProbability = combat.damageProbability(americanShip);
     const initialEliminationProbability = combat.eliminationProbability(japaneseAirUnit);
-    combat.kamikaze = true;
+    japaneseAirUnit.kamikaze = true;
     expect(combat.defenderCancelOrRetreatProbability()).toBeGreaterThan(initialSuccessProbabillity);
     expect(combat.damageProbability(americanShip)).toBeGreaterThan(initialDamageProbability);
     expect(combat.damageProbability(japaneseAirUnit)).toBe(0);    //It will be eliminated, not damaged

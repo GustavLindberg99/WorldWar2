@@ -387,39 +387,39 @@ test("Land unit movement", () => {
     belgianInfantry.setHex(brussels);
 
     //Infantry movement
-    expect(belgianInfantry.validateMovement([brussels, namur, liege], false)).toBe(true);
-    expect(belgianInfantry.validateMovement([brussels, antwerp], false)).toBe(true);
-    expect(belgianInfantry.validateMovement([brussels, antwerp, gent, mons], false)).toBe(true);
-    expect(belgianInfantry.validateMovement([brussels, antwerp, gent, mons, namur], false)).toBe(false); //Movement allowance
-    expect(belgianInfantry.validateMovement([brussels, antwerp, gent, mons, namur], true)).toBe(true);   //Movement allowance doesn't apply when moving by rail
-    expect(belgianInfantry.validateMovement([brussels, liege], false)).toBe(false);                      //Can't skip hexes
-    expect(belgianInfantry.validateMovement([brussels, antwerp, dover], false)).toBe(false);             //Can't cross all sea hexsides
-    expect(belgianInfantry.validateMovement([brussels, namur, liege, koblenz], false)).toBe(false);      //Control zones
-    expect(belgianInfantry.validateMovement([brussels, namur, luxemburg], false)).toBe(false);           //Can't enter neutral countries
+    expect(belgianInfantry.validateMovement([brussels, namur, liege])).toBe(true);
+    expect(belgianInfantry.validateMovement([brussels, antwerp])).toBe(true);
+    expect(belgianInfantry.validateMovement([brussels, antwerp, gent, mons])).toBe(true);
+    expect(belgianInfantry.validateMovement([brussels, antwerp, gent, mons, namur])).toBe(false);       //Movement allowance
+    expect(belgianInfantry.validateRailMovement([brussels, antwerp, gent, mons, namur])).toBe(true);    //Movement allowance doesn't apply when moving by rail
+    expect(belgianInfantry.validateMovement([brussels, liege])).toBe(false);                            //Can't skip hexes
+    expect(belgianInfantry.validateMovement([brussels, antwerp, dover])).toBe(false);                   //Can't cross all sea hexsides
+    expect(belgianInfantry.validateMovement([brussels, namur, liege, koblenz])).toBe(false);            //Control zones
+    expect(belgianInfantry.validateMovement([brussels, namur, luxemburg])).toBe(false);                 //Can't enter neutral countries
 
     //Armor movement
-    expect(germanArmor.validateMovement([cologne, liege, namur, mons], false)).toBe(true);                           //Armor can move one hex into control zones
-    expect(germanArmor.validateMovement([cologne, liege, namur, mons], true)).toBe(false);                           //Unless they're moving by rail
-    expect(germanArmor.validateMovement([cologne, liege, namur, mons, gent], false)).toBe(false);                    //But not more than one hex
-    expect(germanArmor.validateMovement([cologne, liege, namur, mons, lille], false)).toBe(false);                   //Not even if the next hex is outside of a control zone
-    expect(germanArmor.validateMovement([cologne, liege, namur, charlevilleMezieres, cambrai], false)).toBe(false);  //Not even only one hex on the way is in a control zone
-    expect(germanArmor.validateMovement([cologne, liege, namur, charlevilleMezieres], false)).toBe(true);            //But it may go through one control zone to exit it and go one more hex
+    expect(germanArmor.validateMovement([cologne, liege, namur, mons])).toBe(true);                           //Armor can move one hex into control zones
+    expect(germanArmor.validateRailMovement([cologne, liege, namur, mons])).toBe(false);                      //Unless they're moving by rail
+    expect(germanArmor.validateMovement([cologne, liege, namur, mons, gent])).toBe(false);                    //But not more than one hex
+    expect(germanArmor.validateMovement([cologne, liege, namur, mons, lille])).toBe(false);                   //Not even if the next hex is outside of a control zone
+    expect(germanArmor.validateMovement([cologne, liege, namur, charlevilleMezieres, cambrai])).toBe(false);  //Not even only one hex on the way is in a control zone
+    expect(germanArmor.validateMovement([cologne, liege, namur, charlevilleMezieres])).toBe(true);            //But it may go through one control zone to exit it and go one more hex
     germanArmor.hasDoneSuccessfulOverrun = true;
-    expect(germanArmor.validateMovement([cologne, liege, namur, mons, gent], false)).toBe(true);                     //Armor can ignore control zones after successful overrun
+    expect(germanArmor.validateMovement([cologne, liege, namur, mons, gent])).toBe(true);                     //Armor can ignore control zones after successful overrun
     Phase.current = Phase.AxisSecondMovement;
-    expect(germanArmor.validateMovement([cologne, liege, namur, mons, gent], false)).toBe(false);                    //But only during the first movement phase
-    expect(germanArmor.validateMovement([cologne, liege, namur, mons, gent], true)).toBe(false);                     //Unless they're moving by rail
-    expect(germanArmor.validateMovement([cologne, koblenz, liege, namur, mons, gent, antwerp], false)).toBe(false);  //Movement allowance still applies after overrun
-    expect(germanArmor.validateMovement([cologne, liege, namur, brussels], false)).toBe(false);                      //Can't enter onto enemy land units
+    expect(germanArmor.validateMovement([cologne, liege, namur, mons, gent])).toBe(false);                    //But only during the first movement phase
+    expect(germanArmor.validateRailMovement([cologne, liege, namur, mons, gent])).toBe(false);                //Unless they're moving by rail
+    expect(germanArmor.validateMovement([cologne, koblenz, liege, namur, mons, gent, antwerp])).toBe(false);  //Movement allowance still applies after overrun
+    expect(germanArmor.validateMovement([cologne, liege, namur, brussels])).toBe(false);                      //Can't enter onto enemy land units
 
     //If the unit is initially in an enemy control zone
     belgianInfantry.setHex(liege);
     germanArmor.hasDoneSuccessfulOverrun = false;
-    expect(belgianInfantry.validateMovement([liege, namur, brussels, antwerp]), false).toBe(true);   //Leaving enemy control zones should always be allowed
-    expect(belgianInfantry.validateMovement([liege, koblenz], false)).toBe(false);                   //But not to enter directly into an enemy control zone
-    expect(germanArmor.validateMovement([cologne, koblenz], false)).toBe(true);                      //Except for armor
-    expect(germanArmor.validateMovement([cologne, koblenz], true)).toBe(false);                      //But not when moving by rail
-    expect(germanArmor.validateMovement([cologne, koblenz, wetzlar], false)).toBe(false);            //And not to continue moving
+    expect(belgianInfantry.validateMovement([liege, namur, brussels, antwerp])).toBe(true);   //Leaving enemy control zones should always be allowed
+    expect(belgianInfantry.validateMovement([liege, koblenz])).toBe(false);                   //But not to enter directly into an enemy control zone
+    expect(germanArmor.validateMovement([cologne, koblenz])).toBe(true);                      //Except for armor
+    expect(germanArmor.validateRailMovement([cologne, koblenz])).toBe(false);                 //But not when moving by rail
+    expect(germanArmor.validateMovement([cologne, koblenz, wetzlar])).toBe(false);            //And not to continue moving
 });
 
 test("Air unit movement", () => {

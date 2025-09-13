@@ -290,7 +290,7 @@ namespace InfoBubble {
                 <div class="box">
                     <h3>Land unit</h3>
                     <p>Strength: ${unit.strength}</p>
-                    <p>Modified attack strength: ${unit.modifiedLandAttack()}</p>
+                    <p>Modified attack strength: ${unit.modifiedAttackAgainst(unit)}</p>
                     <p>Modified defense strength: ${unit.modifiedDefense()}</p>
                 </div>`;
         }

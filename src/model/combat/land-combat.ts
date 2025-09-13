@@ -29,18 +29,28 @@ export default class LandCombat extends UnitCombat {
     }
 
     override modifiedAttackStrength(): number {
-        return this.attackers.reduce((a, b) => a + b.modifiedLandAttack(), 0);
+        return this.attackers.reduce((a, b) => a + b.modifiedAttackAgainst(this.defenders[0]), 0);
     }
 
     override modifiedDefenseStrength(): number {
         return this.defenders.reduce((a, b) => a + b.modifiedDefense(), 0);
     }
 
-    override unmodifiedAttackStrength(): number {
+    /**
+     * Gets the total unmodified strength points of the attackers. For land attacks, only includes land unit strength points.
+     *
+     * @returns The total unmodified strength points of the attackers.
+     */
+    unmodifiedAttackStrength(): number {
         return this.attackers.filter(it => it instanceof LandUnit).reduce((a, b) => a + b.strength, 0);
     }
 
-    override unmodifiedDefenseStrength(): number {
+    /**
+     * Gets the total unmodified strength points of the defenders.
+     *
+     * @returns The total unmodified strength points of the defenders.
+     */
+    unmodifiedDefenseStrength(): number {
         return this.defenders.reduce((a, b) => a + b.strength, 0);
     }
 

@@ -12,7 +12,6 @@ export default abstract class UnitCombat implements Combat {
 
     abstract inflictDamages(): Combat.Result;
     abstract modifiedAttackStrength(): number;
-    abstract unmodifiedAttackStrength(): number;
 
     /**
      * Gets the total modified strength points of the defenders.
@@ -20,13 +19,6 @@ export default abstract class UnitCombat implements Combat {
      * @returns The total modified strength points of the defenders.
      */
     abstract modifiedDefenseStrength(): number;
-
-    /**
-     * Gets the total unmodified strength points of the defenders.
-     *
-     * @returns The total unmodified strength points of the defenders.
-     */
-    abstract unmodifiedDefenseStrength(): number;
 
     /**
      * Gets the adjacent hexes to the given hex for retreat purposes.

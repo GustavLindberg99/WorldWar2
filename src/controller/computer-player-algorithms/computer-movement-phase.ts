@@ -307,7 +307,7 @@ export default class ComputerMovementPhase {
                 if(unitsToMove.has(unit)){
                     const hexToMoveTo = unit.hex().adjacentSeaHexes().find(it =>
                         unit.canEnterHexWithinStackingLimits(it)
-                        && unit.validateMovement([unit.hex(), it], false)
+                        && unit.validateMovement([unit.hex(), it])
                     );
                     if(hexToMoveTo !== undefined){
                         const passedHexes = [unit.hex(), hexToMoveTo];
@@ -365,10 +365,10 @@ export default class ComputerMovementPhase {
                 continue;
             }
             const result = passedHexes.slice(0, numberOfHexesToKeep);
-            if(unit.validateMovement(result, false)){
+            if(unit.validateMovement(result)){
                 return result;
             }
-            else if(unit.canUseRail() && unit.validateMovement(result, true)){
+            else if(unit.canUseRail() && unit.validateRailMovement(result)){
                 unit.movingByRail = true;
                 return result;
             }
@@ -392,7 +392,7 @@ export default class ComputerMovementPhase {
             [unit.hex(), destination],
             ...unit.hex().adjacentLandHexes().map(it => [unit.hex(), it, destination])
         ]).sort((a, b) => Number(b.at(-1)!!.isInLandControlZone(this.#partnership.opponent())) - Number(a.at(-1)!!.isInLandControlZone(this.#partnership.opponent())));
-        return movements.find(it => unit.validateMovement(it, false)) ?? null;
+        return movements.find(it => unit.validateMovement(it)) ?? null;
     }
 
     /**
@@ -433,7 +433,7 @@ export default class ComputerMovementPhase {
                 true,
                 unit.movementAllowance
             );
-            if(movementToTransportShip === null || !unit.validateMovement(movementToTransportShip, false)){
+            if(movementToTransportShip === null || !unit.validateMovement(movementToTransportShip)){
                 return [null, null, null];
             }
             const portHex = movementToTransportShip.at(-1)!!;
@@ -456,7 +456,7 @@ export default class ComputerMovementPhase {
         );
 
         //If the movement is invalid, skip
-        if(transportShipMovement === null || !transportShip.validateMovement(transportShipMovement, false)){
+        if(transportShipMovement === null || !transportShip.validateMovement(transportShipMovement)){
             return [null, null, null];
         }
 
@@ -490,7 +490,7 @@ export default class ComputerMovementPhase {
         }
 
         //If he can't go all the way (most likely because he doesn't have the movement allowance), stop at the farthest port during the second movment phase, or at the farthest hex during the first movement phase
-        while(passedHexes !== null && !unit.validateMovement(passedHexes, false)){
+        while(passedHexes !== null && !unit.validateMovement(passedHexes)){
             passedHexes.pop();
             if(this.#secondMovement){
                 const lastPortIndex = passedHexes.findLastIndex(it => it.isPort() && it.controller()!!.partnership() === this.#partnership);
@@ -565,10 +565,10 @@ export default class ComputerMovementPhase {
             Infinity,
             this.#partnership
         );
-        if(passedHexes === null || !unit.validateMovement(passedHexes.slice(0, 2), false)){
+        if(passedHexes === null || !unit.validateMovement(passedHexes.slice(0, 2))){
             return null;
         }
-        while(!unit.validateMovement(passedHexes, false)){
+        while(!unit.validateMovement(passedHexes)){
             passedHexes.pop();
         }
         return passedHexes;
@@ -608,7 +608,7 @@ export default class ComputerMovementPhase {
             true,
             unit.movementAllowance / 2
         );
-        if(passedHexes === null || passedHexes.length - 1 > unit.movementAllowance / 2 || !unit.validateMovement(passedHexes, false)){
+        if(passedHexes === null || passedHexes.length - 1 > unit.movementAllowance / 2 || !unit.validateMovement(passedHexes)){
             return null;
         }
         return passedHexes;
@@ -630,7 +630,7 @@ export default class ComputerMovementPhase {
             true,
             unit.movementAllowance
         ) : null;
-        if(pathToCarrier !== null && unit.validateMovement(pathToCarrier, false)){
+        if(pathToCarrier !== null && unit.validateMovement(pathToCarrier)){
             return pathToCarrier;
         }
         const pathToAirbase = SupplyLines.simplifiedPathBetweenHexes(
@@ -643,7 +643,7 @@ export default class ComputerMovementPhase {
             true,
             unit.movementAllowance
         );
-        if(pathToAirbase !== null && unit.validateMovement(pathToAirbase, false)){
+        if(pathToAirbase !== null && unit.validateMovement(pathToAirbase)){
             return pathToAirbase;
         }
         return null;

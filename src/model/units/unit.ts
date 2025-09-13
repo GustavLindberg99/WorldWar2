@@ -2,6 +2,8 @@ import { Hex, SupplyLines } from "../mapsheet.js";
 import { Partnership } from "../partnership.js";
 import { Countries, CountryWithUnits } from "../countries.js";
 import { AirUnit, AliveUnit, Armor, Infantry, LandUnit, Marine, NavalUnit, Paratrooper, SupplyUnit } from "../units.js";
+import { date } from "../date.js";
+import { Phase } from "../phase.js";
 
 abstract class Unit {
     readonly movementAllowance: number;
@@ -305,6 +307,9 @@ abstract class Unit {
         if(this.hasAttacked){
             return false;
         }
+        if(this.affectedByPearlHarbor()){
+            return false;
+        }
         return true;    //Overridden in subclasses
     }
 
@@ -326,11 +331,33 @@ abstract class Unit {
     }
 
     /**
-     * Gets the unit's modified attack strength against land units.
+     * Checks if this unit is affected by the Pearl Harbor rule.
      *
-     * @returns The modified attack strength against land units.
+     * @returns True if it is, false if it isn't.
      */
-    abstract modifiedLandAttack(): number;
+    protected affectedByPearlHarbor(): boolean {
+        return this.owner === Countries.unitedStates
+            && Countries.unitedStates.enteredWar === date.current
+            && Phase.current <= Phase.AxisSecondMovement
+            && (Countries.mexico.enteredWar === null || Countries.mexico.enteredWar === date.current)
+            && Countries.canada.hexes.every(it => it.controller()!!.partnership() !== Partnership.Axis)
+    }
+
+    /**
+     * Gets the unit's modified attack strength against the given unit.
+     *
+     * @param defender  The unit to attack.
+     *
+     * @returns The modified attack strength against the given unit.
+     */
+    abstract modifiedAttackAgainst(defender: Unit): number;
+
+    /**
+     * Gets the unit's modified defense strength.
+     *
+     * @returns The unit's modified defense strength.
+     */
+    abstract modifiedDefense(): number;
 
     /**
      * Checks if this unit can enter the given hex within stacking limits. For air units assumes the air unit will be based (otherwise there are no stacking limits).
@@ -343,14 +370,13 @@ abstract class Unit {
     abstract canEnterHexWithinStackingLimits(hex: Hex, otherUnits?: IteratorObject<Unit>): boolean;
 
     /**
-     * Checks if the unit can move along the given array of passed hexes. Takes into account both movement allowance and control zones.
+     * Checks if the unit can move along the given array of passed hexes. Takes into account both movement allowance and control zones. For land units, assumes it isn't moving by rail, use `LandUnit::validateRailMovement` to validate rail movement.
      *
      * @param passedHexes   Includes both the start and the end hex, not expected to be empty.
-     * @param movingByRail  True if the unit is moving by rail, false otherwise.
      *
      * @returns True if the movement is valid, false if it isn't.
      */
-    abstract validateMovement(passedHexes: ReadonlyArray<Hex>, movingByRail: boolean): boolean;
+    abstract validateMovement(passedHexes: ReadonlyArray<Hex>): boolean;
 
     /**
      * Checks if this unit can embark onto the given unit. Only takes into account unit types, does not take into account the hexes that the units are in or whether the transport capacity is reached.

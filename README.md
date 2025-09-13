@@ -10,6 +10,7 @@ The human player decides whether to play as the Axis or the Allies, and a comput
     - [War Declaration](#war-declaration)
     - [Other Ways of Entering the War](#other-ways-of-entering-the-war)
     - [Japanese/Soviet Relations](#japanesesoviet-relations)
+    - [Surprise Attack Against the United States](#surprise-attack-against-the-united-states)
     - [Conquest](#conquest)
     - [Liberation](#liberation)
     - [Chinese Exceptions](#chinese-exceptions)
@@ -133,6 +134,13 @@ Other than being declared war, certain countries can also enter the war in other
 
 ### Japanese/Soviet Relations
 As long as Mongolia is neutral and Japan and the Soviet Union are members of opposing partnerships, Japanese units may not enter or attack into the Soviet Union, and Soviet units may not enter or attack into Japan or its colonies. They may however attack each other's units in third party countries. When Mongolia enters the war, this restriction is lifted and Japan and the Soviet Union are considered each other's enemies just like any other two countries of opposing partnerships.
+
+### Surprise Attack Against the United States
+During the Axis player's main phase the turn that the United States enters the war, American naval and air units have their defense strength halved and their attack strength is zero. This means that American air units can't intercept, and if American naval units are attacked by Axis naval units, the Axis naval units don't risk getting damaged.
+
+This rule doesn't apply if the Axis controls one or more hexes in Canada, and it does not apply if the Axis has previously declared war on Mexico.
+
+This rule only applies during the Axis player's main phase the first turn that the United States enters the war. During the Allied player's main phase and during subsequent turns, American units function normally.
 
 ### Conquest
 A country is considered conquered during any war declaration phase where all the cities in the country are controlled by that country's enemy. For this purpose, Poland and the Soviet Union are always considered each others' enemies, even when they both belong to the same partnership.

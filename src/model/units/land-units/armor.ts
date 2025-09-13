@@ -45,9 +45,15 @@ export default class Armor extends LandUnit {
         return new Armor(this.strength, this.movementAllowance, this.owner);
     }
 
-    override validateMovement(passedHexes: ReadonlyArray<Hex>, movingByRail: boolean): boolean {
+    override validateMovement(passedHexes: ReadonlyArray<Hex>): boolean {
         return passedHexes.every(it => !it.isDesert() && !it.isIcecap())
-            && super.validateMovement(passedHexes, movingByRail);
+            && super.validateMovement(passedHexes);
+    }
+
+    override validateRailMovement(passedHexes: ReadonlyArray<Hex>): boolean {
+        return !passedHexes.at(-1)!!.isDesert()
+            && !passedHexes.at(-1)!!.isIcecap()
+            && super.validateRailMovement(passedHexes);
     }
 
     protected override validateMovementThroughControlZones(passedHexes: ReadonlyArray<Hex>, controlZones: ReadonlySet<Hex>, _canMoveOneExtraHex: boolean, movingByRail: boolean): boolean {

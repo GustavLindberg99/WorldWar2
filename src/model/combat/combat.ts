@@ -16,13 +16,6 @@ interface Combat {
      * @returns The total modified strength points of the attackers.
      */
     modifiedAttackStrength(): number;
-
-    /**
-     * Gets the total unmodified strength points of the attackers. For land attacks, only includes land unit strength points.
-     *
-     * @returns The total unmodified strength points of the attackers.
-     */
-    unmodifiedAttackStrength(): number;
 }
 
 namespace Combat {

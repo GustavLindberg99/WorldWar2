@@ -127,8 +127,10 @@ export default class ComputerCombatPhase {
                 airNavalCombat = new AirNavalCombat(airAttackers, [enemyAirUnit]);
             }
             if(airNavalCombat !== null){
-                if(airNavalCombat.attackers.every(it => it instanceof AirUnit && it.canDoKamikaze())){
-                    airNavalCombat.kamikaze = true;
+                if(airNavalCombat.attackers.every(it => it instanceof AirUnit) && airNavalCombat.attackers.every(it => it.canDoKamikaze())){
+                    for(let unit of airNavalCombat.attackers){
+                        unit.kamikaze = true;
+                    }
                     return airNavalCombat;
                 }
 

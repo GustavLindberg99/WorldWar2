@@ -10,8 +10,6 @@ export default class AirNavalCombat extends UnitCombat {
     override readonly defenders: readonly [AirUnit] | ReadonlyArray<NavalUnit>;
     override readonly combatHex: Hex;
 
-    kamikaze: boolean = false;
-
     /**
      * Constructs a new AirNavalCombat object.
      *
@@ -26,19 +24,11 @@ export default class AirNavalCombat extends UnitCombat {
     }
 
     override modifiedAttackStrength(): number {
-        return this.attackers.reduce((a, b) => a + this.#strengthAgainst(b, this.defenders[0]) / (b.damaged() ? 2 : 1), 0);
+        return this.attackers.reduce((a, b) => a + b.modifiedAttackAgainst(this.defenders[0]), 0);
     }
 
     override modifiedDefenseStrength(): number {
-        return this.defenders.reduce((a, b) => a + b.defense / (b.damaged() ? 2 : 1), 0);
-    }
-
-    override unmodifiedAttackStrength(): number {
-        return this.attackers.reduce((a, b) => a + this.#strengthAgainst(b, this.defenders[0]), 0);
-    }
-
-    override unmodifiedDefenseStrength(): number {
-        return this.defenders.reduce((a, b) => a + b.defense, 0);
+        return this.defenders.reduce((a, b) => a + b.modifiedDefense(), 0);
     }
 
     /**
@@ -47,7 +37,7 @@ export default class AirNavalCombat extends UnitCombat {
      * @returns The total modified attack strength points of the defenders.
      */
     modifiedCounterAttackStrength(): number {
-        return this.defenders.reduce((a, b) => a + this.#strengthAgainst(b, this.attackers[0]) / (b.damaged() ? 2 : 1), 0);
+        return this.defenders.reduce((a, b) => a + b.modifiedAttackAgainst(this.attackers[0]), 0);
     }
 
     /**
@@ -57,24 +47,6 @@ export default class AirNavalCombat extends UnitCombat {
      */
     modifiedCounterDefenseStrength(): number {
         return this.attackers.reduce((a, b) => a + b.defense / (b.damaged() ? 2 : 1), 0);
-    }
-
-    /**
-     * Gets the total unmodified attack strength points of the defenders.
-     *
-     * @returns The total unmodified attack strength points of the defenders.
-     */
-    unmodifiedCounterAttackStrength(): number {
-        return this.defenders.reduce((a, b) => a + this.#strengthAgainst(b, this.attackers[0]), 0);
-    }
-
-    /**
-     * Gets the total unmodified defense strength points of the attackers.
-     *
-     * @returns The total unmodified defense strength points of the attackers.
-     */
-    unmodifiedCounterDefenseStrength(): number {
-        return this.attackers.reduce((a, b) => a + b.defense, 0);
     }
 
     /**
@@ -94,7 +66,7 @@ export default class AirNavalCombat extends UnitCombat {
      * @returns The probability for the given unit to be damaged.
      */
     damageProbability(unit: AirUnit | NavalUnit): number {
-        if(this.kamikaze && this.attackers.includes(unit)){
+        if(unit instanceof AirUnit && unit.kamikaze){
             return 0;    //It will be eliminated, not damaged
         }
         return this.#damageOrEliminationProbability(
@@ -111,7 +83,7 @@ export default class AirNavalCombat extends UnitCombat {
      * @returns The probability for the given unit to be eliminated.
      */
     eliminationProbability(unit: AirUnit | NavalUnit): number {
-        if(this.kamikaze && this.attackers.includes(unit)){
+        if(unit instanceof AirUnit && unit.kamikaze){
             return 1;
         }
         return this.#damageOrEliminationProbability(
@@ -161,41 +133,6 @@ export default class AirNavalCombat extends UnitCombat {
         }
 
         return result;
-    }
-
-    /**
-     * Gets the unmodified attack strength of a given individual attacker against a given type of defender.
-     *
-     * @param attacker  The attacker.
-     * @param defender  A defender. Used only to determine the type of combat.
-     *
-     * @returns The attacker's unmodified strength.
-     */
-    #strengthAgainst(attacker: AirUnit | NavalUnit, defender: AirUnit | NavalUnit): number {
-        if(defender instanceof AirUnit){
-            if(attacker instanceof AirUnit){
-                return attacker.fighterStrength;
-            }
-            else{
-                return 0;
-            }
-        }
-        else{
-            if(attacker instanceof AirUnit){
-                if(this.kamikaze && this.attackers.includes(attacker)){
-                    return (attacker.bomberStrength || attacker.kamikazeBaseStrength) * 3;
-                }
-                else{
-                    return attacker.bomberStrength;
-                }
-            }
-            else if(defender instanceof Submarine){
-                return attacker.submarineAttack;
-            }
-            else{
-                return attacker.attack;
-            }
-        }
     }
 
     /**
