@@ -259,6 +259,7 @@ test("Bombing", () => {
     date.current = date(1945, Month.August);
 
     const hiroshima = Hex.allCityHexes.find(it => it.city === "Hiroshima");
+    const philadelphia = Hex.allCityHexes.find(it => it.city === "Philadelphia");
 
     const americanAirUnit = new AirUnit("B-29 Superfortress", Countries.unitedStates);
     americanAirUnit.setHex(hiroshima);
@@ -293,13 +294,25 @@ test("Bombing", () => {
     Countries.japan.atomicBombCount++;
     expect(atomicBombing.surrenderProbability()).toBeGreaterThan(initialSurrenderProbability);
 
-    //Effects of atomic bombing
+    //It should be possible to do atomic bombing against enemy controlled hexes
     hiroshima.repairInstallations();
-    expect(hiroshima.airbaseCapacity()).toBeGreaterThan(0);
     expect(americanAirUnit.canDoAtomicBombing(hiroshima)).toBe(null);
+
+    //It should not be possible to do atomic bombing against friendly controlled hexes
+    hiroshima.setController(Countries.unitedStates);
+    expect(americanAirUnit.canDoAtomicBombing(hiroshima)).not.toBe(null);
+
+    //It should not be possible to do atomic bombing against hexes that are already destroyed
+    hiroshima.setController(Countries.japan);
+    expect(hiroshima.airbaseCapacity()).toBeGreaterThan(0);
     hiroshima.destroyedByAtomicBomb = true;
     expect(hiroshima.airbaseCapacity()).toBe(0);
     expect(americanAirUnit.canDoAtomicBombing(hiroshima)).not.toBe(null);
+
+    //It should not be possible to do atomic bombing against your own country, even if the hex is enemy controlled
+    philadelphia.setController(Countries.japan);
+    americanAirUnit.setHex(philadelphia);
+    expect(americanAirUnit.canDoAtomicBombing(philadelphia)).not.toBe(null);
 
     //Atomic bomb surrender
     Countries.japan.surrenderedFromAtomicBomb = true;

@@ -858,6 +858,9 @@ class AirUnit extends Unit {
         else if(hex.controller()?.partnership() !== this.owner.partnership()?.opponent()){
             return "You can only bomb hexes your opponent controls.";
         }
+        else if(hex.country?.partnership() === this.owner.partnership() && !hex.isColony){
+            return "You can't drop atomic bombs on friendly countries.";
+        }
         else if(hex.destroyedByAtomicBomb){
             return "This hex is already destroyed.";
         }
