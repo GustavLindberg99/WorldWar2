@@ -306,10 +306,30 @@ export default async function runGame(humanPlayer: HumanPlayer, computerPlayer: 
                 LeftPanel.appendParagraph("The following countries have been liberated this turn:");
                 LeftPanel.appendElement(createCountryList(newLiberatedCountries));
             }
+            const remainingCountries = [Countries.unitedStates, Countries.sovietUnion].filter(it => it.partnership() === Partnership.Neutral);
+            if(humanPlayer.partnership === Partnership.Axis && Partnership.Allies.countries().every(it => it.conquered()) && remainingCountries.length > 0){
+                LeftPanel.appendParagraph(`All Allied countries have been conquered, but you still need to conquer ${remainingCountries.map(it => it.name()).join(" and ")} to win.`);
+            }
             await LeftPanel.waitForNextButtonPressed("To deployment phase");
         }
 
         Phase.current = Phase.Deployment;
         autosaveGame(humanPlayer.partnership);
+    }
+
+    document.getElementById("nextButton")!!.remove();
+    if(humanPlayer.won()){
+        xdialog.open({
+            title: "You won",
+            body: `<img src="images/happymap.svg" width="32" height="32" style="vertical-align:middle"/> Congratulations! You won!`,
+            buttons: []
+        });
+    }
+    else{
+        xdialog.open({
+            title: "You lost",
+            body: `<img src="images/sadmap.svg" width="32" height="32" style="vertical-align:middle"/> Unfortunately you lost. Better luck next time!`,
+            buttons: []
+        });
     }
 }

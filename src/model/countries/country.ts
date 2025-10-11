@@ -125,12 +125,12 @@ abstract class Country extends UnitContainer {
      */
     conquerOrLiberate(): void {
         //Conquer
-        if(this.shouldBeConquered() && !this.#conquered){
+        if(!this.#conquered && this.shouldBeConquered()){
             this.conquer();
         }
 
         //Liberate
-        else if(this.shouldBeLiberated() && this.#conquered){
+        else if(this.#conquered && this.shouldBeLiberated()){
             this.liberate();
         }
     }

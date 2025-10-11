@@ -34,10 +34,12 @@ export default class AirNavalCombat extends UnitCombat {
     /**
      * Gets the total modified attack strength points of the defenders.
      *
+     * @param unit  The attacker that the defenders are counter-attacking. Needed to be able to determine the type of the unit, since for example if both air and naval units are attacking, there should be a counter attack strength against the naval units but not the air units.
+     *
      * @returns The total modified attack strength points of the defenders.
      */
-    modifiedCounterAttackStrength(): number {
-        return this.defenders.reduce((a, b) => a + b.modifiedAttackAgainst(this.attackers[0]), 0);
+    modifiedCounterAttackStrengthAgainst(unit: AirUnit | NavalUnit): number {
+        return this.defenders.reduce((a, b) => a + b.modifiedAttackAgainst(unit), 0);
     }
 
     /**
@@ -70,7 +72,7 @@ export default class AirNavalCombat extends UnitCombat {
             return 0;    //It will be eliminated, not damaged
         }
         return this.#damageOrEliminationProbability(
-            this.attackers.includes(unit) ? this.modifiedCounterAttackStrength() : this.modifiedAttackStrength(),
+            this.attackers.includes(unit) ? this.modifiedCounterAttackStrengthAgainst(unit) : this.modifiedAttackStrength(),
             unit.defense,
             this.attackers.includes(unit) ? this.attackers.length : this.defenders.length,
             0.5
@@ -87,7 +89,7 @@ export default class AirNavalCombat extends UnitCombat {
             return 1;
         }
         return this.#damageOrEliminationProbability(
-            this.attackers.includes(unit) ? this.modifiedCounterAttackStrength() : this.modifiedAttackStrength(),
+            this.attackers.includes(unit) ? this.modifiedCounterAttackStrengthAgainst(unit) : this.modifiedAttackStrength(),
             unit.defense,
             this.attackers.includes(unit) ? this.attackers.length : this.defenders.length,
             0.05

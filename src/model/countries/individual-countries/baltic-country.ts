@@ -4,6 +4,10 @@ import { Countries, Country } from "../../countries.js";
 import { Partnership } from "../../partnership.js";
 
 export default class BalticCountry extends CountryWithoutUnits {
+    protected override shouldBeLiberated(): boolean {
+        return this.partnership() !== Partnership.Neutral && super.shouldBeLiberated();
+    }
+
     override canBeInvadedBy(partnership: Partnership): boolean {
         if(this.hexes.every(it => it.controller() === Countries.sovietUnion)){
             return false;

@@ -9,13 +9,19 @@ from write_all_country_names_js_writer import WriteAllCountryNamesJsWriter
 # Use paths relative to the current script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# When running `npm run build`, only compile the mapsheet if `--all` is passed
-npmAllArg = next(filter(lambda it: it.startswith("--npm-all"), sys.argv), None)
-if npmAllArg is not None and npmAllArg != "--npm-all=true":
-    print("Not compiling the mapsheet for performance reasons. To compile the mapsheet, run `npm run build --all` or `npm run build -a`.")
+# If the build files were modified later than the source file, skip compiling the mapsheet for performance reasons
+mapsheetFile = "azimuthal_projection.svg"
+worldXmlFile = "../build/world.xml"
+createHexesJsFile = "../build/model/mapsheet/create-hexes.js"
+writeAllCountryNamesJsFile = "../build/view/init/write-all-country-names.js"
+
+sourceLastModified = os.path.getmtime(mapsheetFile)
+buildLastModified = min(os.path.getmtime(worldXmlFile), os.path.getmtime(createHexesJsFile), os.path.getmtime(writeAllCountryNamesJsFile))
+if sourceLastModified <= buildLastModified:
+    print("Not compiling the mapsheet for performance reasons as the build files were modified later than the source SVG file.")
     exit()
 
-mapsheet = Mapsheet("azimuthal_projection.svg")
+mapsheet = Mapsheet(mapsheetFile)
 print("Parsing islands and continents")
 mapsheet.parseIslandsAndContinents()
 print("Parsing lakes")
@@ -38,10 +44,10 @@ print("Parsing hex info")
 mapsheet.parseHexInfo()
 
 print("Writing world.xml")
-WorldXmlWriter(mapsheet).writeTo("../build/world.xml")
+WorldXmlWriter(mapsheet).writeTo(worldXmlFile)
 
 print("Writing create-hexes.js")
-CreateHexesJsWriter(mapsheet).writeTo("../build/model/mapsheet/create-hexes.js")
+CreateHexesJsWriter(mapsheet).writeTo(createHexesJsFile)
 
 print("Writing write-all-country-names.js")
-WriteAllCountryNamesJsWriter(mapsheet).writeTo("../build/view/init/write-all-country-names.js")
+WriteAllCountryNamesJsWriter(mapsheet).writeTo(writeAllCountryNamesJsFile)
