@@ -32,7 +32,7 @@ namespace InfoBubble {
         hexTippyElement.setAttribute("y", hex.centerY().toString());
         hexTippyElement.setAttribute("width", "0.01");    //The width and height can't be 0 otherwise it won't work in Firefox
         hexTippyElement.setAttribute("height", "0.01");
-        hexTippyElement.setAttribute("fill", "none");
+        hexTippyElement.setAttribute("fill", "#00000000");    //The fill has to be transparent rather than none otherwise it won't work in Firefox
         hexTippyElement.setAttribute("stroke", "none");
         document.getElementById("installations")!!.appendChild(hexTippyElement);
 

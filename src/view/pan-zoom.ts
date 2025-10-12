@@ -3,6 +3,9 @@ import { Hex } from "../model/mapsheet.js";
 namespace PanZoom {
     let panZoomInstance: SvgPanZoom.Instance;
     let zoomFactor: number;
+    let clickX: number;
+    let clickY: number;
+    let isDragging = false;
 
     /**
      * Fixes the pan so that it's within the limits.
@@ -44,6 +47,18 @@ namespace PanZoom {
             Hex.svgWidth / mapsheet.clientWidth,
             Hex.svgHeight / mapsheet.clientHeight
         );
+
+        mapsheet.addEventListener("mousedown", (event: MouseEvent) => {
+            clickX = event.clientX;
+            clickY = event.clientY;
+            isDragging = false;
+        });
+
+        mapsheet.addEventListener("mousemove", (event: MouseEvent) => {
+            const dragX = event.clientX;
+            const dragY = event.clientY;
+            isDragging = dragX !== clickX || dragY !== clickY;
+        });
     }
 
     /**
@@ -53,6 +68,15 @@ namespace PanZoom {
      */
     export function instance(): SvgPanZoom.Instance {
         return panZoomInstance;
+    }
+
+    /**
+     * Checks if the mapsheet is currently being dragged.
+     *
+     * @returns True if it's being dragged, false if it isn't.
+     */
+    export function dragging(): boolean {
+        return isDragging;
     }
 
     /**

@@ -5,6 +5,7 @@ import { date, dateToString } from "../../model/date.js";
 
 import InfoBubble from "../info/info-bubble.js";
 import HexMarker from "../markers/hex-marker.js";
+import PanZoom from "../pan-zoom.js";
 
 import { writeAllCountryNames } from "./write-all-country-names.js";
 
@@ -25,9 +26,8 @@ namespace InitView {
         writeAllCountryNames();
 
         //Set the onclick event of the world map in order to enable onclick events for hexes
-        const svg = document.getElementById("mapsheet")!!;
         setClickEvent(worldMap, (event: MouseEvent | Touch) => {
-            if(svg.style.cursor === "move"){
+            if(PanZoom.dragging()){
                 return;
             }
             const hex = HexMarker.hexAtPoint(event.clientX, event.clientY);
