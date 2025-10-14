@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { Hex } from "../build/model/mapsheet.js";
 import { Partnership } from "../build/model/partnership.js";
 import { Countries } from "../build/model/countries.js";
-import { AirUnit, Battleship, Infantry, SupplyUnit } from "../build/model/units.js";
+import { AirUnit, Battleship, Infantry, LightCruiser, SupplyUnit } from "../build/model/units.js";
 import { date, Month } from "../build/model/date.js";
 import { AirNavalCombat, AtomicBombing, InstallationBombing, LandCombat, StrategicBombing } from "../build/model/combat.js";
 
@@ -189,6 +189,31 @@ test("Naval combat", () => {
     expect(combat.damageProbability(britishShip)).toBeGreaterThan(0);
     expect(combat.eliminationProbability(germanShip)).toBeGreaterThan(0);
     expect(combat.eliminationProbability(britishShip)).toBeGreaterThan(0);
+});
+
+test("Naval and air combat", () => {
+    Countries.japan.joinPartnership(Partnership.Axis);
+    Countries.unitedStates.joinPartnership(Partnership.Allies);
+
+    const sea = Hex.fromCoordinates(309, 128);
+    const rabaul = Hex.allCityHexes.find(it => it.city === "Rabaul");
+
+    const americanShip = new LightCruiser("Boise", 1, 1, 46, Countries.unitedStates);
+    americanShip.setHex(sea);
+    const americanAirUnit = new AirUnit("F4F Wildcat", Countries.unitedStates);
+    americanAirUnit.setHex(sea);
+    const japaneseShip = new LightCruiser("Yakumo", 1, 1, 29, Countries.japan);
+    japaneseShip.setHex(rabaul);
+
+    const combat = new AirNavalCombat([americanAirUnit, americanShip], [japaneseShip]);
+
+    expect(combat.defenderCancelOrRetreatProbability()).toBeGreaterThan(0);
+    expect(combat.damageProbability(japaneseShip)).toBeGreaterThan(0);
+    expect(combat.damageProbability(americanShip)).toBeGreaterThan(0);
+    expect(combat.damageProbability(americanAirUnit)).toBe(0);
+    expect(combat.eliminationProbability(japaneseShip)).toBeGreaterThan(0);
+    expect(combat.eliminationProbability(americanShip)).toBeGreaterThan(0);
+    expect(combat.eliminationProbability(americanAirUnit)).toBe(0);
 });
 
 test("Air-naval combat", () => {

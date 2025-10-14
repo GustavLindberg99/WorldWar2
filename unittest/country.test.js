@@ -100,6 +100,21 @@ test("Join partnership", () => {
     expect(Countries.sovietUnion.enteredWar).toBe(date.current);
     expect(Countries.finland.enteredWar).toBe(date.current);
 
+    //Baltic countries should be neutral and conquered
+    //Call conquerOrLiberate() twice because the first one conquers the country, then test that the second one doesn't liberate it
+    Countries.estonia.conquerOrLiberate();
+    Countries.latvia.conquerOrLiberate();
+    Countries.lithuania.conquerOrLiberate();
+    Countries.estonia.conquerOrLiberate();
+    Countries.latvia.conquerOrLiberate();
+    Countries.lithuania.conquerOrLiberate();
+    expect(Countries.estonia.partnership()).toBe(Partnership.Neutral);
+    expect(Countries.latvia.partnership()).toBe(Partnership.Neutral);
+    expect(Countries.lithuania.partnership()).toBe(Partnership.Neutral);
+    expect(Countries.estonia.conquered()).toBe(true);
+    expect(Countries.latvia.conquered()).toBe(true);
+    expect(Countries.lithuania.conquered()).toBe(true);
+
     //Polish conquest (done here because it depends on the above, and the tests should be able to be run individually)
     warsaw.setController(Countries.germany);
     danzig.setController(Countries.germany);
