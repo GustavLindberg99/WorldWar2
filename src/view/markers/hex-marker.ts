@@ -187,8 +187,8 @@ namespace HexMarker {
             if(atomicBombMarker === null){
                 atomicBombMarker = document.createElementNS("http://www.w3.org/2000/svg", "image");
                 atomicBombMarker.setAttribute("href", "images/atomicbomb.svg");
-                atomicBombMarker.setAttribute("transform", "translate(" + (hex.centerX() - Hex.hexHeight * 2 / 3) + "," + (hex.centerY() - Hex.hexHeight / 3) + ") scale(" + (Hex.hexWidth * 0.19) + ")");
-                atomicBombMarker.setAttribute("x", (Hex.hexHeight / 2).toString());
+                atomicBombMarker.setAttribute("transform", `translate(${hex.centerX() - Hex.hexWidth / 3},${hex.centerY() - Hex.hexHeight / 3}) scale(${Hex.hexWidth / 2})`);
+                atomicBombMarker.setAttribute("x", "0");
                 atomicBombMarker.setAttribute("y", "0");
                 atomicBombMarker.setAttribute("width", Hex.hexHeight.toString());
                 atomicBombMarker.setAttribute("height", Hex.hexHeight.toString());
