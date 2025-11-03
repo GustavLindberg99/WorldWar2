@@ -6,6 +6,8 @@ import { Partnership } from "../../partnership.js";
 import { AirUnit, Destroyer, Infantry } from "../../units.js";
 
 export default class Poland extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([

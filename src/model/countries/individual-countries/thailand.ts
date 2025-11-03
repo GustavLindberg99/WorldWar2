@@ -4,6 +4,8 @@ import { Countries, Country } from "../../countries.js";
 import { Partnership } from "../../partnership.js";
 
 export default class Thailand extends CountryWithoutUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super("Thailand");
     }

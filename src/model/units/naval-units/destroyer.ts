@@ -6,6 +6,8 @@ import { CountryWithUnits } from "../../countries.js";
  * Represents 5 individual ships.
  */
 export default class Destroyer extends NavalUnit {
+    readonly #nominal = undefined;
+
     /**
      * Constructs a destroyer.
      *

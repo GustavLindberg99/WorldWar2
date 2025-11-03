@@ -1,1 +1,1 @@
-import NavalUnit from"../naval-unit.js";export default class Destroyer extends NavalUnit{constructor(r,t,e,a,n){super(r,t,t,e,a,n)}type(){return"Naval unit (Destroyer)"}price(){return 500}delay(){return 6}}
+import NavalUnit from"../naval-unit.js";export default class Destroyer extends NavalUnit{#r=void 0;constructor(r,t,e,a,n){super(r,t,t,e,a,n)}type(){return"Naval unit (Destroyer)"}price(){return 500}delay(){return 6}}

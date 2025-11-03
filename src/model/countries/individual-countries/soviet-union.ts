@@ -7,6 +7,8 @@ import { AirUnit, Armor, Battleship, Destroyer, HeavyCruiser, Infantry, LightCru
 
 
 export default class SovietUnion extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Neutral);
         this.availableUnits = new Set([

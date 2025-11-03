@@ -1,1 +1,1 @@
-import HeavyShip from"./heavy-ship.js";export default class HeavyCruiser extends HeavyShip{type(){return"Naval unit (Heavy Cruiser)"}}
+import HeavyShip from"./heavy-ship.js";export default class HeavyCruiser extends HeavyShip{#e=void 0;type(){return"Naval unit (Heavy Cruiser)"}}

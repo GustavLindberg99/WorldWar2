@@ -5,11 +5,12 @@ import { Countries, Country } from "../../countries.js";
 import { LightCruiser } from "../../units.js";
 
 export default class Venezuela extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([new LightCruiser("Mariscal Sucre", 1, 2, 16, this)]);
     }
-
 
     override canSendMoneyWithoutConvoys(): Array<Country> {
         return [Countries.unitedStates].filter(it => it.partnership() === this.partnership() && !it.conquered());

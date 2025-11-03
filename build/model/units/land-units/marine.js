@@ -1,1 +1,1 @@
-import LandUnit from"../land-unit.js";export default class Marine extends LandUnit{type(){return"Land unit (Marine)"}price(){return 200*this.strength}delay(){return 3}clone(){return new Marine(this.strength,this.movementAllowance,this.owner)}}
+import LandUnit from"../land-unit.js";export default class Marine extends LandUnit{#n=void 0;type(){return"Land unit (Marine)"}price(){return 200*this.strength}delay(){return 3}clone(){return new Marine(this.strength,this.movementAllowance,this.owner)}}

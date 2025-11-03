@@ -3,6 +3,8 @@ import NavalUnit from "../naval-unit.js";
 import { CountryWithUnits } from "../../countries.js";
 
 export default abstract class HeavyShip extends NavalUnit {
+    readonly #nominal = undefined;
+
     /**
      * Constructs a heavy ship.
      *

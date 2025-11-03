@@ -5,6 +5,8 @@ import { CountryWithUnits } from "../../countries.js";
 import { LandUnit, Unit } from "../../units.js";
 
 export default class Submarine extends NavalUnit {
+    readonly #nominal = undefined;
+
     /**
      * Constructs a submarine.
      *

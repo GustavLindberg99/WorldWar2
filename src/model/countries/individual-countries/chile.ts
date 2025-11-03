@@ -5,6 +5,8 @@ import { Countries, Country } from "../../countries.js";
 import { Battleship, Destroyer, LightCruiser } from "../../units.js";
 
 export default class Chile extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([

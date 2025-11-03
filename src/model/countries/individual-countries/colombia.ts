@@ -5,6 +5,8 @@ import { Countries, Country } from "../../countries.js";
 import { Destroyer } from "../../units.js";
 
 export default class Colombia extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([new Destroyer("Guadiana", 1, 1, 29, this)]);

@@ -6,6 +6,8 @@ import { Partnership } from "../../partnership.js";
 import { Convoy, Destroyer, DestroyerEscort, Infantry, LightCruiser, SupplyUnit, TransportShip } from "../../units.js";
 
 export default class Canada extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([

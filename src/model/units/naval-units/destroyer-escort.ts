@@ -3,6 +3,8 @@ import NavalUnit from "../naval-unit.js";
 import { CountryWithUnits } from "../../countries.js";
 
 export default class DestroyerEscort extends NavalUnit {
+    readonly #nominal = undefined;
+
     /**
      * Constructs a destroyer escort.
      *

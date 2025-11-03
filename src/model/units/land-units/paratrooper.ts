@@ -4,6 +4,8 @@ import { Hex } from "../../mapsheet.js";
 import { SupplyUnit, Unit } from "../../units.js";
 
 export default class Paratrooper extends LandUnit {
+    readonly #nominal = undefined;
+
     override type(): string {
         return "Land unit (Paratrooper)";
     }

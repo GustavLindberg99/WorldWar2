@@ -1,1 +1,1 @@
-import NavalUnit from"../naval-unit.js";export default class HeavyShip extends NavalUnit{constructor(r,t,a,e,n){super(r,t,0,a,e,n)}price(){return 1400}delay(){return 12}}
+import NavalUnit from"../naval-unit.js";export default class HeavyShip extends NavalUnit{#a=void 0;constructor(a,r,t,e,n){super(a,r,0,t,e,n)}price(){return 1400}delay(){return 12}}

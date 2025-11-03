@@ -1,11 +1,12 @@
 import CountryWithUnits from "../country-with-units.js";
 
-import { Countries, Country } from "../../countries.js";
 import { date, Month } from "../../date.js";
 import { Partnership } from "../../partnership.js";
 import { AirUnit, Destroyer, HeavyCruiser, Infantry, LightCruiser, TransportShip } from "../../units.js";
 
 export default class Australia extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([

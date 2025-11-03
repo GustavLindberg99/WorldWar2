@@ -6,6 +6,8 @@ import { CountryWithUnits } from "../../countries.js";
  * A kaibokan is a Japanese DE, but it gets its own type because it's not at all the same thing as an Allied DE.
  */
 export default class Kaibokan extends NavalUnit {
+    readonly #nominal = undefined;
+
     /**
      * Constructs a kaibokan.
      *

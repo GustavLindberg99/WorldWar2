@@ -1,1 +1,1 @@
-import LandUnit from"../land-unit.js";export default class Infantry extends LandUnit{type(){return"Land unit (Infantry)"}price(){return 100*this.strength}delay(){return 1}clone(){return new Infantry(this.strength,this.movementAllowance,this.owner)}}
+import LandUnit from"../land-unit.js";export default class Infantry extends LandUnit{#n=void 0;type(){return"Land unit (Infantry)"}price(){return 100*this.strength}delay(){return 1}clone(){return new Infantry(this.strength,this.movementAllowance,this.owner)}}

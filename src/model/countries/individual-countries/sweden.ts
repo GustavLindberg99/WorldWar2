@@ -7,6 +7,8 @@ import { AirUnit, Destroyer, Infantry, LightCruiser } from "../../units.js";
 
 
 export default class Sweden extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Neutral);
         this.availableUnits = new Set([

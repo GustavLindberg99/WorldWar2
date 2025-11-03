@@ -4,6 +4,8 @@ import { Countries, Country } from "../../countries.js";
 import { Partnership } from "../../partnership.js";
 
 export default class BalticCountry extends CountryWithoutUnits {
+    readonly #nominal = undefined;
+
     protected override shouldBeLiberated(): boolean {
         return this.partnership() !== Partnership.Neutral && super.shouldBeLiberated();
     }

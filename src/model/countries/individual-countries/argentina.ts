@@ -5,6 +5,8 @@ import { Countries, Country } from "../../countries.js";
 import { Battleship, Destroyer, HeavyCruiser, LightCruiser } from "../../units.js";
 
 export default class Argentina extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([

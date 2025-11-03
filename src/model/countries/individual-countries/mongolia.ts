@@ -5,6 +5,8 @@ import { date } from "../../date.js";
 import { Partnership } from "../../partnership.js";
 
 export default class Mongolia extends CountryWithoutUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super("Mongolia");
     }

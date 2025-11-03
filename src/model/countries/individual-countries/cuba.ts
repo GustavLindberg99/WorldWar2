@@ -5,6 +5,8 @@ import { Countries, Country } from "../../countries.js";
 import { LightCruiser } from "../../units.js";
 
 export default class Cuba extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([new LightCruiser("Cuba", 1, 1, 35, this)]);

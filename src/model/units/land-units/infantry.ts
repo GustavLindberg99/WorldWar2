@@ -1,6 +1,8 @@
 import LandUnit from "../land-unit.js";
 
 export default class Infantry extends LandUnit {
+    readonly #nominal = undefined;
+
     override type(): string {
         return "Land unit (Infantry)";
     }

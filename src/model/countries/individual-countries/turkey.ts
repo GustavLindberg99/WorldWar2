@@ -5,6 +5,8 @@ import { Countries, Country } from "../../countries.js";
 import { AirUnit, Battlecruiser, Destroyer, Infantry, LightCruiser } from "../../units.js";
 
 export default class Turkey extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Neutral);
         this.availableUnits = new Set([

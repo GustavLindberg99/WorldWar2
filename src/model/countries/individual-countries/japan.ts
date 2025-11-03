@@ -5,6 +5,8 @@ import { currentMonth, date, Month } from "../../date.js";
 import { AirUnit, Armor, Battleship, Carrier, Destroyer, HeavyCruiser, Infantry, Kaibokan, LightCruiser, Marine, Paratrooper, Submarine, SupplyUnit, TransportShip } from "../../units.js";
 
 export default class Japan extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Axis);
         this.availableUnits = new Set([

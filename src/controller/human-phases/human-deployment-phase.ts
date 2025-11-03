@@ -57,7 +57,7 @@ export default class HumanDeploymentPhase {
         this.#autoplaceAirUnitsButton.textContent = "Auto-place air units";
         this.#updateAutoplaceDisabled();
 
-        this.#exceptionTexts = new Map([
+        this.#exceptionTexts = new Map<Country, string>([
             [Countries.poland,
                 this.availableNavalUnits.some(it => it.owner === Countries.poland)
                 ? " Polish naval units may also be placed in the United Kingdom (not its colonies)."

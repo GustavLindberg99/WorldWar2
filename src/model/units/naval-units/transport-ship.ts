@@ -4,6 +4,8 @@ import { CountryWithUnits } from "../../countries.js";
 import { Unit } from "../../units.js";
 
 export default class TransportShip extends NavalUnit {
+    readonly #nominal = undefined;
+
     /**
      * Constructs a transport ship.
      *

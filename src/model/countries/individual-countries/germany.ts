@@ -6,6 +6,8 @@ import { Partnership } from "../../partnership.js";
 import { AirUnit, Armor, Battleship, Carrier, Destroyer, HeavyCruiser, Infantry, LightCruiser, Paratrooper, Submarine, SupplyUnit, TransportShip } from "../../units.js";
 
 export default class Germany extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Axis);
         this.availableUnits = new Set([

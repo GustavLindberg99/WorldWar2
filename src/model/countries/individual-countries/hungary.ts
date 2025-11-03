@@ -5,6 +5,8 @@ import { Partnership } from "../../partnership.js";
 import { Infantry } from "../../units.js";
 
 export default class Hungary extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Axis);
         this.availableUnits = new Set(new Array(30).fill(null).map(() => new Infantry(1, 3, this)));

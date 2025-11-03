@@ -6,6 +6,8 @@ import { Countries, Country } from "../../countries.js";
 import { AirUnit, Destroyer, HeavyCruiser, Infantry, LightCruiser, Submarine, SupplyUnit, TransportShip } from "../../units.js";
 
 export default class Netherlands extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Neutral);
         this.availableUnits = new Set([

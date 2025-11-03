@@ -437,7 +437,7 @@ export default class ComputerMovementPhase {
                 return [null, null, null];
             }
             const portHex = movementToTransportShip.at(-1)!!;
-            const ship = portHex.navalUnits().find(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0);
+            const ship = portHex.navalUnits().filter(it => it instanceof TransportShip).find(it => unit.canEmbarkOnto(it) && it.embarkedUnits().size === 0);
             if(ship === undefined){
                 return [null, null, null];
             }

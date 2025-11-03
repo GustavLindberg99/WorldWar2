@@ -6,6 +6,8 @@ import { Partnership } from "../../partnership.js";
 import { AirUnit, Armor, Battlecruiser, Battleship, Carrier, Convoy, Destroyer, DestroyerEscort, HeavyCruiser, Infantry, LightCruiser, Paratrooper, Submarine, SupplyUnit, TransportShip } from "../../units.js";
 
 export default class UnitedKingdom extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Allies);
         this.availableUnits = new Set([

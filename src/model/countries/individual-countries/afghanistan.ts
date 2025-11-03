@@ -6,6 +6,8 @@ import { Partnership } from "../../partnership.js";
 import { Infantry } from "../../units.js";
 
 export default class Afghanistan extends CountryWithUnits {
+    readonly #nominal = undefined;
+
     constructor(){
         super(Partnership.Neutral);
         this.availableUnits = new Set(new Array(5).fill(null).map(() => new Infantry(1, 3, this)));
