@@ -42,6 +42,7 @@ namespace PanZoom {
             onPan: fixPanLimits,
             onZoom: fixPanLimits
         });
+        makeSvgPanZoomMobileFriendly(panZoomInstance, mapsheet);
 
         zoomFactor = Math.max(
             Hex.svgWidth / mapsheet.clientWidth,
@@ -125,6 +126,44 @@ namespace PanZoom {
      */
     export function setAbsoluteZoom(zoom: number): void {
         instance().zoom(zoom * zoomFactor);
+    }
+
+    /**
+     * Fixes so that it's possible to zoom with two fingers on mobile devices.
+     *
+     * @param panZoom   The object returned by svgPanZoom().
+     * @param element   The <svg> element.
+     */
+    function makeSvgPanZoomMobileFriendly(panZoom: SvgPanZoom.Instance, element: SVGSVGElement): void {
+        let oldPinchDistance: number | null = null;
+        let oldScaleOnMobile: number | null = null;
+        let previousZoomRatio: number = 1;
+
+        element.addEventListener("touchmove", (event: TouchEvent) => {
+            if(event.touches.length === 2){
+                const currentPinchDistance = Math.hypot(event.touches[0].pageX - event.touches[1].pageX, event.touches[0].pageY - event.touches[1].pageY);
+                oldPinchDistance ??= currentPinchDistance;
+
+                if(event.cancelable){
+                    event.preventDefault();
+                }
+
+                //Change the zoom
+                const newScale = panZoom.getZoom() * currentPinchDistance / oldPinchDistance;
+                panZoom.zoom(newScale);
+            }
+        });
+        element.addEventListener("touchend", () => {
+            oldPinchDistance = null;
+            oldScaleOnMobile = null;
+            previousZoomRatio = 1;
+        });
+
+        element.addEventListener("touchstart", (event: TouchEvent) => {
+            if(event.touches.length === 2 && event.cancelable){
+                event.preventDefault();
+            }
+        });
     }
 }
 export default PanZoom;
