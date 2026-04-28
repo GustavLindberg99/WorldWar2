@@ -808,9 +808,11 @@ export default class UnitMarker {
             return;
         }
         const parent = respectTypeOrder ? this.#parent : document.querySelector<SVGGElement>("#selectedUnits")!!;
-        this.#marker.remove();
-        parent.appendChild(this.#marker);
-        if(this.#fleetMarker !== null){
+        if(parent.lastChild !== this.#marker){
+            this.#marker.remove();
+            parent.appendChild(this.#marker);
+        }
+        if(this.#fleetMarker !== null && parent.lastChild !== this.#fleetMarker){
             this.#fleetMarker.remove();
             parent.appendChild(this.#fleetMarker);
         }
