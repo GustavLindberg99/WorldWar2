@@ -7,6 +7,7 @@ import { AirUnit, Armor, Battlecruiser, Battleship, Carrier, Convoy, Destroyer, 
 
 export default class UnitedStates extends CountryWithUnits {
     #hasReceivedExtraArmor: boolean = false;
+    #startedReinforcing: number | null = null;
 
     constructor(){
         super(Partnership.Allies);
@@ -93,7 +94,10 @@ export default class UnitedStates extends CountryWithUnits {
         if(this.conquered()){
             return;
         }
-        if(this.enteredWar !== null){
+        if(this.#startedReinforcing === null && Countries.canada.hexes.some(it => it.controller()?.partnership() === Partnership.Axis)){
+            this.#startedReinforcing = date.current;
+        }
+        if(this.#startedReinforcing !== null){
             if(!this.#hasReceivedExtraArmor && Partnership.Axis.landUnits().some(it => it.embarkedOn() === null && it.hex()?.country === this && !it.hex()?.isColony)){
                 //The US gets 1800 extra armor strength points (200 divisions) if the Axis invades the US mainland, see https://www.quora.com/What-if-the-Japanese-had-invaded-the-US-mainland-in-1941
                 for(let i = 0; i < 1800; i++){    //this is not a typo, it should be 1800
@@ -105,7 +109,7 @@ export default class UnitedStates extends CountryWithUnits {
                 this.availableUnits.add(new Armor(1, 5, this));
             }
             this.availableUnits.add(new Marine(1, 4, this));
-            if(date.current < this.enteredWar + 18){
+            if(date.current < this.#startedReinforcing + 18){
                 for(let i = 0; i < 5; i++){
                     this.availableUnits.add(new Infantry(1, 4, this));
                 }
@@ -135,7 +139,7 @@ export default class UnitedStates extends CountryWithUnits {
             }
 
             const airUnit = date.current < date(1942, Month.March) ? "F4F Wildcat" : "F6F Hellcat";
-            if(date.current === this.enteredWar){
+            if(date.current === this.#startedReinforcing){
                 this.availableUnits.add(new Carrier("Essex", 3, 47, this, new AirUnit(airUnit, this)));    //This ship was planned before the war, but its construction was accelerated because of the war
                 for(let i = 0; i < 50; i++){
                     this.availableUnits.add(new TransportShip(this));
@@ -145,39 +149,39 @@ export default class UnitedStates extends CountryWithUnits {
                     this.availableUnits.add(new AirUnit("DC-3", this));
                 }
             }
-            else if(date.current === this.enteredWar + 6){
+            else if(date.current === this.#startedReinforcing + 6){
                 this.availableUnits.add(new Carrier("Casablanca", 2, 27, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Coral Sea", 2, 27, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Liscome Bay", 2, 27, this, new AirUnit(airUnit, this)));
             }
-            else if(date.current === this.enteredWar + 12){
+            else if(date.current === this.#startedReinforcing + 12){
                 this.availableUnits.add(new Carrier("Ticonderoga", 3, 47, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Wasp II", 3, 47, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Bataan", 2, 45, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("San Jacinto", 2, 45, this, new AirUnit(airUnit, this)));
             }
-            else if(date.current === this.enteredWar + 18){
+            else if(date.current === this.#startedReinforcing + 18){
                 this.availableUnits.add(new Carrier("Attu", 1, 27, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Midway", 3, 47, this, new AirUnit(airUnit, this)));
             }
-            else if(date.current === this.enteredWar + 24){
+            else if(date.current === this.#startedReinforcing + 24){
                 this.availableUnits.add(new Carrier("Bon Homme Richard", 3, 47, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Franklin", 3, 47, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Randolph", 3, 47, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Shangri-La", 3, 47, this, new AirUnit(airUnit, this)));
                 this.availableUnits.add(new Carrier("Commencement Bay", 1, 27, this, new AirUnit(airUnit, this)));
             }
-            else if(date.current === this.enteredWar + 36){
+            else if(date.current === this.#startedReinforcing + 36){
                 this.availableUnits.add(new Carrier("Bairoko", 1, 27, this, new AirUnit(airUnit, this)));
             }
 
-            if(date.current < Math.max(this.enteredWar, date(1942, Month.March)) + 24){
+            if(date.current < Math.max(this.#startedReinforcing, date(1942, Month.March)) + 24){
                 this.availableUnits.add(new Destroyer("Fletcher", 1, 1, 52, this));    //These ships were designed before the war, but they made an effort to produce a lot of them because of the war
             }
-            else if(date.current < Math.max(this.enteredWar, date(1942, Month.March)) + 36){
+            else if(date.current < Math.max(this.#startedReinforcing, date(1942, Month.March)) + 36){
                 this.availableUnits.add(new Destroyer("Sumner", 1, 1, 49, this));
             }
-            else if(date.current < Math.max(this.enteredWar, date(1942, Month.March)) + 60){
+            else if(date.current < Math.max(this.#startedReinforcing, date(1942, Month.March)) + 60){
                 this.availableUnits.add(new Destroyer("Gearing", 1, 1, 53, this));
             }
         }
@@ -419,6 +423,11 @@ export default class UnitedStates extends CountryWithUnits {
         }
     }
 
+    override joinPartnership(partnership: Partnership): void {
+        this.#startedReinforcing ??= date.current;
+        super.joinPartnership(partnership);
+    }
+
     override additionalInvadedCountries(partnership: Partnership): Array<Country> {
         return [Countries.panama].filter(it => it.canBeInvadedBy(partnership));
     }
@@ -428,7 +437,7 @@ export default class UnitedStates extends CountryWithUnits {
     }
 
     override income(): number {
-        return super.income() + this.homelandResourceHexes().length * (this.enteredWar !== null && date.current >= this.enteredWar + 24 ? 100 : 50);
+        return super.income() + this.homelandResourceHexes().length * (this.#startedReinforcing !== null && date.current >= this.#startedReinforcing + 24 ? 100 : 50);
     }
 
     override maxMoneyExchange(): number {
@@ -470,11 +479,13 @@ export default class UnitedStates extends CountryWithUnits {
     override toJson(): Country.Json {
         let json = super.toJson();
         json.hasReceivedExtraArmor = this.#hasReceivedExtraArmor || undefined;
+        json.startedReinforcing = this.#startedReinforcing || undefined;
         return json;
     }
 
     override loadFromJson(json: Country.Json): void {
         super.loadFromJson(json);
         this.#hasReceivedExtraArmor = json.hasReceivedExtraArmor ?? false;
+        this.#startedReinforcing = json.startedReinforcing ?? this.enteredWar;
     }
 }

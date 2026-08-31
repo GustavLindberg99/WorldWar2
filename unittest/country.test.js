@@ -145,6 +145,24 @@ test("Join partnership", () => {
     expect(Countries.poland.hasBeenConquered()).toBe(true);
 });
 
+test("United States reinforcements after Canada attack", () => {
+    Countries.japan.joinPartnership(Partnership.Axis);
+    Countries.canada.joinPartnership(Partnership.Allies);
+
+    //Otherwise there's no point in having this test
+    expect(Countries.unitedStates.partnership()).toBe(Partnership.Neutral);
+
+    //Essex is a carrier that the United States gets when it enters the war
+    Countries.unitedStates.addNewAvailableUnits();
+    expect(Countries.unitedStates.availableUnits.values().some(it => it.name === "Essex")).toBe(false);
+
+    const vancouver = Hex.allCityHexes.find(it => it.city === "Vancouver");
+    vancouver.setController(Countries.japan);
+
+    Countries.unitedStates.addNewAvailableUnits();
+    expect(Countries.unitedStates.availableUnits.values().some(it => it.name === "Essex")).toBe(true);
+});
+
 test("Conquest and liberation", () => {
     Countries.germany.joinPartnership(Partnership.Axis);
     Countries.denmark.joinPartnership(Partnership.Allies);

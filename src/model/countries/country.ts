@@ -536,7 +536,8 @@ namespace Country {
         hasBeenConquered?: boolean,
         hasAttemptedVichy?: boolean,
         hasAttemptedActivation?: boolean,
-        hasReceivedExtraArmor?: boolean
+        hasReceivedExtraArmor?: boolean,
+        startedReinforcing?: number
     };
 }
 

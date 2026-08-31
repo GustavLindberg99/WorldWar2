@@ -1,0 +1,1 @@
+import LatinAmericanCountry from"./latin-american-country.js";import{Countries}from"../../countries.js";export default class Mexico extends LatinAmericanCountry{#n=void 0;constructor(){super("Mexico")}additionalInvadedCountries(n){return[Countries.unitedStates,Countries.panama].filter((t=>t.canBeInvadedBy(n)))}}

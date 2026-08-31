@@ -93,6 +93,7 @@ Declaring war on the following neutral countries also has the following effects:
 - Declaring war on any one of the **United Kingdom**, non-Vichy **France**, **Canada**, **Australia** or **New Zealand** also declares war on the four others.
 - If the Axis declares war on any of **Poland**, **Denmark**, **Norway**, **Sweden**, **Belgium**, **Romania**, **Yugoslavia**, **Greece**, **Estonia**, **Latvia** or **Lithuania**, they automatically also declare war on the five countries listed above.
 - Declaring war on the **United States** or **Panama** also declares war on the other one.
+- Declaring war on **Mexico** also declares war on the **United States** (and by extension Panama), but not the other way around.
 - Declaring war on **Mongolia** also declares war on the Soviet Union. In addition, if the Soviet Union is part of the Allies and Mongolia is at war, Japan and the Soviet Union can attack each other.
 - Declaring war on **Hungary** or **Bulgaria** also declares war on Germany.
 - If the Axis declares war on **Poland** while the Soviet Union is neutral and Germany is part of the Axis, the Soviet Union gains control of every hex to the east of the temporary border in Poland, and every hex in neutral territory in Estonia, Latvia, Lithuania, to the east of the temporary border in Romania and to the east of the southern temporary border in Finland (the northern temporary border in Finland has no effect for now). Units may not enter these hexes without first declaring war on the Soviet Union.
@@ -138,7 +139,7 @@ As long as Mongolia is neutral and Japan and the Soviet Union are members of opp
 ### Surprise Attack Against the United States
 During the Axis player's main phase the turn that the United States enters the war, American naval and air units have their defense strength halved and their attack strength is zero. This means that American air units can't intercept, and if American naval units are attacked by Axis naval units, the Axis naval units don't risk getting damaged.
 
-This rule doesn't apply if the Axis controls one or more hexes in Canada, and it does not apply if the Axis has previously declared war on Mexico.
+This rule doesn't apply if the Axis controls one or more hexes in Canada.
 
 This rule only applies during the Axis player's main phase the first turn that the United States enters the war. During the Allied player's main phase and during subsequent turns, American units function normally.
 
@@ -354,7 +355,7 @@ Some countries regularly receive new units that can be bought:
 - The **Soviet Union** regularly receives land and air units once it's entered the war, where each unit it scheduled to enter a certain number of months after the Soviet Union enters the war. The Soviet Union also receives a small number of land and naval units at a fixed schedule.
 - **Sweden** receives two infantry strength points every month starting when Norway or Sweden enters the war until 15 months after that date, as well as one destroyer each 2 and 3 years after Norway or Sweden enters the war. If Norway enters the war but not Sweden, Sweden receives these units while it's neutral, making it more difficult to attack Sweden long after Norway has entered the war.
 - The **United Kingdom** receives naval and air units at a fixed schedule. Once it's entered the war, it receives one armor strength point and two infantry strength points each turn. Once the United States has also entered the war, this is increased to one armor strength point and four infantry strength points each turn.
-- The **United States** regularly receives land units and submarines, carriers and destroyers once it's entered the war. It also receives air and naval unis at a fixed schedule.
+- The **United States** regularly receives land units, submarines, carriers and destroyers according to a schedule which starts either when the United States enters the war or when the Axis controls a hex in Canada, whichever happens first. This means that if the Axis gains control of a hex in Canada while the United States is still neutral, a war against the United States will become more difficult for the Axis the longer they wait. The United States also receives air and naval units at a fixed schedule.
 
 ## Stacking
 If several units are in the same hex, they're considered stacked.
@@ -922,7 +923,7 @@ Countries get money during the income phase based on how many resource hexes the
 - Germany gets $100B per month for each resource hex it controls located inside Germany.
 - Japan gets $200B per month for each resource hex it controls locaded inside Japan (not including colonies).
 - If the United Kingdom has received money from convoys during the past turn, it gets $100B per month for each resource hex located inside the United Kingdom (not including colonies). If the United Kingdom hasn't received money from convoys during the past turn, these resource hexes give $50B each just like any other resource hex.
-- The United States gets $100B per month for each resource hex it controls located in the United States. This increases to $150B per month and per resource hex if the United States has been at war for more than a year.
+- The United States gets $100B per month for each resource hex it controls located in the United States. This increases to $150B per month and per resource hex if the United States has been at war for more than a year, or if the Axis first controlled a hex in Canada at least a year ago.
 
 The following countries can also receive extra income that is not tied to resource hexes:
 - China receives an extra $600B per month.

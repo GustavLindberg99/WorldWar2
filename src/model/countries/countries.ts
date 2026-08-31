@@ -24,6 +24,7 @@ import Ireland from "./individual-countries/ireland.js";
 import Italy from "./individual-countries/italy.js";
 import Japan from "./individual-countries/japan.js";
 import LatinAmericanCountry from "./individual-countries/latin-american-country.js";
+import Mexico from "./individual-countries/mexico.js";
 import Mongolia from "./individual-countries/mongolia.js";
 import Netherlands from "./individual-countries/netherlands.js";
 import NewZealand from "./individual-countries/new-zealand.js";
@@ -56,7 +57,7 @@ namespace Countries {
     //Regex for finding hardcoded countries: Countries\.(canada|united|mexico|guatemala|elSalvador|honduras|nicaragua|costaRica|panama|cuba|haiti|dominican|colombia|venezuela|ecuador|peru|brazil|bolivia|paraguay|uruguay|argentina|chile|ireland|france|spain|portugal|luxemburg|belgium|netherlands|germany|switzerland|italy|denmark|norway|sweden|finland|estonia|latvia|lithuania|poland|hungary|romania|bulgaria|yugoslavia|greece|turkey|sovietUnion|yemen|saudi|iran|liberia|afghanistan|tibet|thailand|china|japan|mongolia|australia|newZealand)
     export const canada = new Canada();
     export const unitedStates = new UnitedStates();
-    export const mexico = new LatinAmericanCountry("Mexico");
+    export const mexico = new Mexico();
     export const guatemala = new LatinAmericanCountry("Guatemala");
     export const elSalvador = new LatinAmericanCountry("El Salvador");
     export const honduras = new LatinAmericanCountry("Honduras");
